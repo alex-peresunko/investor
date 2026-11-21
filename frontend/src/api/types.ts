@@ -12,3 +12,5 @@ export type Sale = Schemas['SaleOut'];
 export type SaleInput = Schemas['SaleIn'];
 export type Payment = Schemas['PaymentOut'];
 export type PaymentInput = Schemas['PaymentIn'];
+export type Preferences = Schemas['PreferencesOut'];
+export type Language = Preferences['language'];

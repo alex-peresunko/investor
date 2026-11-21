@@ -1,5 +1,6 @@
 import { ColorSwatch, Group, UnstyledButton, Text } from '@mantine/core';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export interface SeriesDef {
   name: string;
@@ -53,6 +54,7 @@ interface LegendProps {
 
 /** Legend whose items switch series on and off (replaces the chart's hover-highlight legend). */
 export function SeriesLegend({ series, isVisible, onToggle }: LegendProps) {
+  const { t } = useTranslation();
   return (
     <Group gap="md">
       {series.map((s) => {
@@ -62,7 +64,7 @@ export function SeriesLegend({ series, isVisible, onToggle }: LegendProps) {
             key={s.name}
             onClick={() => onToggle(s.name)}
             aria-pressed={on}
-            title={on ? `Hide ${s.label}` : `Show ${s.label}`}
+            title={t(on ? 'series.hide' : 'series.show', { label: s.label })}
           >
             <Group gap={6} wrap="nowrap" opacity={on ? 1 : 0.4}>
               <ColorSwatch color={cssColor(s.color)} size={12} withShadow={false} />

@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from fastapi.responses import Response
 
 from app.api.deps import SessionDep
+from app.core.i18n import DEFAULT_LANGUAGE, Language
 from app.schemas.reports import (
     LotReport,
     PortfolioReport,
@@ -56,18 +57,18 @@ def received(
 
 
 @router.get("/export/operations.csv")
-def operations_csv(session: SessionDep) -> Response:
+def operations_csv(session: SessionDep, lang: Language = DEFAULT_LANGUAGE) -> Response:
     return Response(
-        export.operations_csv(session),
+        export.operations_csv(session, lang),
         media_type="text/csv",
         headers={"Content-Disposition": 'attachment; filename="operations.csv"'},
     )
 
 
 @router.get("/export/operations.xlsx")
-def operations_xlsx(session: SessionDep) -> Response:
+def operations_xlsx(session: SessionDep, lang: Language = DEFAULT_LANGUAGE) -> Response:
     return Response(
-        export.operations_xlsx(session),
+        export.operations_xlsx(session, lang),
         media_type=XLSX,
         headers={"Content-Disposition": 'attachment; filename="operations.xlsx"'},
     )
@@ -75,10 +76,13 @@ def operations_xlsx(session: SessionDep) -> Response:
 
 @router.get("/export/portfolio.xlsx")
 def portfolio_xlsx(
-    session: SessionDep, start: date | None = None, end: date | None = None
+    session: SessionDep,
+    start: date | None = None,
+    end: date | None = None,
+    lang: Language = DEFAULT_LANGUAGE,
 ) -> Response:
     return Response(
-        export.portfolio_xlsx(session, start, end),
+        export.portfolio_xlsx(session, start, end, lang),
         media_type=XLSX,
         headers={"Content-Disposition": 'attachment; filename="portfolio.xlsx"'},
     )

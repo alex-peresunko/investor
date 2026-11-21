@@ -5,6 +5,7 @@ from datetime import date
 from openpyxl import Workbook
 from sqlalchemy.orm import Session
 
+from app.core.i18n import Language, translator
 from app.models import Instrument
 from app.repositories import operations as repo
 from app.services.reports import portfolio_report
@@ -22,8 +23,28 @@ OPERATION_COLUMNS = [
     "note",
 ]
 
+PORTFOLIO_COLUMNS = [
+    "package_id",
+    "isin",
+    "name",
+    "trade_date",
+    "quantity",
+    "open_quantity",
+    "invested_uah",
+    "received_uah",
+    "closing_value_uah",
+    "pnl_uah",
+    "invested_usd",
+    "received_usd",
+    "closing_value_usd",
+    "pnl_usd",
+    "xirr_uah",
+    "xirr_usd",
+]
 
-def _operation_rows(session: Session) -> list[list[object]]:
+
+def _operation_rows(session: Session, language: Language) -> list[list[object]]:
+    t = translator(language)
     instruments = {i.id: i for i in session.query(Instrument)}
     lots = {lot.id: lot for lot in repo.list_lots(session, None)}
     rows: list[list[object]] = []
@@ -31,7 +52,7 @@ def _operation_rows(session: Session) -> list[list[object]]:
         rows.append(
             [
                 lot.trade_date,
-                "buy",
+                t("operation.buy"),
                 instruments[lot.instrument_id].isin,
                 lot.id,
                 lot.quantity,
@@ -47,7 +68,7 @@ def _operation_rows(session: Session) -> list[list[object]]:
         rows.append(
             [
                 sale.trade_date,
-                "sell",
+                t("operation.sell"),
                 instruments[lot.instrument_id].isin,
                 lot.id,
                 sale.quantity,
@@ -62,7 +83,7 @@ def _operation_rows(session: Session) -> list[list[object]]:
         rows.append(
             [
                 payment.pay_date,
-                payment.kind,
+                t(f"operation.{payment.kind}"),
                 instruments[payment.instrument_id].isin,
                 "",
                 "",
@@ -77,11 +98,16 @@ def _operation_rows(session: Session) -> list[list[object]]:
     return rows
 
 
-def operations_csv(session: Session) -> str:
+def _headers(language: Language, columns: list[str]) -> list[str]:
+    t = translator(language)
+    return [t(f"column.{c}") for c in columns]
+
+
+def operations_csv(session: Session, language: Language) -> str:
     buffer = io.StringIO()
     writer = csv.writer(buffer)
-    writer.writerow(OPERATION_COLUMNS)
-    writer.writerows(_operation_rows(session))
+    writer.writerow(_headers(language, OPERATION_COLUMNS))
+    writer.writerows(_operation_rows(session, language))
     return buffer.getvalue()
 
 
@@ -91,43 +117,27 @@ def _xlsx_bytes(workbook: Workbook) -> bytes:
     return buffer.getvalue()
 
 
-def operations_xlsx(session: Session) -> bytes:
+def operations_xlsx(session: Session, language: Language) -> bytes:
     workbook = Workbook()
     sheet = workbook.active
-    sheet.title = "Operations"
-    sheet.append(OPERATION_COLUMNS)
-    for row in _operation_rows(session):
+    sheet.title = translator(language)("sheet.operations")
+    sheet.append(_headers(language, OPERATION_COLUMNS))
+    for row in _operation_rows(session, language):
         sheet.append(row)
     return _xlsx_bytes(workbook)
 
 
-def portfolio_xlsx(session: Session, start: date | None, end: date | None) -> bytes:
+def portfolio_xlsx(
+    session: Session, start: date | None, end: date | None, language: Language
+) -> bytes:
+    t = translator(language)
     report = portfolio_report(session, start, end)
     workbook = Workbook()
     sheet = workbook.active
-    sheet.title = "P&L"
-    sheet.append(["Period", report.start, report.end])
+    sheet.title = t("sheet.pnl")
+    sheet.append([t("row.period"), report.start, report.end])
     sheet.append([])
-    sheet.append(
-        [
-            "package_id",
-            "isin",
-            "name",
-            "trade_date",
-            "quantity",
-            "open_quantity",
-            "invested_uah",
-            "received_uah",
-            "closing_value_uah",
-            "pnl_uah",
-            "invested_usd",
-            "received_usd",
-            "closing_value_usd",
-            "pnl_usd",
-            "xirr_uah",
-            "xirr_usd",
-        ]
-    )
+    sheet.append(_headers(language, PORTFOLIO_COLUMNS))
     for lot in report.lots:
         p = lot.pnl
         sheet.append(
@@ -151,27 +161,27 @@ def portfolio_xlsx(session: Session, start: date | None, end: date | None) -> by
             ]
         )
     for label, part in (
-        ("Realized (closed packages)", report.realized),
-        ("Unrealized (open packages)", report.unrealized),
+        (t("row.realized"), report.realized),
+        (t("row.unrealized"), report.unrealized),
     ):
         sheet.append([label, "", "", "", "", "", "", "", "", part.uah, "", "", "", part.usd])
-    t = report.totals
+    totals = report.totals
     sheet.append(
         [
-            "TOTAL",
+            t("row.total"),
             "",
             "",
             "",
             "",
             "",
-            t.invested.uah,
-            t.received.uah,
-            t.closing_value.uah,
-            t.pnl.uah,
-            t.invested.usd,
-            t.received.usd,
-            t.closing_value.usd,
-            t.pnl.usd,
+            totals.invested.uah,
+            totals.received.uah,
+            totals.closing_value.uah,
+            totals.pnl.uah,
+            totals.invested.usd,
+            totals.received.usd,
+            totals.closing_value.usd,
+            totals.pnl.usd,
             report.xirr_uah,
             report.xirr_usd,
         ]

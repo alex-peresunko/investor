@@ -1,11 +1,13 @@
 import { Alert, Group, Loader, Paper, SegmentedControl, Stack, Title } from '@mantine/core';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { usePortfolioReport } from '@/api/reportHooks';
 import { PeriodPicker, usePeriod } from '@/components/PeriodPicker';
 import { LotsTable } from '@/features/reports/LotsTable';
 
 export function PackagesPage() {
+  const { t } = useTranslation();
   const period = usePeriod();
   const report = usePortfolioReport(period);
   const [status, setStatus] = useState<'all' | 'open' | 'closed'>('all');
@@ -17,15 +19,15 @@ export function PackagesPage() {
   return (
     <Stack gap="lg">
       <Group justify="space-between">
-        <Title order={2}>Packages</Title>
+        <Title order={2}>{t('packages.title')}</Title>
         <Group>
           <SegmentedControl
             value={status}
             onChange={(v) => setStatus(v === 'open' || v === 'closed' ? v : 'all')}
             data={[
-              { value: 'all', label: 'All' },
-              { value: 'open', label: 'Open' },
-              { value: 'closed', label: 'Closed' },
+              { value: 'all', label: t('common.all') },
+              { value: 'open', label: t('packages.open') },
+              { value: 'closed', label: t('packages.closed') },
             ]}
           />
           <PeriodPicker />

@@ -58,6 +58,20 @@ Dependency versions are pinned exactly (`==` in `backend/pyproject.toml`, exact 
   responses into thrown errors); `lib/format.ts` holds the EU number/date formatting used
   everywhere.
 
+## Languages (i18n)
+
+- UI text lives in `frontend/src/locales/<code>.json` (react-i18next, keys typed from `en.json`);
+  never hard-code user-visible text. Ukrainian needs `_one/_few/_many/_other` plural forms.
+- The chosen language is the `language` row of the `preference` table
+  (`GET`/`PATCH /api/v1/preferences`); `i18n/LanguageGate.tsx` applies it before the first render.
+- Backend errors carry a stable `code` and `params` next to the English `detail`
+  (`core/errors.py` `MESSAGES`); the UI shows `errors.<code>` from its locale. Export headers are
+  translated from `backend/app/locales/<code>.json` via the `lang` query parameter.
+- Adding a language: extend `Language` in `backend/app/core/i18n.py`, add
+  `backend/app/locales/<code>.json` and `frontend/src/locales/<code>.json`, register it in
+  `frontend/src/i18n/languages.ts` (with its dayjs locale import), run `make openapi`. Tests fail
+  on missing keys, placeholders or plural forms.
+
 ## Domain rules
 
 - Money and quantities: `Decimal` in Python, `NUMERIC` in Postgres, decimal strings in JSON.

@@ -1,0 +1,285 @@
+{
+  "app": {
+    "name": "Investor",
+    "toggleColorScheme": "Toggle color scheme",
+    "language": "Language"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "packages": "Packages",
+    "operations": "Operations",
+    "upcoming": "Upcoming payments",
+    "pastPayments": "Past payments",
+    "bonds": "Bonds"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "all": "All",
+    "open": "open",
+    "closed": "closed",
+    "date": "Date",
+    "type": "Type",
+    "bond": "Bond",
+    "package": "Package",
+    "quantity": "Quantity",
+    "note": "Note",
+    "fee": "Fee",
+    "feeUah": "Fee, UAH",
+    "usdUah": "USD/UAH",
+    "amountUah": "Amount, UAH",
+    "amountUsd": "Amount, USD",
+    "bondsHeld": "Bonds held",
+    "selectBond": "Select a bond",
+    "fromSchedule": "Calculated from the schedule",
+    "noData": "Not enough data for a chart yet.",
+    "byMonth": "By month"
+  },
+  "kind": {
+    "buy": "Buy",
+    "sell": "Sell",
+    "coupon": "Coupon",
+    "redemption": "Redemption",
+    "fee": "Fee",
+    "purchase": "Purchase",
+    "sale": "Sale"
+  },
+  "series": {
+    "coupons": "Coupons",
+    "redemptions": "Redemptions",
+    "value": "Value",
+    "cumulativePnl": "Cumulative P&L",
+    "hide": "Hide {{label}}",
+    "show": "Show {{label}}"
+  },
+  "period": {
+    "all": "All time",
+    "ytd": "YTD",
+    "1y": "1Y",
+    "3y": "3Y",
+    "custom": "Custom",
+    "pickRange": "Pick start and end dates"
+  },
+  "date": {
+    "placeholder": "DD.MM.YYYY"
+  },
+  "stat": {
+    "pnl": "Profit / loss",
+    "currentValue": "Current value",
+    "invested": "Invested",
+    "received": "Received",
+    "xirr": "Annual return (XIRR)",
+    "realized": "Realized",
+    "realizedHint": "Sold or redeemed packages",
+    "realizedXirrHint": "Annual return (XIRR) of closed packages",
+    "xirrLine": "{{usd}} p.a. USD · {{uah}} UAH",
+    "unrealized": "Unrealized",
+    "unrealizedHint": "Packages still held",
+    "netIncome": "Net income"
+  },
+  "confirmDelete": {
+    "aria": "Delete {{what}}",
+    "title": "Delete {{what}}?",
+    "body": "This cannot be undone. All reports are recalculated without it."
+  },
+  "fx": {
+    "label": "USD/UAH rate",
+    "description": "Official NBU rate is filled in; replace it with your bank's rate if different",
+    "fetch": "Fetch NBU rate for this date",
+    "fetchAria": "Fetch NBU rate"
+  },
+  "validation": {
+    "required": "Required",
+    "positive": "Must be greater than 0",
+    "nonNegative": "Cannot be negative",
+    "isin": "ISIN: 12 characters, e.g. UA4000227045",
+    "percent": "Between 0 and 100",
+    "maturityAfterIssue": "Must be after the issue date"
+  },
+  "notify": {
+    "error": "Error",
+    "bondSaved": "Bond saved",
+    "bondDeleted": "Bond deleted",
+    "scheduleSaved": "Schedule saved",
+    "scheduleGenerated": "Schedule generated from bond terms",
+    "purchaseSaved": "Purchase saved",
+    "purchaseDeleted": "Purchase deleted",
+    "saleSaved": "Sale saved",
+    "saleDeleted": "Sale deleted",
+    "paymentSaved": "Payment saved",
+    "paymentDeleted": "Payment deleted"
+  },
+  "errors": {
+    "request_failed": "Request failed ({{status}})",
+    "bond_not_found": "Bond {{id}} not found",
+    "bond_exists": "Bond {{isin}} already exists",
+    "bond_has_operations": "Delete this bond's packages and payments first",
+    "schedule_duplicate_date": "Each date can have only one coupon and one redemption",
+    "schedule_multiple_redemptions": "A bond can have only one redemption",
+    "bond_missing": "Bond {{id}} does not exist",
+    "package_not_found": "Package {{id}} not found",
+    "package_missing": "Package {{id}} does not exist",
+    "purchase_date_out_of_range": "Purchase date must be between the bond's issue and maturity dates",
+    "package_bond_locked": "Cannot change the bond of a package that has sales",
+    "quantity_below_sold": "Quantity cannot be below the {{sold}} units already sold",
+    "purchase_after_first_sale": "Purchase date cannot be after this package's first sale",
+    "package_has_sales": "Delete this package's sales first",
+    "sale_not_found": "Sale {{id}} not found",
+    "sale_date_out_of_range": "Sale date must be between the purchase date and the bond's maturity",
+    "sale_exceeds_available": "Only {{available}} units are available in this package",
+    "payment_not_found": "Payment {{id}} not found",
+    "payment_without_holdings": "No packages of this bond were held the day before the payment date",
+    "fx_future_date": "No official rate for a future date",
+    "fx_unavailable": "NBU rate service is unavailable; enter the rate manually",
+    "fx_no_rate": "NBU has no rate for this date; enter the rate manually",
+    "period_end_before_start": "The end date must not be before the start date",
+    "months_out_of_range": "months must be between 1 and 120"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "export": "Download P&L for this period as Excel",
+    "exportAria": "Export P&L",
+    "packages": "Packages"
+  },
+  "chart": {
+    "valueTitle": "Value and cumulative P&L"
+  },
+  "lots": {
+    "empty": "No packages in this period.",
+    "bought": "Bought",
+    "maturity": "Maturity",
+    "heldBought": "Held / bought",
+    "valueUsd": "Value, USD",
+    "pnlUah": "P&L, UAH",
+    "pnlUsd": "P&L, USD",
+    "xirrUsd": "XIRR, USD"
+  },
+  "packages": {
+    "title": "Packages",
+    "open": "Open",
+    "closed": "Closed"
+  },
+  "packageDetail": {
+    "title": "Package #{{id}} · {{isin}}",
+    "subtitle": "{{name}} · bought {{bought}} · matures {{maturity}} · {{held}} of {{quantity}} held",
+    "sell": "Sell",
+    "flows": "Cash flows in the period"
+  },
+  "operations": {
+    "title": "Operations",
+    "buy": "Buy",
+    "sell": "Sell",
+    "payment": "Coupon / redemption",
+    "export": "Download all operations as Excel",
+    "exportAria": "Export operations",
+    "filterBuys": "Buys",
+    "filterSales": "Sales",
+    "filterCoupons": "Coupons",
+    "filterRedemptions": "Redemptions",
+    "allBonds": "All bonds",
+    "empty": "No operations yet.",
+    "allHeld": "all held",
+    "editAria": "Edit operation",
+    "deleteWhat": {
+      "buy": "purchase of {{date}}",
+      "sell": "sale of {{date}}",
+      "coupon": "coupon of {{date}}",
+      "redemption": "redemption of {{date}}"
+    }
+  },
+  "lotForm": {
+    "edit": "Edit purchase #{{id}}",
+    "new": "Buy bonds",
+    "purchaseDate": "Purchase date",
+    "price": "Price per bond, UAH",
+    "priceDescription": "Including accrued coupon",
+    "totalCost": "Total cost, UAH",
+    "totalCostDescription": "Quantity × price; adjust to what you actually paid",
+    "accruedPaid": "Accrued coupon paid, UAH"
+  },
+  "saleForm": {
+    "edit": "Edit sale #{{id}}",
+    "new": "Sell bonds",
+    "selectPackage": "Select the package to sell from",
+    "option": "#{{id}} · {{isin}} · bought {{bought}} · {{available}} available",
+    "available": "{{available}} available",
+    "saleDate": "Sale date",
+    "proceeds": "Proceeds, UAH",
+    "proceedsDescription": "Total received, including accrued coupon",
+    "accruedReceived": "Accrued coupon received, UAH"
+  },
+  "paymentForm": {
+    "edit": "Edit payment #{{id}}",
+    "new": "Record coupon or redemption",
+    "paymentDate": "Payment date",
+    "total": "Total received, UAH",
+    "totalDescription": "For all your packages of this bond together",
+    "heldBefore_one": "Held the day before: {{held}} bond. The amount is split across packages in proportion to their holdings.",
+    "heldBefore_other": "Held the day before: {{held}} bonds. The amount is split across packages in proportion to their holdings."
+  },
+  "bonds": {
+    "title": "Bonds",
+    "add": "Add bond",
+    "edit": "Edit bond",
+    "empty": "No bonds yet. Add one to start recording purchases.",
+    "isin": "ISIN",
+    "name": "Name",
+    "namePlaceholder": "OVDP 16.5% 09/2027",
+    "faceValue": "Face value",
+    "faceValueUah": "Face value, UAH",
+    "coupon": "Coupon",
+    "couponRate": "Coupon rate, % per year",
+    "frequency": "Frequency",
+    "couponFrequency": "Coupon frequency",
+    "issued": "Issued",
+    "maturity": "Maturity",
+    "issueDate": "Issue date",
+    "maturityDate": "Maturity date",
+    "schedule": "Payment schedule",
+    "editAria": "Edit bond",
+    "deleteWhat": "bond {{isin}}",
+    "frequencies": {
+      "0": "Zero-coupon",
+      "1": "Annual",
+      "2": "Semi-annual",
+      "4": "Quarterly",
+      "12": "Monthly"
+    }
+  },
+  "schedule": {
+    "title": "Payment schedule · {{isin}}",
+    "hint": "Amounts are per one bond. Generate the schedule from the bond terms, then adjust dates if the actual payment calendar differs.",
+    "amountPerBond": "Amount per bond, UAH",
+    "removeRow": "Remove row",
+    "addRow": "Add row",
+    "generate": "Generate from bond terms",
+    "save": "Save schedule"
+  },
+  "upcoming": {
+    "title": "Upcoming payments",
+    "subtitle": "Expected from the bonds you hold today, per the payment schedules. USD at today's NBU rate.",
+    "next3": "Next 3 months",
+    "next6": "Next 6 months",
+    "next12": "Next 12 months",
+    "next24": "Next 24 months",
+    "next60": "Next 5 years",
+    "empty": "No payments expected in this window.",
+    "byMonthUah": "By month, UAH",
+    "total": "Total {{uah}} ≈ {{usd}}",
+    "perBond": "Per bond",
+    "expectedUah": "Expected, UAH",
+    "approxUsd": "≈ USD"
+  },
+  "pastPayments": {
+    "title": "Past payments",
+    "subtitle": "Cash received; net income deducts what you paid for the bonds.",
+    "empty": "No payments received in this period.",
+    "coupons": "Coupons received",
+    "redemptions": "Redemptions received",
+    "total": "Total received",
+    "netIncome": "Net income",
+    "split": "Split by package"
+  }
+}

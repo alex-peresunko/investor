@@ -16,13 +16,13 @@ def list_instruments(session: Session) -> Sequence[Instrument]:
 def get_instrument(session: Session, instrument_id: int) -> Instrument:
     instrument = repo.get(session, instrument_id)
     if instrument is None:
-        raise NotFoundError(f"Bond {instrument_id} not found")
+        raise NotFoundError("bond_not_found", id=instrument_id)
     return instrument
 
 
 def create_instrument(session: Session, data: InstrumentIn) -> Instrument:
     if repo.get_by_isin(session, data.isin) is not None:
-        raise ConflictError(f"Bond {data.isin} already exists")
+        raise ConflictError("bond_exists", isin=data.isin)
     instrument = Instrument(kind="bond", **data.model_dump())
     session.add(instrument)
     session.flush()
@@ -35,7 +35,7 @@ def update_instrument(session: Session, instrument_id: int, data: InstrumentIn) 
     instrument = get_instrument(session, instrument_id)
     other = repo.get_by_isin(session, data.isin)
     if other is not None and other.id != instrument_id:
-        raise ConflictError(f"Bond {data.isin} already exists")
+        raise ConflictError("bond_exists", isin=data.isin)
     for field, value in data.model_dump().items():
         setattr(instrument, field, value)
     session.flush()
@@ -46,7 +46,7 @@ def update_instrument(session: Session, instrument_id: int, data: InstrumentIn) 
 def delete_instrument(session: Session, instrument_id: int) -> None:
     instrument = get_instrument(session, instrument_id)
     if repo.has_operations(session, instrument_id):
-        raise ConflictError("Delete this bond's packages and payments first")
+        raise ConflictError("bond_has_operations")
     session.delete(instrument)
     session.flush()
 
@@ -61,9 +61,9 @@ def replace_schedule(
     instrument = get_instrument(session, instrument_id)
     keys = [(item.pay_date, item.kind) for item in items]
     if len(keys) != len(set(keys)):
-        raise ValidationError("Each date can have only one coupon and one redemption")
+        raise ValidationError("schedule_duplicate_date")
     if sum(1 for item in items if item.kind == "redemption") > 1:
-        raise ValidationError("A bond can have only one redemption")
+        raise ValidationError("schedule_multiple_redemptions")
     instrument.schedule.clear()
     session.flush()
     instrument.schedule.extend(

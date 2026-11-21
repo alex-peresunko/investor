@@ -1,15 +1,11 @@
 import { LineChart } from '@mantine/charts';
 import { Alert, Group, Loader, Paper, SegmentedControl, Text } from '@mantine/core';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { type Period, useTimeseries } from '@/api/reportHooks';
 import { type SeriesDef, SeriesLegend, useSeriesToggle } from '@/components/SeriesLegend';
 import { formatDate, formatNumber } from '@/lib/format';
-
-const SERIES: SeriesDef[] = [
-  { name: 'value', label: 'Value', color: 'blue.6' },
-  { name: 'pnl', label: 'Cumulative P&L', color: 'teal.6' },
-];
 
 interface Props {
   period: Period;
@@ -17,12 +13,17 @@ interface Props {
 }
 
 export function ValueChart({ period, lotId }: Props) {
+  const { t } = useTranslation();
+  const series: SeriesDef[] = [
+    { name: 'value', label: t('series.value'), color: 'blue.6' },
+    { name: 'pnl', label: t('series.cumulativePnl'), color: 'teal.6' },
+  ];
   const [currency, setCurrency] = useState<'usd' | 'uah'>('usd');
-  const series = useTimeseries(period, lotId);
-  const toggle = useSeriesToggle('chart:value', SERIES);
+  const timeseries = useTimeseries(period, lotId);
+  const toggle = useSeriesToggle('chart:value', series);
   // Two axes only when both series are shown; a lone series gets the left axis.
   const dualAxis = toggle.visible.length === 2;
-  const data = (series.data ?? []).map((p) => ({
+  const data = (timeseries.data ?? []).map((p) => ({
     day: formatDate(p.day),
     value: Number(p.value[currency]),
     pnl: Number(p.cumulative_pnl[currency]),
@@ -31,9 +32,9 @@ export function ValueChart({ period, lotId }: Props) {
   return (
     <Paper withBorder radius="md" p="md">
       <Group justify="space-between" mb="md">
-        <Text fw={600}>Value and cumulative P&L</Text>
+        <Text fw={600}>{t('chart.valueTitle')}</Text>
         <Group gap="lg">
-          <SeriesLegend series={SERIES} isVisible={toggle.isVisible} onToggle={toggle.toggle} />
+          <SeriesLegend series={series} isVisible={toggle.isVisible} onToggle={toggle.toggle} />
           <SegmentedControl
             size="xs"
             value={currency}
@@ -45,13 +46,13 @@ export function ValueChart({ period, lotId }: Props) {
           />
         </Group>
       </Group>
-      {series.isPending ? (
+      {timeseries.isPending ? (
         <Loader />
-      ) : series.isError ? (
-        <Alert color="red">{series.error.message}</Alert>
+      ) : timeseries.isError ? (
+        <Alert color="red">{timeseries.error.message}</Alert>
       ) : data.length < 2 ? (
         <Text c="dimmed" size="sm">
-          Not enough data for a chart yet.
+          {t('common.noData')}
         </Text>
       ) : (
         <LineChart
@@ -62,8 +63,8 @@ export function ValueChart({ period, lotId }: Props) {
           valueFormatter={(v) => formatNumber(v, 0)}
           yAxisProps={{ width: 80 }}
           withRightYAxis={dualAxis}
-          yAxisLabel={dualAxis ? 'Value' : undefined}
-          rightYAxisLabel={dualAxis ? 'Cumulative P&L' : undefined}
+          yAxisLabel={dualAxis ? t('series.value') : undefined}
+          rightYAxisLabel={dualAxis ? t('series.cumulativePnl') : undefined}
           rightYAxisProps={{ width: 80 }}
           series={toggle.visible.map((s) => ({
             ...s,

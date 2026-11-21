@@ -14,7 +14,7 @@ MAX_FALLBACK_DAYS = 7
 def usd_rate(session: Session, day: date) -> Decimal:
     """Official UAH per 1 USD for `day`, from cache or NBU."""
     if day > date.today():  # noqa: DTZ011
-        raise ValidationError("No official rate for a future date")
+        raise ValidationError("fx_future_date")
     cached = repo.get_rate(session, "USD", "UAH", day)
     if cached is not None:
         return cached
@@ -27,5 +27,5 @@ def usd_rate(session: Session, day: date) -> Decimal:
                 repo.save_rate(session, "USD", "UAH", day, rate)
                 return rate
     except NbuUnavailableError as exc:
-        raise UpstreamError("NBU rate service is unavailable; enter the rate manually") from exc
-    raise UpstreamError("NBU has no rate for this date; enter the rate manually")
+        raise UpstreamError("fx_unavailable") from exc
+    raise UpstreamError("fx_no_rate")

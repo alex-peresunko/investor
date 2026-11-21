@@ -357,6 +357,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Preferences */
+        get: operations["get_preferences_api_v1_preferences_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Preferences */
+        patch: operations["update_preferences_api_v1_preferences_patch"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -682,6 +700,23 @@ export interface components {
             xirr_usd: string | null;
             /** Lots */
             lots: components["schemas"]["LotSummary"][];
+        };
+        /** PreferencesOut */
+        PreferencesOut: {
+            /**
+             * Language
+             * @default en
+             * @enum {string}
+             */
+            language: "en" | "uk";
+        };
+        /**
+         * PreferencesUpdate
+         * @description Only the fields sent are changed.
+         */
+        PreferencesUpdate: {
+            /** Language */
+            language?: ("en" | "uk") | null;
         };
         /** ReceivedPayment */
         ReceivedPayment: {
@@ -1808,7 +1843,9 @@ export interface operations {
     };
     operations_csv_api_v1_export_operations_csv_get: {
         parameters: {
-            query?: never;
+            query?: {
+                lang?: "en" | "uk";
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1824,11 +1861,22 @@ export interface operations {
                     "application/json": unknown;
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
     operations_xlsx_api_v1_export_operations_xlsx_get: {
         parameters: {
-            query?: never;
+            query?: {
+                lang?: "en" | "uk";
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1842,6 +1890,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1851,6 +1908,7 @@ export interface operations {
             query?: {
                 start?: string | null;
                 end?: string | null;
+                lang?: "en" | "uk";
             };
             header?: never;
             path?: never;
@@ -1865,6 +1923,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_preferences_api_v1_preferences_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreferencesOut"];
+                };
+            };
+        };
+    };
+    update_preferences_api_v1_preferences_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreferencesUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreferencesOut"];
                 };
             };
             /** @description Validation Error */

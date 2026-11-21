@@ -1,5 +1,6 @@
 import { Button, Group, Modal, Select, SimpleGrid, Textarea } from '@mantine/core';
 import { schemaResolver, useForm } from '@mantine/form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { useInstruments, useLots, useSales, useSaveSale, useSchedule } from '@/api/hooks';
@@ -10,7 +11,7 @@ import { MoneyInput } from '@/components/MoneyInput';
 import { accruedPerUnit } from '@/lib/accrued';
 import { formatDate, formatNumber } from '@/lib/format';
 import { soldQuantity } from '@/lib/holdings';
-import { nonNegative, positive, required, toDecimal } from '@/lib/validation';
+import { nonNegative, positive, required, toDecimal, translateErrors } from '@/lib/validation';
 
 import { useNbuRate } from './useNbuRate';
 
@@ -43,6 +44,7 @@ interface Props {
 }
 
 export function SaleFormModal({ sale, lotId, onClose }: Props) {
+  const { t } = useTranslation();
   const instruments = useInstruments();
   const lots = useLots();
   const sales = useSales();
@@ -69,7 +71,7 @@ export function SaleFormModal({ sale, lotId, onClose }: Props) {
           fx_rate: '',
           note: '',
         },
-    validate: schemaResolver(schema, { sync: true }),
+    validate: translateErrors(schemaResolver(schema, { sync: true })),
   });
   const nbu = useNbuRate((rate) => form.setFieldValue('fx_rate', rate));
   const selectedLot = lots.data?.find((l) => l.id === Number(form.values.lot_id));
@@ -84,7 +86,12 @@ export function SaleFormModal({ sale, lotId, onClose }: Props) {
     .filter((l) => available(l.id) > 0 || l.id === sale?.lot_id)
     .map((l) => ({
       value: String(l.id),
-      label: `#${l.id} · ${isinOf(l.instrument_id)} · bought ${formatDate(l.trade_date)} · ${formatNumber(available(l.id), 0)} available`,
+      label: t('saleForm.option', {
+        id: l.id,
+        isin: isinOf(l.instrument_id),
+        bought: formatDate(l.trade_date),
+        available: formatNumber(available(l.id), 0),
+      }),
     }));
 
   const prefillAccrued = (patch: Partial<Values>) => {
@@ -116,11 +123,16 @@ export function SaleFormModal({ sale, lotId, onClose }: Props) {
   });
 
   return (
-    <Modal opened onClose={onClose} title={sale ? `Edit sale #${sale.id}` : 'Sell bonds'} size="lg">
+    <Modal
+      opened
+      onClose={onClose}
+      title={sale ? t('saleForm.edit', { id: sale.id }) : t('saleForm.new')}
+      size="lg"
+    >
       <form onSubmit={submit}>
         <Select
-          label="Package"
-          placeholder="Select the package to sell from"
+          label={t('common.package')}
+          placeholder={t('saleForm.selectPackage')}
           data={options}
           mb="sm"
           {...form.getInputProps('lot_id')}
@@ -131,7 +143,7 @@ export function SaleFormModal({ sale, lotId, onClose }: Props) {
         />
         <SimpleGrid cols={{ base: 1, sm: 2 }}>
           <DateField
-            label="Sale date"
+            label={t('saleForm.saleDate')}
             {...form.getInputProps('trade_date')}
             onChange={(value) => {
               form.setFieldValue('trade_date', value);
@@ -140,10 +152,14 @@ export function SaleFormModal({ sale, lotId, onClose }: Props) {
             }}
           />
           <MoneyInput
-            label="Quantity"
+            label={t('common.quantity')}
             decimalScale={0}
             description={
-              selectedLot ? `${formatNumber(available(selectedLot.id), 0)} available` : undefined
+              selectedLot
+                ? t('saleForm.available', {
+                    available: formatNumber(available(selectedLot.id), 0),
+                  })
+                : undefined
             }
             {...form.getInputProps('quantity')}
             onChange={(value) => {
@@ -152,29 +168,35 @@ export function SaleFormModal({ sale, lotId, onClose }: Props) {
             }}
           />
           <MoneyInput
-            label="Proceeds, UAH"
-            description="Total received, including accrued coupon"
+            label={t('saleForm.proceeds')}
+            description={t('saleForm.proceedsDescription')}
             {...form.getInputProps('total_proceeds_uah')}
           />
           <MoneyInput
-            label="Accrued coupon received, UAH"
-            description="Calculated from the schedule"
+            label={t('saleForm.accruedReceived')}
+            description={t('common.fromSchedule')}
             {...form.getInputProps('accrued_received_uah')}
           />
-          <MoneyInput label="Fee, UAH" {...form.getInputProps('fee_uah')} />
+          <MoneyInput label={t('common.feeUah')} {...form.getInputProps('fee_uah')} />
           <FxRateInput
             loading={nbu.loading}
             onRefresh={() => void nbu.load(form.values.trade_date)}
             {...form.getInputProps('fx_rate')}
           />
         </SimpleGrid>
-        <Textarea label="Note" mt="sm" autosize minRows={1} {...form.getInputProps('note')} />
+        <Textarea
+          label={t('common.note')}
+          mt="sm"
+          autosize
+          minRows={1}
+          {...form.getInputProps('note')}
+        />
         <Group justify="flex-end" mt="xl">
           <Button variant="default" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" loading={save.isPending}>
-            Save
+            {t('common.save')}
           </Button>
         </Group>
       </form>

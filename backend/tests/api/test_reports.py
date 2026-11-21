@@ -223,3 +223,17 @@ def test_net_income_deducts_purchase_cost(client: TestClient) -> None:
     pnl = client.get(f"/api/v1/reports/lots/{lot['id']}?end=2026-01-31").json()["summary"]["pnl"]
     assert sum(Decimal(p["net_income_uah"]) for p in body) == Decimal(pnl["pnl"]["uah"])
     assert sum(Decimal(p["net_income_usd"]) for p in body) == Decimal(pnl["pnl"]["usd"])
+
+
+def test_exports_in_ukrainian(client: TestClient) -> None:
+    _interview_example(client)
+
+    csv_response = client.get("/api/v1/export/operations.csv?lang=uk")
+    assert csv_response.text.splitlines()[0].startswith("Дата,Тип,ISIN")
+    assert ",купівля," in csv_response.text
+
+    pnl_response = client.get("/api/v1/export/portfolio.xlsx?lang=uk")
+    pnl = load_workbook(io.BytesIO(pnl_response.content))["Прибуток і збиток"]
+    assert pnl.cell(row=pnl.max_row, column=1).value == "РАЗОМ"
+
+    assert client.get("/api/v1/export/operations.csv?lang=xx").status_code == 422

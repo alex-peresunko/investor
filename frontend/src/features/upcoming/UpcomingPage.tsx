@@ -13,16 +13,12 @@ import {
 } from '@mantine/core';
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { type UpcomingPayment, useUpcoming } from '@/api/reportHooks';
 import { type SortColumns, SortTh, useSortedRows } from '@/components/SortableTable';
 import { type SeriesDef, SeriesLegend, useSeriesToggle } from '@/components/SeriesLegend';
 import { formatDate, formatMoney, formatNumber } from '@/lib/format';
-
-const SERIES: SeriesDef[] = [
-  { name: 'coupon', label: 'Coupons', color: 'teal.6' },
-  { name: 'redemption', label: 'Redemptions', color: 'grape.6' },
-];
 
 const COLUMNS = {
   date: (i) => i.pay_date,
@@ -35,7 +31,12 @@ const COLUMNS = {
 } satisfies SortColumns<UpcomingPayment, string>;
 
 export function UpcomingPage() {
-  const toggle = useSeriesToggle('chart:upcoming', SERIES);
+  const { t } = useTranslation();
+  const series: SeriesDef[] = [
+    { name: 'coupon', label: t('series.coupons'), color: 'teal.6' },
+    { name: 'redemption', label: t('series.redemptions'), color: 'grape.6' },
+  ];
+  const toggle = useSeriesToggle('chart:upcoming', series);
   const [months, setMonths] = useState('12');
   const upcoming = useUpcoming(Number(months));
   const items = upcoming.data ?? [];
@@ -55,23 +56,19 @@ export function UpcomingPage() {
     <Stack gap="lg">
       <Group justify="space-between">
         <div>
-          <Title order={2}>Upcoming payments</Title>
+          <Title order={2}>{t('upcoming.title')}</Title>
           <Text size="sm" c="dimmed">
-            Expected from the bonds you hold today, per the payment schedules. USD at today&apos;s
-            NBU rate.
+            {t('upcoming.subtitle')}
           </Text>
         </div>
         <Select
           value={months}
           onChange={(v) => setMonths(v ?? '12')}
           allowDeselect={false}
-          data={[
-            { value: '3', label: 'Next 3 months' },
-            { value: '6', label: 'Next 6 months' },
-            { value: '12', label: 'Next 12 months' },
-            { value: '24', label: 'Next 24 months' },
-            { value: '60', label: 'Next 5 years' },
-          ]}
+          data={(['3', '6', '12', '24', '60'] as const).map((value) => ({
+            value,
+            label: t(`upcoming.next${value}`),
+          }))}
           w={180}
         />
       </Group>
@@ -80,15 +77,18 @@ export function UpcomingPage() {
       ) : upcoming.isError ? (
         <Alert color="red">{upcoming.error.message}</Alert>
       ) : items.length === 0 ? (
-        <Text c="dimmed">No payments expected in this window.</Text>
+        <Text c="dimmed">{t('upcoming.empty')}</Text>
       ) : (
         <>
           <Paper withBorder radius="md" p="md">
             <Group justify="space-between" mb="md">
-              <Text fw={600}>By month, UAH</Text>
-              <SeriesLegend series={SERIES} isVisible={toggle.isVisible} onToggle={toggle.toggle} />
+              <Text fw={600}>{t('upcoming.byMonthUah')}</Text>
+              <SeriesLegend series={series} isVisible={toggle.isVisible} onToggle={toggle.toggle} />
               <Text fw={600}>
-                Total {formatMoney(total, 'UAH')} ≈ {formatMoney(totalUsd, 'USD')}
+                {t('upcoming.total', {
+                  uah: formatMoney(total, 'UAH'),
+                  usd: formatMoney(totalUsd, 'USD'),
+                })}
               </Text>
             </Group>
             <BarChart
@@ -106,20 +106,20 @@ export function UpcomingPage() {
               <Table verticalSpacing="sm">
                 <Table.Thead>
                   <Table.Tr>
-                    <SortTh {...sort.th('date')}>Date</SortTh>
-                    <SortTh {...sort.th('type')}>Type</SortTh>
-                    <SortTh {...sort.th('bond')}>Bond</SortTh>
+                    <SortTh {...sort.th('date')}>{t('common.date')}</SortTh>
+                    <SortTh {...sort.th('type')}>{t('common.type')}</SortTh>
+                    <SortTh {...sort.th('bond')}>{t('common.bond')}</SortTh>
                     <SortTh ta="right" {...sort.th('perBond')}>
-                      Per bond
+                      {t('upcoming.perBond')}
                     </SortTh>
                     <SortTh ta="right" {...sort.th('held')}>
-                      Bonds held
+                      {t('common.bondsHeld')}
                     </SortTh>
                     <SortTh ta="right" {...sort.th('uah')}>
-                      Expected, UAH
+                      {t('upcoming.expectedUah')}
                     </SortTh>
                     <SortTh ta="right" {...sort.th('usd')}>
-                      ≈ USD
+                      {t('upcoming.approxUsd')}
                     </SortTh>
                   </Table.Tr>
                 </Table.Thead>
@@ -129,7 +129,7 @@ export function UpcomingPage() {
                       <Table.Td>{formatDate(item.pay_date)}</Table.Td>
                       <Table.Td>
                         <Badge variant="light" color={item.kind === 'coupon' ? 'teal' : 'grape'}>
-                          {item.kind === 'coupon' ? 'Coupon' : 'Redemption'}
+                          {t(`kind.${item.kind}`)}
                         </Badge>
                       </Table.Td>
                       <Table.Td>

@@ -56,7 +56,10 @@ def test_sale_cannot_exceed_available(client: TestClient) -> None:
         },
     )
     assert response.status_code == 422
-    assert response.json()["detail"] == "Only 60 units are available in this package"
+    problem = response.json()
+    assert problem["detail"] == "Only 60 units are available in this package"
+    assert problem["code"] == "sale_exceeds_available"
+    assert problem["params"] == {"available": "60"}
 
     make_sale(client, lot["id"], quantity="60")
 

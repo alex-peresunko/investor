@@ -9,6 +9,7 @@ import {
   Textarea,
 } from '@mantine/core';
 import { schemaResolver, useForm } from '@mantine/form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { useInstruments, useLots, useSales, useSavePayment, useSchedule } from '@/api/hooks';
@@ -18,7 +19,7 @@ import { FxRateInput } from '@/components/FxRateInput';
 import { MoneyInput } from '@/components/MoneyInput';
 import { formatNumber } from '@/lib/format';
 import { heldBefore } from '@/lib/holdings';
-import { nonNegative, positive, required, toDecimal } from '@/lib/validation';
+import { nonNegative, positive, required, toDecimal, translateErrors } from '@/lib/validation';
 
 import { useNbuRate } from './useNbuRate';
 
@@ -48,6 +49,7 @@ interface Props {
 }
 
 export function PaymentFormModal({ payment, onClose }: Props) {
+  const { t } = useTranslation();
   const instruments = useInstruments();
   const lots = useLots();
   const sales = useSales();
@@ -72,7 +74,7 @@ export function PaymentFormModal({ payment, onClose }: Props) {
           fx_rate: '',
           note: '',
         },
-    validate: schemaResolver(schema, { sync: true }),
+    validate: translateErrors(schemaResolver(schema, { sync: true })),
   });
   const instrumentId = form.values.instrument_id ? Number(form.values.instrument_id) : null;
   const schedule = useSchedule(instrumentId);
@@ -121,7 +123,7 @@ export function PaymentFormModal({ payment, onClose }: Props) {
     <Modal
       opened
       onClose={onClose}
-      title={payment ? `Edit payment #${payment.id}` : 'Record coupon or redemption'}
+      title={payment ? t('paymentForm.edit', { id: payment.id }) : t('paymentForm.new')}
       size="lg"
     >
       <form onSubmit={submit}>
@@ -129,8 +131,8 @@ export function PaymentFormModal({ payment, onClose }: Props) {
           fullWidth
           mb="sm"
           data={[
-            { value: 'coupon', label: 'Coupon' },
-            { value: 'redemption', label: 'Redemption' },
+            { value: 'coupon', label: t('kind.coupon') },
+            { value: 'redemption', label: t('kind.redemption') },
           ]}
           value={form.values.kind}
           onChange={(value) => {
@@ -141,8 +143,8 @@ export function PaymentFormModal({ payment, onClose }: Props) {
         />
         <SimpleGrid cols={{ base: 1, sm: 2 }}>
           <Select
-            label="Bond"
-            placeholder="Select a bond"
+            label={t('common.bond')}
+            placeholder={t('common.selectBond')}
             searchable
             data={(instruments.data ?? []).map((i) => ({
               value: String(i.id),
@@ -155,7 +157,7 @@ export function PaymentFormModal({ payment, onClose }: Props) {
             }}
           />
           <DateField
-            label="Payment date"
+            label={t('paymentForm.paymentDate')}
             {...form.getInputProps('pay_date')}
             onChange={(value) => {
               form.setFieldValue('pay_date', value);
@@ -164,11 +166,11 @@ export function PaymentFormModal({ payment, onClose }: Props) {
             }}
           />
           <MoneyInput
-            label="Total received, UAH"
-            description="For all your packages of this bond together"
+            label={t('paymentForm.total')}
+            description={t('paymentForm.totalDescription')}
             {...form.getInputProps('total_amount_uah')}
           />
-          <MoneyInput label="Fee, UAH" {...form.getInputProps('fee_uah')} />
+          <MoneyInput label={t('common.feeUah')} {...form.getInputProps('fee_uah')} />
           <FxRateInput
             loading={nbu.loading}
             onRefresh={() => void nbu.load(form.values.pay_date)}
@@ -177,17 +179,22 @@ export function PaymentFormModal({ payment, onClose }: Props) {
         </SimpleGrid>
         {held !== null && (
           <Text size="sm" c="dimmed" mt="xs">
-            Held the day before: {formatNumber(held, 0)} bonds. The amount is split across packages
-            in proportion to their holdings.
+            {t('paymentForm.heldBefore', { count: held, held: formatNumber(held, 0) })}
           </Text>
         )}
-        <Textarea label="Note" mt="sm" autosize minRows={1} {...form.getInputProps('note')} />
+        <Textarea
+          label={t('common.note')}
+          mt="sm"
+          autosize
+          minRows={1}
+          {...form.getInputProps('note')}
+        />
         <Group justify="flex-end" mt="xl">
           <Button variant="default" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" loading={save.isPending}>
-            Save
+            {t('common.save')}
           </Button>
         </Group>
       </form>

@@ -20,7 +20,9 @@ import {
   IconShoppingCart,
   IconTrendingDown,
 } from '@tabler/icons-react';
+import type { TFunction } from 'i18next';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   useDeleteLot,
@@ -42,11 +44,11 @@ import { SaleFormModal } from './SaleFormModal';
 
 type OpType = 'buy' | 'sell' | 'coupon' | 'redemption';
 
-const TYPE_META: Record<OpType, { label: string; color: string }> = {
-  buy: { label: 'Buy', color: 'blue' },
-  sell: { label: 'Sell', color: 'orange' },
-  coupon: { label: 'Coupon', color: 'teal' },
-  redemption: { label: 'Redemption', color: 'grape' },
+const TYPE_COLOR: Record<OpType, string> = {
+  buy: 'blue',
+  sell: 'orange',
+  coupon: 'teal',
+  redemption: 'grape',
 };
 
 interface Row {
@@ -67,17 +69,18 @@ interface Row {
     | { kind: 'payment'; value: Payment };
 }
 
-const COLUMNS = {
-  date: (r) => r.date,
-  type: (r) => TYPE_META[r.type].label,
-  bond: (r) => r.isin,
-  package: (r) => r.lotId,
-  quantity: (r) => (r.quantity === null ? null : Number(r.quantity)),
-  amount: (r) => r.amountUah,
-  fee: (r) => r.feeUah || null,
-  fx: (r) => r.fxRate,
-  amountUsd: (r) => r.amountUah / r.fxRate,
-} satisfies SortColumns<Row, string>;
+const sortColumns = (t: TFunction) =>
+  ({
+    date: (r) => r.date,
+    type: (r) => t(`kind.${r.type}`),
+    bond: (r) => r.isin,
+    package: (r) => r.lotId,
+    quantity: (r) => (r.quantity === null ? null : Number(r.quantity)),
+    amount: (r) => r.amountUah,
+    fee: (r) => r.feeUah || null,
+    fx: (r) => r.fxRate,
+    amountUsd: (r) => r.amountUah / r.fxRate,
+  }) satisfies SortColumns<Row, string>;
 
 type Editing =
   | { kind: 'lot'; value: Lot | null }
@@ -86,6 +89,7 @@ type Editing =
   | null;
 
 export function OperationsPage() {
+  const { t, i18n } = useTranslation();
   const instruments = useInstruments();
   const lots = useLots();
   const sales = useSales();
@@ -146,7 +150,8 @@ export function OperationsPage() {
       .filter((r) => typeFilter === 'all' || r.type === typeFilter)
       .filter((r) => bondFilter === null || r.instrumentId === Number(bondFilter));
   }, [instruments.data, lots.data, sales.data, payments.data, typeFilter, bondFilter]);
-  const sort = useSortedRows('table:operations', rows, COLUMNS, 'date');
+  const columns = useMemo(() => sortColumns(t), [t]);
+  const sort = useSortedRows('table:operations', rows, columns, 'date');
 
   const queries = [instruments, lots, sales, payments];
   const error = queries.find((q) => q.isError)?.error;
@@ -165,35 +170,35 @@ export function OperationsPage() {
   return (
     <>
       <Group justify="space-between" mb="lg">
-        <Title order={2}>Operations</Title>
+        <Title order={2}>{t('operations.title')}</Title>
         <Group>
           <Button
             leftSection={<IconShoppingCart size={16} />}
             onClick={() => setEditing({ kind: 'lot', value: null })}
           >
-            Buy
+            {t('operations.buy')}
           </Button>
           <Button
             variant="light"
             leftSection={<IconTrendingDown size={16} />}
             onClick={() => setEditing({ kind: 'sale', value: null })}
           >
-            Sell
+            {t('operations.sell')}
           </Button>
           <Button
             variant="light"
             leftSection={<IconCash size={16} />}
             onClick={() => setEditing({ kind: 'payment', value: null })}
           >
-            Coupon / redemption
+            {t('operations.payment')}
           </Button>
-          <Tooltip label="Download all operations as Excel">
+          <Tooltip label={t('operations.export')}>
             <ActionIcon
               variant="default"
               size="lg"
               component="a"
-              href="/api/v1/export/operations.xlsx"
-              aria-label="Export operations"
+              href={`/api/v1/export/operations.xlsx?lang=${i18n.language}`}
+              aria-label={t('operations.exportAria')}
             >
               <IconDownload size={18} />
             </ActionIcon>
@@ -205,15 +210,15 @@ export function OperationsPage() {
           value={typeFilter}
           onChange={(v) => setTypeFilter(v as 'all' | OpType)}
           data={[
-            { value: 'all', label: 'All' },
-            { value: 'buy', label: 'Buys' },
-            { value: 'sell', label: 'Sales' },
-            { value: 'coupon', label: 'Coupons' },
-            { value: 'redemption', label: 'Redemptions' },
+            { value: 'all', label: t('common.all') },
+            { value: 'buy', label: t('operations.filterBuys') },
+            { value: 'sell', label: t('operations.filterSales') },
+            { value: 'coupon', label: t('operations.filterCoupons') },
+            { value: 'redemption', label: t('operations.filterRedemptions') },
           ]}
         />
         <Select
-          placeholder="All bonds"
+          placeholder={t('operations.allBonds')}
           clearable
           data={(instruments.data ?? []).map((i) => ({ value: String(i.id), label: i.isin }))}
           value={bondFilter}
@@ -228,31 +233,31 @@ export function OperationsPage() {
           <Loader m="lg" />
         ) : rows.length === 0 ? (
           <Text c="dimmed" p="lg">
-            No operations yet.
+            {t('operations.empty')}
           </Text>
         ) : (
           <Table.ScrollContainer minWidth={900}>
             <Table highlightOnHover verticalSpacing="sm">
               <Table.Thead>
                 <Table.Tr>
-                  <SortTh {...sort.th('date')}>Date</SortTh>
-                  <SortTh {...sort.th('type')}>Type</SortTh>
-                  <SortTh {...sort.th('bond')}>Bond</SortTh>
-                  <SortTh {...sort.th('package')}>Package</SortTh>
+                  <SortTh {...sort.th('date')}>{t('common.date')}</SortTh>
+                  <SortTh {...sort.th('type')}>{t('common.type')}</SortTh>
+                  <SortTh {...sort.th('bond')}>{t('common.bond')}</SortTh>
+                  <SortTh {...sort.th('package')}>{t('common.package')}</SortTh>
                   <SortTh ta="right" {...sort.th('quantity')}>
-                    Quantity
+                    {t('common.quantity')}
                   </SortTh>
                   <SortTh ta="right" {...sort.th('amount')}>
-                    Amount
+                    {t('common.amountUah')}
                   </SortTh>
                   <SortTh ta="right" {...sort.th('fee')}>
-                    Fee
+                    {t('common.fee')}
                   </SortTh>
                   <SortTh ta="right" {...sort.th('fx')}>
-                    USD/UAH
+                    {t('common.usdUah')}
                   </SortTh>
                   <SortTh ta="right" {...sort.th('amountUsd')}>
-                    Amount, USD
+                    {t('common.amountUsd')}
                   </SortTh>
                   <Table.Th />
                 </Table.Tr>
@@ -262,12 +267,14 @@ export function OperationsPage() {
                   <Table.Tr key={row.key}>
                     <Table.Td>{formatDate(row.date)}</Table.Td>
                     <Table.Td>
-                      <Badge variant="light" color={TYPE_META[row.type].color}>
-                        {TYPE_META[row.type].label}
+                      <Badge variant="light" color={TYPE_COLOR[row.type]}>
+                        {t(`kind.${row.type}`)}
                       </Badge>
                     </Table.Td>
                     <Table.Td ff="monospace">{row.isin}</Table.Td>
-                    <Table.Td>{row.lotId === null ? 'all held' : `#${row.lotId}`}</Table.Td>
+                    <Table.Td>
+                      {row.lotId === null ? t('operations.allHeld') : `#${row.lotId}`}
+                    </Table.Td>
                     <Table.Td ta="right">
                       {row.quantity === null ? '' : formatNumber(row.quantity, 0)}
                     </Table.Td>
@@ -283,17 +290,19 @@ export function OperationsPage() {
                     </Table.Td>
                     <Table.Td>
                       <Group gap={4} justify="flex-end" wrap="nowrap">
-                        <Tooltip label="Edit">
+                        <Tooltip label={t('common.edit')}>
                           <ActionIcon
                             variant="subtle"
-                            aria-label="Edit operation"
+                            aria-label={t('operations.editAria')}
                             onClick={() => setEditing(row.record)}
                           >
                             <IconPencil size={16} />
                           </ActionIcon>
                         </Tooltip>
                         <ConfirmDeleteButton
-                          what={`${TYPE_META[row.type].label.toLowerCase()} of ${formatDate(row.date)}`}
+                          what={t(`operations.deleteWhat.${row.type}`, {
+                            date: formatDate(row.date),
+                          })}
                           onConfirm={() => remove(row)}
                         />
                       </Group>

@@ -1,5 +1,6 @@
 import { Group, Paper, Stack, Text } from '@mantine/core';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { formatMoney, formatPercent } from '@/lib/format';
 
@@ -78,6 +79,7 @@ export function PnlSplit({
   unrealized: AmountPair;
   realizedXirr: { usd: string | null; uah: string | null };
 }) {
+  const { t } = useTranslation();
   return (
     <Stack
       gap={2}
@@ -86,21 +88,24 @@ export function PnlSplit({
       style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
     >
       <Group justify="space-between" gap="xs" wrap="nowrap">
-        <Text size="xs" c="dimmed" title="Sold or redeemed packages">
-          Realized
+        <Text size="xs" c="dimmed" title={t('stat.realizedHint')}>
+          {t('stat.realized')}
         </Text>
         <Text size="sm" fw={500}>
           <MoneyText value={realized.usd} currency="USD" signed />
         </Text>
       </Group>
       {realizedXirr.usd !== null && (
-        <Text size="xs" c="dimmed" ta="right" title="Annual return (XIRR) of closed packages">
-          {formatPercent(realizedXirr.usd)} p.a. USD · {formatPercent(realizedXirr.uah)} UAH
+        <Text size="xs" c="dimmed" ta="right" title={t('stat.realizedXirrHint')}>
+          {t('stat.xirrLine', {
+            usd: formatPercent(realizedXirr.usd),
+            uah: formatPercent(realizedXirr.uah),
+          })}
         </Text>
       )}
       <Group justify="space-between" gap="xs" wrap="nowrap">
-        <Text size="xs" c="dimmed" title="Packages still held">
-          Unrealized
+        <Text size="xs" c="dimmed" title={t('stat.unrealizedHint')}>
+          {t('stat.unrealized')}
         </Text>
         <Text size="sm" fw={500}>
           <MoneyText value={unrealized.usd} currency="USD" signed />

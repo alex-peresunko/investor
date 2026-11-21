@@ -19,18 +19,22 @@ import {
   IconReceipt,
   IconSun,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { NavLink as RouterNavLink, Outlet } from 'react-router';
 
+import { LanguageMenu } from '@/i18n/LanguageMenu';
+
 const NAV = [
-  { to: '/', label: 'Dashboard', icon: IconLayoutDashboard, end: true },
-  { to: '/packages', label: 'Packages', icon: IconPackage, end: false },
-  { to: '/operations', label: 'Operations', icon: IconListDetails, end: false },
-  { to: '/upcoming', label: 'Upcoming payments', icon: IconCalendarDue, end: false },
-  { to: '/past-payments', label: 'Past payments', icon: IconReceipt, end: false },
-  { to: '/bonds', label: 'Bonds', icon: IconCertificate, end: false },
-];
+  { to: '/', label: 'nav.dashboard', icon: IconLayoutDashboard, end: true },
+  { to: '/packages', label: 'nav.packages', icon: IconPackage, end: false },
+  { to: '/operations', label: 'nav.operations', icon: IconListDetails, end: false },
+  { to: '/upcoming', label: 'nav.upcoming', icon: IconCalendarDue, end: false },
+  { to: '/past-payments', label: 'nav.pastPayments', icon: IconReceipt, end: false },
+  { to: '/bonds', label: 'nav.bonds', icon: IconCertificate, end: false },
+] as const;
 
 export function Layout() {
+  const { t } = useTranslation();
   const [opened, { toggle, close }] = useDisclosure();
   const { setColorScheme } = useMantineColorScheme();
   const scheme = useComputedColorScheme('light');
@@ -45,16 +49,19 @@ export function Layout() {
         <Group h="100%" px="md" justify="space-between">
           <Group>
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-            <Title order={4}>Investor</Title>
+            <Title order={4}>{t('app.name')}</Title>
           </Group>
-          <ActionIcon
-            variant="default"
-            size="lg"
-            aria-label="Toggle color scheme"
-            onClick={() => setColorScheme(scheme === 'light' ? 'dark' : 'light')}
-          >
-            {scheme === 'light' ? <IconMoon size={18} /> : <IconSun size={18} />}
-          </ActionIcon>
+          <Group gap="xs">
+            <LanguageMenu />
+            <ActionIcon
+              variant="default"
+              size="lg"
+              aria-label={t('app.toggleColorScheme')}
+              onClick={() => setColorScheme(scheme === 'light' ? 'dark' : 'light')}
+            >
+              {scheme === 'light' ? <IconMoon size={18} /> : <IconSun size={18} />}
+            </ActionIcon>
+          </Group>
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="sm">
@@ -64,7 +71,7 @@ export function Layout() {
             component={RouterNavLink}
             to={to}
             end={end}
-            label={label}
+            label={t(label)}
             leftSection={<Icon size={18} />}
             onClick={close}
           />

@@ -11,6 +11,7 @@ import {
 } from '@mantine/core';
 import { IconPlus, IconRefresh, IconX } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useRegenerateSchedule, useReplaceSchedule, useSchedule } from '@/api/hooks';
 import type { Instrument, ScheduledPaymentInput } from '@/api/types';
@@ -30,9 +31,15 @@ interface Props {
 }
 
 export function ScheduleModal({ instrument, onClose }: Props) {
+  const { t } = useTranslation();
   const schedule = useSchedule(instrument.id);
   return (
-    <Modal opened onClose={onClose} title={`Payment schedule · ${instrument.isin}`} size="xl">
+    <Modal
+      opened
+      onClose={onClose}
+      title={t('schedule.title', { isin: instrument.isin })}
+      size="xl"
+    >
       {schedule.isPending ? (
         <Loader />
       ) : schedule.isError ? (
@@ -63,6 +70,7 @@ function ScheduleEditor({
   initial: Row[];
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [rows, setRows] = useState<Row[]>(initial);
   const replace = useReplaceSchedule();
   const regenerate = useRegenerateSchedule();
@@ -83,15 +91,14 @@ function ScheduleEditor({
   return (
     <>
       <Text size="sm" c="dimmed" mb="sm">
-        Amounts are per one bond. Generate the schedule from the bond terms, then adjust dates if
-        the actual payment calendar differs.
+        {t('schedule.hint')}
       </Text>
       <Table striped withTableBorder>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Type</Table.Th>
-            <Table.Th>Date</Table.Th>
-            <Table.Th>Amount per bond, UAH</Table.Th>
+            <Table.Th>{t('common.type')}</Table.Th>
+            <Table.Th>{t('common.date')}</Table.Th>
+            <Table.Th>{t('schedule.amountPerBond')}</Table.Th>
             <Table.Th />
           </Table.Tr>
         </Table.Thead>
@@ -101,8 +108,8 @@ function ScheduleEditor({
               <Table.Td>
                 <Select
                   data={[
-                    { value: 'coupon', label: 'Coupon' },
-                    { value: 'redemption', label: 'Redemption' },
+                    { value: 'coupon', label: t('kind.coupon') },
+                    { value: 'redemption', label: t('kind.redemption') },
                   ]}
                   value={row.kind}
                   allowDeselect={false}
@@ -128,7 +135,7 @@ function ScheduleEditor({
                 <ActionIcon
                   variant="subtle"
                   color="red"
-                  aria-label="Remove row"
+                  aria-label={t('schedule.removeRow')}
                   onClick={() => setRows((current) => current.filter((r) => r.key !== row.key))}
                 >
                   <IconX size={16} />
@@ -155,7 +162,7 @@ function ScheduleEditor({
               ])
             }
           >
-            Add row
+            {t('schedule.addRow')}
           </Button>
           <Button
             variant="light"
@@ -163,15 +170,15 @@ function ScheduleEditor({
             loading={regenerate.isPending}
             onClick={() => regenerate.mutate(instrument.id)}
           >
-            Generate from bond terms
+            {t('schedule.generate')}
           </Button>
         </Group>
         <Group>
           <Button variant="default" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button onClick={save} disabled={!valid} loading={replace.isPending}>
-            Save schedule
+            {t('schedule.save')}
           </Button>
         </Group>
       </Group>

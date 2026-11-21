@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { type ReceivedPayment, useReceived } from '@/api/reportHooks';
 import { PeriodPicker, usePeriod } from '@/components/PeriodPicker';
@@ -21,11 +22,6 @@ import { type SortColumns, SortTh, useSortedRows } from '@/components/SortableTa
 import { MoneyText, Stat } from '@/components/Stat';
 import { type SeriesDef, SeriesLegend, useSeriesToggle } from '@/components/SeriesLegend';
 import { formatDate, formatMoney, formatNumber } from '@/lib/format';
-
-const SERIES: SeriesDef[] = [
-  { name: 'coupon', label: 'Coupons', color: 'teal.6' },
-  { name: 'redemption', label: 'Redemptions', color: 'grape.6' },
-];
 
 const COLUMNS = {
   date: (i) => i.pay_date,
@@ -39,7 +35,12 @@ const COLUMNS = {
 } satisfies SortColumns<ReceivedPayment, string>;
 
 export function PastPaymentsPage() {
-  const toggle = useSeriesToggle('chart:past-payments', SERIES);
+  const { t } = useTranslation();
+  const series: SeriesDef[] = [
+    { name: 'coupon', label: t('series.coupons'), color: 'teal.6' },
+    { name: 'redemption', label: t('series.redemptions'), color: 'grape.6' },
+  ];
+  const toggle = useSeriesToggle('chart:past-payments', series);
   const period = usePeriod();
   const received = useReceived(period);
   const [currency, setCurrency] = useState<'usd' | 'uah'>('usd');
@@ -71,9 +72,9 @@ export function PastPaymentsPage() {
     <Stack gap="lg">
       <Group justify="space-between">
         <div>
-          <Title order={2}>Past payments</Title>
+          <Title order={2}>{t('pastPayments.title')}</Title>
           <Text size="sm" c="dimmed">
-            Cash received; net income deducts what you paid for the bonds.
+            {t('pastPayments.subtitle')}
           </Text>
         </div>
         <PeriodPicker />
@@ -83,18 +84,18 @@ export function PastPaymentsPage() {
       ) : received.isError ? (
         <Alert color="red">{received.error.message}</Alert>
       ) : items.length === 0 ? (
-        <Text c="dimmed">No payments received in this period.</Text>
+        <Text c="dimmed">{t('pastPayments.empty')}</Text>
       ) : (
         <>
           <SimpleGrid cols={{ base: 1, xs: 3 }}>
-            <Stat label="Coupons received" amount={coupons}>
+            <Stat label={t('pastPayments.coupons')} amount={coupons}>
               <NetIncome usd={coupons.netUsd} uah={coupons.netUah} />
             </Stat>
-            <Stat label="Redemptions received" amount={redemptions}>
+            <Stat label={t('pastPayments.redemptions')} amount={redemptions}>
               <NetIncome usd={redemptions.netUsd} uah={redemptions.netUah} />
             </Stat>
             <Stat
-              label="Total received"
+              label={t('pastPayments.total')}
               amount={{
                 uah: String(Number(coupons.uah) + Number(redemptions.uah)),
                 usd: String(Number(coupons.usd) + Number(redemptions.usd)),
@@ -108,10 +109,10 @@ export function PastPaymentsPage() {
           </SimpleGrid>
           <Paper withBorder radius="md" p="md">
             <Group justify="space-between" mb="md">
-              <Text fw={600}>By month</Text>
+              <Text fw={600}>{t('common.byMonth')}</Text>
               <Group gap="lg">
                 <SeriesLegend
-                  series={SERIES}
+                  series={series}
                   isVisible={toggle.isVisible}
                   onToggle={toggle.toggle}
                 />
@@ -141,25 +142,25 @@ export function PastPaymentsPage() {
               <Table verticalSpacing="sm">
                 <Table.Thead>
                   <Table.Tr>
-                    <SortTh {...sort.th('date')}>Date</SortTh>
-                    <SortTh {...sort.th('type')}>Type</SortTh>
-                    <SortTh {...sort.th('bond')}>Bond</SortTh>
+                    <SortTh {...sort.th('date')}>{t('common.date')}</SortTh>
+                    <SortTh {...sort.th('type')}>{t('common.type')}</SortTh>
+                    <SortTh {...sort.th('bond')}>{t('common.bond')}</SortTh>
                     <SortTh ta="right" {...sort.th('held')}>
-                      Bonds held
+                      {t('common.bondsHeld')}
                     </SortTh>
                     <SortTh ta="right" {...sort.th('uah')}>
-                      Amount, UAH
+                      {t('common.amountUah')}
                     </SortTh>
                     <SortTh ta="right" {...sort.th('fx')}>
-                      USD/UAH
+                      {t('common.usdUah')}
                     </SortTh>
                     <SortTh ta="right" {...sort.th('usd')}>
-                      Amount, USD
+                      {t('common.amountUsd')}
                     </SortTh>
                     <SortTh ta="right" {...sort.th('net')}>
-                      Net income
+                      {t('pastPayments.netIncome')}
                     </SortTh>
-                    <Table.Th>Split by package</Table.Th>
+                    <Table.Th>{t('pastPayments.split')}</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -168,7 +169,7 @@ export function PastPaymentsPage() {
                       <Table.Td>{formatDate(item.pay_date)}</Table.Td>
                       <Table.Td>
                         <Badge variant="light" color={item.kind === 'coupon' ? 'teal' : 'grape'}>
-                          {item.kind === 'coupon' ? 'Coupon' : 'Redemption'}
+                          {t(`kind.${item.kind}`)}
                         </Badge>
                       </Table.Td>
                       <Table.Td>
@@ -215,6 +216,7 @@ export function PastPaymentsPage() {
 }
 
 function NetIncome({ usd, uah }: { usd: number; uah: number }) {
+  const { t } = useTranslation();
   return (
     <Group
       justify="space-between"
@@ -225,7 +227,7 @@ function NetIncome({ usd, uah }: { usd: number; uah: number }) {
       style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
     >
       <Text size="xs" c="dimmed">
-        Net income
+        {t('stat.netIncome')}
       </Text>
       <Text size="sm" fw={500}>
         <MoneyText value={usd} currency="USD" signed />{' '}

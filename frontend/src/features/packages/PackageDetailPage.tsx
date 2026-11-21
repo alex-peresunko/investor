@@ -14,7 +14,9 @@ import {
   Title,
 } from '@mantine/core';
 import { IconTrendingDown } from '@tabler/icons-react';
+import type { TFunction } from 'i18next';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 
 import { useLotReport } from '@/api/reportHooks';
@@ -26,25 +28,27 @@ import { SaleFormModal } from '@/features/operations/SaleFormModal';
 import { ValueChart } from '@/features/reports/ValueChart';
 import { formatDate, formatNumber, formatPercent } from '@/lib/format';
 
-const FLOW_LABEL: Record<string, string> = {
-  buy: 'Purchase',
-  sell: 'Sale',
-  coupon: 'Coupon',
-  redemption: 'Redemption',
-  fee: 'Fee',
-};
-
 type Flow = components['schemas']['FlowOut'] & { key: number };
 
-const COLUMNS = {
-  date: (f) => f.day,
-  type: (f) => FLOW_LABEL[f.kind],
-  uah: (f) => Number(f.amount_uah),
-  fx: (f) => Number(f.fx_rate),
-  usd: (f) => Number(f.amount_usd),
-} satisfies SortColumns<Flow, string>;
+const FLOW_LABEL = {
+  buy: 'kind.purchase',
+  sell: 'kind.sale',
+  coupon: 'kind.coupon',
+  redemption: 'kind.redemption',
+  fee: 'kind.fee',
+} as const satisfies Record<Flow['kind'], string>;
+
+const sortColumns = (t: TFunction) =>
+  ({
+    date: (f) => f.day,
+    type: (f) => t(FLOW_LABEL[f.kind]),
+    uah: (f) => Number(f.amount_uah),
+    fx: (f) => Number(f.fx_rate),
+    usd: (f) => Number(f.amount_usd),
+  }) satisfies SortColumns<Flow, string>;
 
 export function PackageDetailPage() {
+  const { t } = useTranslation();
   const lotId = Number(useParams().lotId);
   const period = usePeriod();
   const report = useLotReport(lotId, period);
@@ -54,7 +58,8 @@ export function PackageDetailPage() {
     () => (report.data?.flows ?? []).map((f, key) => ({ ...f, key })),
     [report.data],
   );
-  const sort = useSortedRows('table:package-flows', flows, COLUMNS, 'date');
+  const columns = useMemo(() => sortColumns(t), [t]);
+  const sort = useSortedRows('table:package-flows', flows, columns, 'date');
 
   if (report.isPending) return <Loader />;
   if (report.isError) return <Alert color="red">{report.error.message}</Alert>;
@@ -65,7 +70,7 @@ export function PackageDetailPage() {
     <Stack gap="lg">
       <Breadcrumbs>
         <Anchor component={Link} to="/packages">
-          Packages
+          {t('packages.title')}
         </Anchor>
         <Text>#{summary.lot_id}</Text>
       </Breadcrumbs>
@@ -73,16 +78,20 @@ export function PackageDetailPage() {
         <div>
           <Group gap="xs">
             <Title order={2}>
-              Package #{summary.lot_id} · {summary.isin}
+              {t('packageDetail.title', { id: summary.lot_id, isin: summary.isin })}
             </Title>
             <Badge variant="light" color={open ? 'blue' : 'gray'}>
-              {open ? 'open' : 'closed'}
+              {open ? t('common.open') : t('common.closed')}
             </Badge>
           </Group>
           <Text size="sm" c="dimmed">
-            {summary.name} · bought {formatDate(summary.trade_date)} · matures{' '}
-            {formatDate(summary.maturity_date)} · {formatNumber(summary.open_quantity, 0)} of{' '}
-            {formatNumber(summary.quantity, 0)} held
+            {t('packageDetail.subtitle', {
+              name: summary.name,
+              bought: formatDate(summary.trade_date),
+              maturity: formatDate(summary.maturity_date),
+              held: formatNumber(summary.open_quantity, 0),
+              quantity: formatNumber(summary.quantity, 0),
+            })}
           </Text>
         </div>
         <Group>
@@ -93,17 +102,17 @@ export function PackageDetailPage() {
               leftSection={<IconTrendingDown size={16} />}
               onClick={() => setSelling(true)}
             >
-              Sell
+              {t('packageDetail.sell')}
             </Button>
           )}
         </Group>
       </Group>
       <SimpleGrid cols={{ base: 1, xs: 2, md: 5 }}>
-        <Stat label="Profit / loss" amount={summary.pnl.pnl} signed />
-        <Stat label="Current value" amount={summary.pnl.closing_value} />
-        <Stat label="Invested" amount={summary.pnl.invested} />
-        <Stat label="Received" amount={summary.pnl.received} />
-        <Stat label="Annual return (XIRR)">
+        <Stat label={t('stat.pnl')} amount={summary.pnl.pnl} signed />
+        <Stat label={t('stat.currentValue')} amount={summary.pnl.closing_value} />
+        <Stat label={t('stat.invested')} amount={summary.pnl.invested} />
+        <Stat label={t('stat.received')} amount={summary.pnl.received} />
+        <Stat label={t('stat.xirr')}>
           <Text fz={22} fw={700} mt={4}>
             {formatPercent(summary.xirr_usd)}{' '}
             <Text span size="sm" c="dimmed">
@@ -118,22 +127,22 @@ export function PackageDetailPage() {
       <ValueChart period={period} lotId={lotId} />
       <Paper withBorder radius="md">
         <Text fw={600} p="md" pb={0}>
-          Cash flows in the period
+          {t('packageDetail.flows')}
         </Text>
         <Table.ScrollContainer minWidth={700}>
           <Table verticalSpacing="sm">
             <Table.Thead>
               <Table.Tr>
-                <SortTh {...sort.th('date')}>Date</SortTh>
-                <SortTh {...sort.th('type')}>Type</SortTh>
+                <SortTh {...sort.th('date')}>{t('common.date')}</SortTh>
+                <SortTh {...sort.th('type')}>{t('common.type')}</SortTh>
                 <SortTh ta="right" {...sort.th('uah')}>
-                  Amount, UAH
+                  {t('common.amountUah')}
                 </SortTh>
                 <SortTh ta="right" {...sort.th('fx')}>
-                  USD/UAH
+                  {t('common.usdUah')}
                 </SortTh>
                 <SortTh ta="right" {...sort.th('usd')}>
-                  Amount, USD
+                  {t('common.amountUsd')}
                 </SortTh>
               </Table.Tr>
             </Table.Thead>
@@ -141,7 +150,7 @@ export function PackageDetailPage() {
               {sort.rows.map((flow) => (
                 <Table.Tr key={flow.key}>
                   <Table.Td>{formatDate(flow.day)}</Table.Td>
-                  <Table.Td>{FLOW_LABEL[flow.kind]}</Table.Td>
+                  <Table.Td>{t(FLOW_LABEL[flow.kind])}</Table.Td>
                   <Table.Td ta="right">
                     <MoneyText value={flow.amount_uah} currency="UAH" signed />
                   </Table.Td>

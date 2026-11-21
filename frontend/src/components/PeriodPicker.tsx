@@ -2,6 +2,7 @@ import { Group, SegmentedControl } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
 import type { Period } from '@/api/reportHooks';
@@ -25,6 +26,7 @@ function presetFor(period: Period): Preset {
 }
 
 export function PeriodPicker() {
+  const { t } = useTranslation();
   const [params, setParams] = useSearchParams();
   const period = usePeriod();
   const preset = presetFor(period);
@@ -66,11 +68,11 @@ export function PeriodPicker() {
         value={preset}
         onChange={choose}
         data={[
-          { value: 'all', label: 'All time' },
-          { value: 'ytd', label: 'YTD' },
-          { value: '1y', label: '1Y' },
-          { value: '3y', label: '3Y' },
-          { value: 'custom', label: 'Custom' },
+          { value: 'all', label: t('period.all') },
+          { value: 'ytd', label: t('period.ytd') },
+          { value: '1y', label: t('period.1y') },
+          { value: '3y', label: t('period.3y') },
+          { value: 'custom', label: t('period.custom') },
         ]}
       />
       {preset === 'custom' && <CustomRange period={period} onApply={apply} />}
@@ -89,6 +91,7 @@ function CustomRange({
   period: Period;
   onApply: (start: string, end: string) => void;
 }) {
+  const { t } = useTranslation();
   const [range, setRange] = useState<[string | null, string | null]>([
     period.start ?? null,
     period.end ?? null,
@@ -97,7 +100,7 @@ function CustomRange({
     <DatePickerInput
       type="range"
       valueFormat="DD.MM.YYYY"
-      placeholder="Pick start and end dates"
+      placeholder={t('period.pickRange')}
       value={range}
       onChange={([start, end]) => {
         setRange([start, end]);

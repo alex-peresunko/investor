@@ -30,7 +30,7 @@ def _period(portfolio: Portfolio, start: date | None, end: date | None) -> tuple
     start = start or first_trade
     end = end or today
     if end < start:
-        raise ValidationError("The end date must not be before the start date")
+        raise ValidationError("period_end_before_start")
     return start, end
 
 
@@ -99,7 +99,7 @@ def portfolio_report(session: Session, start: date | None, end: date | None) -> 
 def lot_report(session: Session, lot_id: int, start: date | None, end: date | None) -> LotReport:
     portfolio, instruments = load_portfolio(session)
     if lot_id not in portfolio.lots:
-        raise NotFoundError(f"Package {lot_id} not found")
+        raise NotFoundError("package_not_found", id=lot_id)
     if start is None:
         start = portfolio.lots[lot_id].trade_date
     start, end = _period(portfolio, start, end)
@@ -139,7 +139,7 @@ def timeseries(
 ) -> list[TimeseriesPoint]:
     portfolio, _ = load_portfolio(session)
     if lot_id is not None and lot_id not in portfolio.lots:
-        raise NotFoundError(f"Package {lot_id} not found")
+        raise NotFoundError("package_not_found", id=lot_id)
     start, end = _period(portfolio, start, end)
     fx_at = fx_lookup(session)
     ids = [lot_id] if lot_id is not None else _active_lot_ids(portfolio, start, end)
@@ -158,7 +158,7 @@ def timeseries(
 
 def upcoming(session: Session, months: int) -> list[UpcomingPayment]:
     if not 1 <= months <= 120:
-        raise ValidationError("months must be between 1 and 120")
+        raise ValidationError("months_out_of_range")
     portfolio, instruments = load_portfolio(session)
     today = date.today()  # noqa: DTZ011
     horizon = today + timedelta(days=round(months * 30.44))

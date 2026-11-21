@@ -1,5 +1,6 @@
 import { Button, Group, Modal, Select, SimpleGrid, Textarea } from '@mantine/core';
 import { schemaResolver, useForm } from '@mantine/form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { useInstruments, useSaveLot, useSchedule } from '@/api/hooks';
@@ -8,7 +9,7 @@ import { DateField } from '@/components/DateField';
 import { FxRateInput } from '@/components/FxRateInput';
 import { MoneyInput } from '@/components/MoneyInput';
 import { accruedPerUnit } from '@/lib/accrued';
-import { nonNegative, positive, required, toDecimal } from '@/lib/validation';
+import { nonNegative, positive, required, toDecimal, translateErrors } from '@/lib/validation';
 
 import { useNbuRate } from './useNbuRate';
 
@@ -41,6 +42,7 @@ interface Props {
 }
 
 export function LotFormModal({ lot, onClose }: Props) {
+  const { t } = useTranslation();
   const instruments = useInstruments();
   const save = useSaveLot();
   const form = useForm<Values>({
@@ -67,7 +69,7 @@ export function LotFormModal({ lot, onClose }: Props) {
           fx_rate: '',
           note: '',
         },
-    validate: schemaResolver(schema, { sync: true }),
+    validate: translateErrors(schemaResolver(schema, { sync: true })),
   });
   const instrumentId = form.values.instrument_id ? Number(form.values.instrument_id) : null;
   const schedule = useSchedule(instrumentId);
@@ -109,14 +111,14 @@ export function LotFormModal({ lot, onClose }: Props) {
     <Modal
       opened
       onClose={onClose}
-      title={lot ? `Edit purchase #${lot.id}` : 'Buy bonds'}
+      title={lot ? t('lotForm.edit', { id: lot.id }) : t('lotForm.new')}
       size="lg"
     >
       <form onSubmit={submit}>
         <SimpleGrid cols={{ base: 1, sm: 2 }}>
           <Select
-            label="Bond"
-            placeholder="Select a bond"
+            label={t('common.bond')}
+            placeholder={t('common.selectBond')}
             searchable
             data={(instruments.data ?? []).map((i) => ({
               value: String(i.id),
@@ -129,7 +131,7 @@ export function LotFormModal({ lot, onClose }: Props) {
             }}
           />
           <DateField
-            label="Purchase date"
+            label={t('lotForm.purchaseDate')}
             {...form.getInputProps('trade_date')}
             onChange={(value) => {
               form.setFieldValue('trade_date', value);
@@ -138,7 +140,7 @@ export function LotFormModal({ lot, onClose }: Props) {
             }}
           />
           <MoneyInput
-            label="Quantity"
+            label={t('common.quantity')}
             decimalScale={0}
             {...form.getInputProps('quantity')}
             onChange={(value) => {
@@ -147,8 +149,8 @@ export function LotFormModal({ lot, onClose }: Props) {
             }}
           />
           <MoneyInput
-            label="Price per bond, UAH"
-            description="Including accrued coupon"
+            label={t('lotForm.price')}
+            description={t('lotForm.priceDescription')}
             decimalScale={6}
             {...form.getInputProps('price_per_unit')}
             onChange={(value) => {
@@ -157,29 +159,35 @@ export function LotFormModal({ lot, onClose }: Props) {
             }}
           />
           <MoneyInput
-            label="Total cost, UAH"
-            description="Quantity × price; adjust to what you actually paid"
+            label={t('lotForm.totalCost')}
+            description={t('lotForm.totalCostDescription')}
             {...form.getInputProps('total_cost_uah')}
           />
           <MoneyInput
-            label="Accrued coupon paid, UAH"
-            description="Calculated from the schedule"
+            label={t('lotForm.accruedPaid')}
+            description={t('common.fromSchedule')}
             {...form.getInputProps('accrued_paid_uah')}
           />
-          <MoneyInput label="Fee, UAH" {...form.getInputProps('fee_uah')} />
+          <MoneyInput label={t('common.feeUah')} {...form.getInputProps('fee_uah')} />
           <FxRateInput
             loading={nbu.loading}
             onRefresh={() => void nbu.load(form.values.trade_date)}
             {...form.getInputProps('fx_rate')}
           />
         </SimpleGrid>
-        <Textarea label="Note" mt="sm" autosize minRows={1} {...form.getInputProps('note')} />
+        <Textarea
+          label={t('common.note')}
+          mt="sm"
+          autosize
+          minRows={1}
+          {...form.getInputProps('note')}
+        />
         <Group justify="flex-end" mt="xl">
           <Button variant="default" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" loading={save.isPending}>
-            Save
+            {t('common.save')}
           </Button>
         </Group>
       </form>

@@ -1,36 +1,31 @@
 import { Button, Group, Modal, Select, SimpleGrid, TextInput } from '@mantine/core';
 import { schemaResolver, useForm } from '@mantine/form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { useSaveInstrument } from '@/api/hooks';
 import type { Instrument } from '@/api/types';
 import { DateField } from '@/components/DateField';
 import { MoneyInput } from '@/components/MoneyInput';
-import { positive, required, toDecimal } from '@/lib/validation';
+import { positive, required, toDecimal, translateErrors } from '@/lib/validation';
 
-const FREQUENCIES = [
-  { value: '2', label: 'Semi-annual' },
-  { value: '4', label: 'Quarterly' },
-  { value: '12', label: 'Monthly' },
-  { value: '1', label: 'Annual' },
-  { value: '0', label: 'Zero-coupon' },
-];
+const FREQUENCIES = ['2', '4', '12', '1', '0'] as const;
 
 const schema = z
   .object({
-    isin: z.string().regex(/^[A-Z]{2}[A-Z0-9]{9}[0-9]$/, 'ISIN: 12 characters, e.g. UA4000227045'),
-    name: z.string().min(1, 'Required').max(200),
+    isin: z.string().regex(/^[A-Z]{2}[A-Z0-9]{9}[0-9]$/, 'validation.isin'),
+    name: z.string().min(1, 'validation.required').max(200),
     face_value: positive,
     coupon_rate_percent: z
       .union([z.number(), z.string()])
-      .refine((v) => v !== '' && Number(v) >= 0 && Number(v) < 100, 'Between 0 and 100'),
+      .refine((v) => v !== '' && Number(v) >= 0 && Number(v) < 100, 'validation.percent'),
     coupon_frequency: required,
     issue_date: required,
     maturity_date: required,
   })
   .refine((v) => v.maturity_date > v.issue_date, {
     path: ['maturity_date'],
-    message: 'Must be after the issue date',
+    message: 'validation.maturityAfterIssue',
   });
 
 type Values = {
@@ -50,6 +45,7 @@ interface Props {
 }
 
 export function BondFormModal({ opened, onClose, instrument }: Props) {
+  const { t } = useTranslation();
   const save = useSaveInstrument();
   const form = useForm<Values>({
     initialValues: instrument
@@ -71,7 +67,7 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
           issue_date: null,
           maturity_date: null,
         },
-    validate: schemaResolver(schema, { sync: true }),
+    validate: translateErrors(schemaResolver(schema, { sync: true })),
   });
 
   const submit = form.onSubmit(async (values) => {
@@ -96,39 +92,46 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
     <Modal
       opened={opened}
       onClose={onClose}
-      title={instrument ? 'Edit bond' : 'Add bond'}
+      title={instrument ? t('bonds.edit') : t('bonds.add')}
       size="lg"
     >
       <form onSubmit={submit}>
         <SimpleGrid cols={{ base: 1, sm: 2 }}>
-          <TextInput label="ISIN" placeholder="UA4000227045" {...form.getInputProps('isin')} />
           <TextInput
-            label="Name"
-            placeholder="OVDP 16.5% 09/2027"
+            label={t('bonds.isin')}
+            placeholder="UA4000227045"
+            {...form.getInputProps('isin')}
+          />
+          <TextInput
+            label={t('bonds.name')}
+            placeholder={t('bonds.namePlaceholder')}
             {...form.getInputProps('name')}
           />
-          <MoneyInput label="Face value, UAH" {...form.getInputProps('face_value')} />
+          <MoneyInput label={t('bonds.faceValueUah')} {...form.getInputProps('face_value')} />
           <MoneyInput
-            label="Coupon rate, % per year"
+            label={t('bonds.couponRate')}
             decimalScale={4}
             {...form.getInputProps('coupon_rate_percent')}
           />
           <Select
-            label="Coupon frequency"
-            data={FREQUENCIES}
+            label={t('bonds.couponFrequency')}
+            data={FREQUENCIES.map((value) => ({
+              value,
+              label: t(`bonds.frequencies.${value}`),
+            }))}
             allowDeselect={false}
             {...form.getInputProps('coupon_frequency')}
           />
           <div />
-          <DateField label="Issue date" {...form.getInputProps('issue_date')} />
-          <DateField label="Maturity date" {...form.getInputProps('maturity_date')} />
+          <DateField label={t('bonds.issueDate')} {...form.getInputProps('issue_date')} />
+          <DateField label={t('bonds.maturityDate')} {...form.getInputProps('maturity_date')} />
         </SimpleGrid>
         <Group justify="flex-end" mt="xl">
           <Button variant="default" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" loading={save.isPending}>
-            Save
+            {t('common.save')}
           </Button>
         </Group>
       </form>

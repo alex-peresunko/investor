@@ -1,5 +1,7 @@
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { ParseKeys } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 import { api, unwrap } from './client';
 import type {
@@ -63,16 +65,20 @@ export function usePayments() {
  * Every write can change any derived number (P&L, holdings, reports), so a successful mutation
  * invalidates all cached queries.
  */
-function useWrite<TArgs, TResult>(fn: (args: TArgs) => Promise<TResult>, successMessage: string) {
+function useWrite<TArgs, TResult>(
+  fn: (args: TArgs) => Promise<TResult>,
+  successMessage: ParseKeys,
+) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: fn,
     onSuccess: async () => {
-      notifications.show({ color: 'teal', message: successMessage });
+      notifications.show({ color: 'teal', message: t(successMessage) });
       await queryClient.invalidateQueries();
     },
     onError: (error: Error) =>
-      notifications.show({ color: 'red', title: 'Error', message: error.message }),
+      notifications.show({ color: 'red', title: t('notify.error'), message: error.message }),
   });
 }
 
@@ -85,7 +91,7 @@ export function useSaveInstrument() {
         body,
       }),
     );
-  }, 'Bond saved');
+  }, 'notify.bondSaved');
 }
 
 export function useDeleteInstrument() {
@@ -94,7 +100,7 @@ export function useDeleteInstrument() {
       params: { path: { instrument_id: id } },
     });
     if (result.error !== undefined) unwrap(result);
-  }, 'Bond deleted');
+  }, 'notify.bondDeleted');
 }
 
 export function useReplaceSchedule() {
@@ -106,7 +112,7 @@ export function useReplaceSchedule() {
           body: items,
         }),
       ),
-    'Schedule saved',
+    'notify.scheduleSaved',
   );
 }
 
@@ -118,7 +124,7 @@ export function useRegenerateSchedule() {
           params: { path: { instrument_id: id } },
         }),
       ),
-    'Schedule generated from bond terms',
+    'notify.scheduleGenerated',
   );
 }
 
@@ -128,7 +134,7 @@ export function useSaveLot() {
     return unwrap(
       await api.PUT('/api/v1/lots/{lot_id}', { params: { path: { lot_id: id } }, body }),
     );
-  }, 'Purchase saved');
+  }, 'notify.purchaseSaved');
 }
 
 export function useDeleteLot() {
@@ -137,7 +143,7 @@ export function useDeleteLot() {
       params: { path: { lot_id: id } },
     });
     if (result.error !== undefined) unwrap(result);
-  }, 'Purchase deleted');
+  }, 'notify.purchaseDeleted');
 }
 
 export function useSaveSale() {
@@ -146,7 +152,7 @@ export function useSaveSale() {
     return unwrap(
       await api.PUT('/api/v1/sales/{sale_id}', { params: { path: { sale_id: id } }, body }),
     );
-  }, 'Sale saved');
+  }, 'notify.saleSaved');
 }
 
 export function useDeleteSale() {
@@ -155,7 +161,7 @@ export function useDeleteSale() {
       params: { path: { sale_id: id } },
     });
     if (result.error !== undefined) unwrap(result);
-  }, 'Sale deleted');
+  }, 'notify.saleDeleted');
 }
 
 export function useSavePayment() {
@@ -167,7 +173,7 @@ export function useSavePayment() {
         body,
       }),
     );
-  }, 'Payment saved');
+  }, 'notify.paymentSaved');
 }
 
 export function useDeletePayment() {
@@ -176,5 +182,5 @@ export function useDeletePayment() {
       params: { path: { payment_id: id } },
     });
     if (result.error !== undefined) unwrap(result);
-  }, 'Payment deleted');
+  }, 'notify.paymentDeleted');
 }

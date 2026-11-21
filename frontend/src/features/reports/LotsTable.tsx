@@ -1,4 +1,5 @@
 import { Badge, Table, Text } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
 import type { LotSummary } from '@/api/reportHooks';
@@ -19,12 +20,13 @@ const COLUMNS = {
 } satisfies SortColumns<LotSummary, string>;
 
 export function LotsTable({ lots, storageKey }: { lots: LotSummary[]; storageKey: string }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const sort = useSortedRows(storageKey, lots, COLUMNS, 'bought');
   if (lots.length === 0) {
     return (
       <Text c="dimmed" p="lg">
-        No packages in this period.
+        {t('lots.empty')}
       </Text>
     );
   }
@@ -33,24 +35,24 @@ export function LotsTable({ lots, storageKey }: { lots: LotSummary[]; storageKey
       <Table highlightOnHover verticalSpacing="sm">
         <Table.Thead>
           <Table.Tr>
-            <SortTh {...sort.th('package')}>Package</SortTh>
-            <SortTh {...sort.th('bond')}>Bond</SortTh>
-            <SortTh {...sort.th('bought')}>Bought</SortTh>
-            <SortTh {...sort.th('maturity')}>Maturity</SortTh>
+            <SortTh {...sort.th('package')}>{t('common.package')}</SortTh>
+            <SortTh {...sort.th('bond')}>{t('common.bond')}</SortTh>
+            <SortTh {...sort.th('bought')}>{t('lots.bought')}</SortTh>
+            <SortTh {...sort.th('maturity')}>{t('lots.maturity')}</SortTh>
             <SortTh ta="right" {...sort.th('held')}>
-              Held / bought
+              {t('lots.heldBought')}
             </SortTh>
             <SortTh ta="right" {...sort.th('value')}>
-              Value, USD
+              {t('lots.valueUsd')}
             </SortTh>
             <SortTh ta="right" {...sort.th('pnlUah')}>
-              P&L, UAH
+              {t('lots.pnlUah')}
             </SortTh>
             <SortTh ta="right" {...sort.th('pnlUsd')}>
-              P&L, USD
+              {t('lots.pnlUsd')}
             </SortTh>
             <SortTh ta="right" {...sort.th('xirr')}>
-              XIRR, USD
+              {t('lots.xirrUsd')}
             </SortTh>
           </Table.Tr>
         </Table.Thead>
@@ -66,7 +68,7 @@ export function LotsTable({ lots, storageKey }: { lots: LotSummary[]; storageKey
                 <Table.Td>
                   #{lot.lot_id}{' '}
                   <Badge size="xs" variant="light" color={open ? 'blue' : 'gray'} ml={4}>
-                    {open ? 'open' : 'closed'}
+                    {open ? t('common.open') : t('common.closed')}
                   </Badge>
                 </Table.Td>
                 <Table.Td>

@@ -12,6 +12,7 @@ import {
 } from '@mantine/core';
 import { IconCalendarEvent, IconPencil, IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useDeleteInstrument, useInstruments } from '@/api/hooks';
 import type { Instrument } from '@/api/types';
@@ -21,14 +22,6 @@ import { formatDate, formatMoney, formatPercent } from '@/lib/format';
 
 import { BondFormModal } from './BondFormModal';
 import { ScheduleModal } from './ScheduleModal';
-
-const FREQUENCY_LABEL: Record<number, string> = {
-  0: 'Zero-coupon',
-  1: 'Annual',
-  2: 'Semi-annual',
-  4: 'Quarterly',
-  12: 'Monthly',
-};
 
 const COLUMNS = {
   isin: (b) => b.isin,
@@ -41,6 +34,7 @@ const COLUMNS = {
 } satisfies SortColumns<Instrument, string>;
 
 export function BondsPage() {
+  const { t } = useTranslation();
   const instruments = useInstruments();
   const remove = useDeleteInstrument();
   const sort = useSortedRows('table:bonds', instruments.data ?? [], COLUMNS, 'issued');
@@ -51,9 +45,9 @@ export function BondsPage() {
   return (
     <>
       <Group justify="space-between" mb="lg">
-        <Title order={2}>Bonds</Title>
+        <Title order={2}>{t('bonds.title')}</Title>
         <Button leftSection={<IconPlus size={16} />} onClick={() => setEditing(null)}>
-          Add bond
+          {t('bonds.add')}
         </Button>
       </Group>
       <Paper withBorder radius="md">
@@ -63,24 +57,24 @@ export function BondsPage() {
           <Alert color="red">{instruments.error.message}</Alert>
         ) : instruments.data.length === 0 ? (
           <Text c="dimmed" p="lg">
-            No bonds yet. Add one to start recording purchases.
+            {t('bonds.empty')}
           </Text>
         ) : (
           <Table.ScrollContainer minWidth={800}>
             <Table highlightOnHover verticalSpacing="sm">
               <Table.Thead>
                 <Table.Tr>
-                  <SortTh {...sort.th('isin')}>ISIN</SortTh>
-                  <SortTh {...sort.th('name')}>Name</SortTh>
+                  <SortTh {...sort.th('isin')}>{t('bonds.isin')}</SortTh>
+                  <SortTh {...sort.th('name')}>{t('bonds.name')}</SortTh>
                   <SortTh ta="right" {...sort.th('face')}>
-                    Face value
+                    {t('bonds.faceValue')}
                   </SortTh>
                   <SortTh ta="right" {...sort.th('coupon')}>
-                    Coupon
+                    {t('bonds.coupon')}
                   </SortTh>
-                  <SortTh {...sort.th('frequency')}>Frequency</SortTh>
-                  <SortTh {...sort.th('issued')}>Issued</SortTh>
-                  <SortTh {...sort.th('maturity')}>Maturity</SortTh>
+                  <SortTh {...sort.th('frequency')}>{t('bonds.frequency')}</SortTh>
+                  <SortTh {...sort.th('issued')}>{t('bonds.issued')}</SortTh>
+                  <SortTh {...sort.th('maturity')}>{t('bonds.maturity')}</SortTh>
                   <Table.Th />
                 </Table.Tr>
               </Table.Thead>
@@ -91,31 +85,31 @@ export function BondsPage() {
                     <Table.Td>{bond.name}</Table.Td>
                     <Table.Td ta="right">{formatMoney(bond.face_value, 'UAH')}</Table.Td>
                     <Table.Td ta="right">{formatPercent(bond.coupon_rate)}</Table.Td>
-                    <Table.Td>{FREQUENCY_LABEL[bond.coupon_frequency]}</Table.Td>
+                    <Table.Td>{t(`bonds.frequencies.${bond.coupon_frequency}`)}</Table.Td>
                     <Table.Td>{formatDate(bond.issue_date)}</Table.Td>
                     <Table.Td>{formatDate(bond.maturity_date)}</Table.Td>
                     <Table.Td>
                       <Group gap={4} justify="flex-end" wrap="nowrap">
-                        <Tooltip label="Payment schedule">
+                        <Tooltip label={t('bonds.schedule')}>
                           <ActionIcon
                             variant="subtle"
                             onClick={() => setScheduleFor(bond)}
-                            aria-label="Payment schedule"
+                            aria-label={t('bonds.schedule')}
                           >
                             <IconCalendarEvent size={16} />
                           </ActionIcon>
                         </Tooltip>
-                        <Tooltip label="Edit">
+                        <Tooltip label={t('common.edit')}>
                           <ActionIcon
                             variant="subtle"
                             onClick={() => setEditing(bond)}
-                            aria-label="Edit bond"
+                            aria-label={t('bonds.editAria')}
                           >
                             <IconPencil size={16} />
                           </ActionIcon>
                         </Tooltip>
                         <ConfirmDeleteButton
-                          what={`bond ${bond.isin}`}
+                          what={t('bonds.deleteWhat', { isin: bond.isin })}
                           loading={remove.isPending}
                           onConfirm={() => remove.mutateAsync(bond.id)}
                         />

@@ -11,6 +11,7 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { IconDownload } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 import { usePortfolioReport } from '@/api/reportHooks';
 import { PeriodPicker, usePeriod } from '@/components/PeriodPicker';
@@ -20,17 +21,19 @@ import { ValueChart } from '@/features/reports/ValueChart';
 import { formatDate, formatPercent } from '@/lib/format';
 
 export function DashboardPage() {
+  const { t, i18n } = useTranslation();
   const period = usePeriod();
   const report = usePortfolioReport(period);
-  const exportQuery = new URLSearchParams(
-    Object.entries(period).filter((e): e is [string, string] => Boolean(e[1])),
-  ).toString();
+  const exportQuery = new URLSearchParams([
+    ...Object.entries(period).filter((e): e is [string, string] => Boolean(e[1])),
+    ['lang', i18n.language],
+  ]).toString();
 
   return (
     <Stack gap="lg">
       <Group justify="space-between">
         <div>
-          <Title order={2}>Dashboard</Title>
+          <Title order={2}>{t('dashboard.title')}</Title>
           {report.data && (
             <Text size="sm" c="dimmed">
               {formatDate(report.data.start)} – {formatDate(report.data.end)}
@@ -39,13 +42,13 @@ export function DashboardPage() {
         </div>
         <Group>
           <PeriodPicker />
-          <Tooltip label="Download P&L for this period as Excel">
+          <Tooltip label={t('dashboard.export')}>
             <ActionIcon
               variant="default"
               size="lg"
               component="a"
-              href={`/api/v1/export/portfolio.xlsx${exportQuery ? `?${exportQuery}` : ''}`}
-              aria-label="Export P&L"
+              href={`/api/v1/export/portfolio.xlsx?${exportQuery}`}
+              aria-label={t('dashboard.exportAria')}
             >
               <IconDownload size={18} />
             </ActionIcon>
@@ -59,7 +62,7 @@ export function DashboardPage() {
       ) : (
         <>
           <SimpleGrid cols={{ base: 1, xs: 2, md: 5 }}>
-            <Stat label="Profit / loss" amount={report.data.totals.pnl} signed>
+            <Stat label={t('stat.pnl')} amount={report.data.totals.pnl} signed>
               <PnlSplit
                 realized={report.data.realized}
                 unrealized={report.data.unrealized}
@@ -69,10 +72,10 @@ export function DashboardPage() {
                 }}
               />
             </Stat>
-            <Stat label="Current value" amount={report.data.totals.closing_value} />
-            <Stat label="Invested" amount={report.data.totals.invested} />
-            <Stat label="Received" amount={report.data.totals.received} />
-            <Stat label="Annual return (XIRR)">
+            <Stat label={t('stat.currentValue')} amount={report.data.totals.closing_value} />
+            <Stat label={t('stat.invested')} amount={report.data.totals.invested} />
+            <Stat label={t('stat.received')} amount={report.data.totals.received} />
+            <Stat label={t('stat.xirr')}>
               <Text fz={22} fw={700} mt={4}>
                 {formatPercent(report.data.xirr_usd)}{' '}
                 <Text span size="sm" c="dimmed">
@@ -87,7 +90,7 @@ export function DashboardPage() {
           <ValueChart period={period} />
           <Paper withBorder radius="md">
             <Text fw={600} p="md" pb={0}>
-              Packages
+              {t('dashboard.packages')}
             </Text>
             <LotsTable lots={report.data.lots} storageKey="table:dashboard-packages" />
           </Paper>
