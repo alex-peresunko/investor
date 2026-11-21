@@ -7,13 +7,13 @@ import {
   Paper,
   Table,
   Text,
-  Title,
   Tooltip,
 } from '@mantine/core';
 import { IconCalendarEvent, IconPencil, IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { PageTitle } from '@/components/PageTitle';
 import { useDeleteInstrument, useInstruments } from '@/api/hooks';
 import type { Instrument } from '@/api/types';
 import { ConfirmDeleteButton } from '@/components/ConfirmDeleteButton';
@@ -45,12 +45,12 @@ export function BondsPage() {
   return (
     <>
       <Group justify="space-between" mb="lg">
-        <Title order={2}>{t('bonds.title')}</Title>
+        <PageTitle page="bonds">{t('bonds.title')}</PageTitle>
         <Button leftSection={<IconPlus size={16} />} onClick={() => setEditing(null)}>
           {t('bonds.add')}
         </Button>
       </Group>
-      <Paper withBorder radius="md">
+      <Paper withBorder>
         {instruments.isPending ? (
           <Loader m="lg" />
         ) : instruments.isError ? (

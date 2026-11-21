@@ -1,20 +1,10 @@
 import { BarChart } from '@mantine/charts';
-import {
-  Alert,
-  Badge,
-  Group,
-  Loader,
-  Paper,
-  Select,
-  Stack,
-  Table,
-  Text,
-  Title,
-} from '@mantine/core';
+import { Alert, Badge, Group, Loader, Paper, Select, Stack, Table, Text } from '@mantine/core';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { PageTitle } from '@/components/PageTitle';
 import { type UpcomingPayment, useUpcoming } from '@/api/reportHooks';
 import { type SortColumns, SortTh, useSortedRows } from '@/components/SortableTable';
 import { type SeriesDef, SeriesLegend, useSeriesToggle } from '@/components/SeriesLegend';
@@ -56,7 +46,7 @@ export function UpcomingPage() {
     <Stack gap="lg">
       <Group justify="space-between">
         <div>
-          <Title order={2}>{t('upcoming.title')}</Title>
+          <PageTitle page="upcoming">{t('upcoming.title')}</PageTitle>
           <Text size="sm" c="dimmed">
             {t('upcoming.subtitle')}
           </Text>
@@ -80,7 +70,7 @@ export function UpcomingPage() {
         <Text c="dimmed">{t('upcoming.empty')}</Text>
       ) : (
         <>
-          <Paper withBorder radius="md" p="md">
+          <Paper withBorder p="md">
             <Group justify="space-between" mb="md">
               <Text fw={600}>{t('upcoming.byMonthUah')}</Text>
               <SeriesLegend series={series} isVisible={toggle.isVisible} onToggle={toggle.toggle} />
@@ -92,6 +82,8 @@ export function UpcomingPage() {
               </Text>
             </Group>
             <BarChart
+              maxBarWidth={56}
+              barProps={{ radius: [6, 6, 0, 0] }}
               h={260}
               data={chartData}
               dataKey="month"
@@ -101,7 +93,7 @@ export function UpcomingPage() {
               series={toggle.visible}
             />
           </Paper>
-          <Paper withBorder radius="md">
+          <Paper withBorder>
             <Table.ScrollContainer minWidth={800}>
               <Table verticalSpacing="sm">
                 <Table.Thead>

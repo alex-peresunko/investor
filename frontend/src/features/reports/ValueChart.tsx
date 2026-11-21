@@ -1,4 +1,4 @@
-import { LineChart } from '@mantine/charts';
+import { AreaChart } from '@mantine/charts';
 import { Alert, Group, Loader, Paper, SegmentedControl, Text } from '@mantine/core';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,8 +15,8 @@ interface Props {
 export function ValueChart({ period, lotId }: Props) {
   const { t } = useTranslation();
   const series: SeriesDef[] = [
-    { name: 'value', label: t('series.value'), color: 'blue.6' },
-    { name: 'pnl', label: t('series.cumulativePnl'), color: 'teal.6' },
+    { name: 'value', label: t('series.value'), color: 'brand.5' },
+    { name: 'pnl', label: t('series.cumulativePnl'), color: 'teal.5' },
   ];
   const [currency, setCurrency] = useState<'usd' | 'uah'>('usd');
   const timeseries = useTimeseries(period, lotId);
@@ -30,7 +30,7 @@ export function ValueChart({ period, lotId }: Props) {
   }));
 
   return (
-    <Paper withBorder radius="md" p="md">
+    <Paper withBorder p="md">
       <Group justify="space-between" mb="md">
         <Text fw={600}>{t('chart.valueTitle')}</Text>
         <Group gap="lg">
@@ -55,11 +55,14 @@ export function ValueChart({ period, lotId }: Props) {
           {t('common.noData')}
         </Text>
       ) : (
-        <LineChart
+        <AreaChart
           h={300}
           data={data}
           dataKey="day"
           curveType="monotone"
+          withGradient
+          fillOpacity={0.35}
+          strokeWidth={2.5}
           valueFormatter={(v) => formatNumber(v, 0)}
           yAxisProps={{ width: 80 }}
           withRightYAxis={dualAxis}

@@ -1,7 +1,8 @@
-import { Alert, Group, Loader, Paper, SegmentedControl, Stack, Title } from '@mantine/core';
+import { Alert, Group, Loader, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { PageTitle } from '@/components/PageTitle';
 import { usePortfolioReport } from '@/api/reportHooks';
 import { PeriodPicker, usePeriod } from '@/components/PeriodPicker';
 import { LotsTable } from '@/features/reports/LotsTable';
@@ -19,7 +20,7 @@ export function PackagesPage() {
   return (
     <Stack gap="lg">
       <Group justify="space-between">
-        <Title order={2}>{t('packages.title')}</Title>
+        <PageTitle page="packages">{t('packages.title')}</PageTitle>
         <Group>
           <SegmentedControl
             value={status}
@@ -33,7 +34,7 @@ export function PackagesPage() {
           <PeriodPicker />
         </Group>
       </Group>
-      <Paper withBorder radius="md">
+      <Paper withBorder>
         {report.isPending ? (
           <Loader m="lg" />
         ) : report.isError ? (

@@ -10,7 +10,6 @@ import {
   Select,
   Table,
   Text,
-  Title,
   Tooltip,
 } from '@mantine/core';
 import {
@@ -33,6 +32,7 @@ import {
   usePayments,
   useSales,
 } from '@/api/hooks';
+import { PageTitle } from '@/components/PageTitle';
 import type { Lot, Payment, Sale } from '@/api/types';
 import { ConfirmDeleteButton } from '@/components/ConfirmDeleteButton';
 import { type SortColumns, SortTh, useSortedRows } from '@/components/SortableTable';
@@ -170,7 +170,7 @@ export function OperationsPage() {
   return (
     <>
       <Group justify="space-between" mb="lg">
-        <Title order={2}>{t('operations.title')}</Title>
+        <PageTitle page="operations">{t('operations.title')}</PageTitle>
         <Group>
           <Button
             leftSection={<IconShoppingCart size={16} />}
@@ -226,7 +226,7 @@ export function OperationsPage() {
           w={200}
         />
       </Group>
-      <Paper withBorder radius="md">
+      <Paper withBorder>
         {error ? (
           <Alert color="red">{error.message}</Alert>
         ) : queries.some((q) => q.isPending) ? (

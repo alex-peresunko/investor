@@ -10,12 +10,13 @@ import {
   Stack,
   Table,
   Text,
-  Title,
 } from '@mantine/core';
 import dayjs from 'dayjs';
+import { IconCertificate, IconReceipt, IconSum } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { PageTitle } from '@/components/PageTitle';
 import { type ReceivedPayment, useReceived } from '@/api/reportHooks';
 import { PeriodPicker, usePeriod } from '@/components/PeriodPicker';
 import { type SortColumns, SortTh, useSortedRows } from '@/components/SortableTable';
@@ -72,7 +73,7 @@ export function PastPaymentsPage() {
     <Stack gap="lg">
       <Group justify="space-between">
         <div>
-          <Title order={2}>{t('pastPayments.title')}</Title>
+          <PageTitle page="pastPayments">{t('pastPayments.title')}</PageTitle>
           <Text size="sm" c="dimmed">
             {t('pastPayments.subtitle')}
           </Text>
@@ -88,13 +89,24 @@ export function PastPaymentsPage() {
       ) : (
         <>
           <SimpleGrid cols={{ base: 1, xs: 3 }}>
-            <Stat label={t('pastPayments.coupons')} amount={coupons}>
+            <Stat
+              icon={IconReceipt}
+              color="teal"
+              label={t('pastPayments.coupons')}
+              amount={coupons}
+            >
               <NetIncome usd={coupons.netUsd} uah={coupons.netUah} />
             </Stat>
-            <Stat label={t('pastPayments.redemptions')} amount={redemptions}>
+            <Stat
+              icon={IconCertificate}
+              color="grape"
+              label={t('pastPayments.redemptions')}
+              amount={redemptions}
+            >
               <NetIncome usd={redemptions.netUsd} uah={redemptions.netUah} />
             </Stat>
             <Stat
+              icon={IconSum}
               label={t('pastPayments.total')}
               amount={{
                 uah: String(Number(coupons.uah) + Number(redemptions.uah)),
@@ -107,7 +119,7 @@ export function PastPaymentsPage() {
               />
             </Stat>
           </SimpleGrid>
-          <Paper withBorder radius="md" p="md">
+          <Paper withBorder p="md">
             <Group justify="space-between" mb="md">
               <Text fw={600}>{t('common.byMonth')}</Text>
               <Group gap="lg">
@@ -128,6 +140,8 @@ export function PastPaymentsPage() {
               </Group>
             </Group>
             <BarChart
+              maxBarWidth={56}
+              barProps={{ radius: [6, 6, 0, 0] }}
               h={260}
               data={chartData}
               dataKey="month"
@@ -137,7 +151,7 @@ export function PastPaymentsPage() {
               series={toggle.visible}
             />
           </Paper>
-          <Paper withBorder radius="md">
+          <Paper withBorder>
             <Table.ScrollContainer minWidth={1050}>
               <Table verticalSpacing="sm">
                 <Table.Thead>

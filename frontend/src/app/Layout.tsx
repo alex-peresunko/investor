@@ -4,52 +4,43 @@ import {
   Burger,
   Group,
   NavLink,
-  Title,
+  Text,
+  ThemeIcon,
   useComputedColorScheme,
   useMantineColorScheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import {
-  IconCalendarDue,
-  IconCertificate,
-  IconLayoutDashboard,
-  IconListDetails,
-  IconMoon,
-  IconPackage,
-  IconReceipt,
-  IconSun,
-} from '@tabler/icons-react';
+import { IconMoon, IconSun, IconTrendingUp } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { NavLink as RouterNavLink, Outlet } from 'react-router';
+import { NavLink as RouterNavLink, Outlet, useLocation } from 'react-router';
 
 import { LanguageMenu } from '@/i18n/LanguageMenu';
 
-const NAV = [
-  { to: '/', label: 'nav.dashboard', icon: IconLayoutDashboard, end: true },
-  { to: '/packages', label: 'nav.packages', icon: IconPackage, end: false },
-  { to: '/operations', label: 'nav.operations', icon: IconListDetails, end: false },
-  { to: '/upcoming', label: 'nav.upcoming', icon: IconCalendarDue, end: false },
-  { to: '/past-payments', label: 'nav.pastPayments', icon: IconReceipt, end: false },
-  { to: '/bonds', label: 'nav.bonds', icon: IconCertificate, end: false },
-] as const;
+import { NAV } from './nav';
 
 export function Layout() {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
   const [opened, { toggle, close }] = useDisclosure();
   const { setColorScheme } = useMantineColorScheme();
   const scheme = useComputedColorScheme('light');
 
   return (
     <AppShell
-      header={{ height: 56 }}
+      header={{ height: 60 }}
       navbar={{ width: 240, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       padding="lg"
     >
-      <AppShell.Header>
+      <AppShell.Header className="glass">
         <Group h="100%" px="md" justify="space-between">
-          <Group>
+          <Group gap="sm">
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-            <Title order={4}>{t('app.name')}</Title>
+            <ThemeIcon size={34} radius="md" variant="gradient">
+              <IconTrendingUp size={20} stroke={2.2} />
+            </ThemeIcon>
+            <Text fz={20} fw={800} className="brand-text">
+              {t('app.name')}
+            </Text>
           </Group>
           <Group gap="xs">
             <LanguageMenu />
@@ -64,21 +55,31 @@ export function Layout() {
           </Group>
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar p="sm">
-        {NAV.map(({ to, label, icon: Icon, end }) => (
+      <AppShell.Navbar p="sm" className="glass">
+        {Object.values(NAV).map(({ to, label, icon: Icon, color, end }) => (
           <NavLink
             key={to}
             component={RouterNavLink}
             to={to}
             end={end}
             label={t(label)}
-            leftSection={<Icon size={18} />}
+            color={color}
+            fw={500}
+            mb={4}
+            style={{ borderRadius: 'var(--mantine-radius-md)' }}
+            leftSection={
+              <ThemeIcon variant="light" color={color} size={30} radius="md">
+                <Icon size={18} />
+              </ThemeIcon>
+            }
             onClick={close}
           />
         ))}
       </AppShell.Navbar>
       <AppShell.Main>
-        <Outlet />
+        <div className="page" key={pathname}>
+          <Outlet />
+        </div>
       </AppShell.Main>
     </AppShell>
   );

@@ -33,6 +33,7 @@ export function ConfirmDeleteButton({ what, onConfirm, loading }: Props) {
           </Button>
           <Button
             color="red"
+            variant="filled"
             loading={loading}
             onClick={async () => {
               await onConfirm().then(close, () => undefined);

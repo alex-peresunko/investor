@@ -11,14 +11,21 @@ import {
   Stack,
   Table,
   Text,
-  Title,
 } from '@mantine/core';
-import { IconTrendingDown } from '@tabler/icons-react';
+import {
+  IconTrendingDown,
+  IconCash,
+  IconChartLine,
+  IconCoin,
+  IconPercentage,
+  IconWallet,
+} from '@tabler/icons-react';
 import type { TFunction } from 'i18next';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 
+import { PageTitle } from '@/components/PageTitle';
 import { useLotReport } from '@/api/reportHooks';
 import type { components } from '@/api/schema';
 import { PeriodPicker, usePeriod } from '@/components/PeriodPicker';
@@ -77,9 +84,9 @@ export function PackageDetailPage() {
       <Group justify="space-between">
         <div>
           <Group gap="xs">
-            <Title order={2}>
+            <PageTitle page="packages">
               {t('packageDetail.title', { id: summary.lot_id, isin: summary.isin })}
-            </Title>
+            </PageTitle>
             <Badge variant="light" color={open ? 'blue' : 'gray'}>
               {open ? t('common.open') : t('common.closed')}
             </Badge>
@@ -108,12 +115,22 @@ export function PackageDetailPage() {
         </Group>
       </Group>
       <SimpleGrid cols={{ base: 1, xs: 2, md: 5 }}>
-        <Stat label={t('stat.pnl')} amount={summary.pnl.pnl} signed />
-        <Stat label={t('stat.currentValue')} amount={summary.pnl.closing_value} />
-        <Stat label={t('stat.invested')} amount={summary.pnl.invested} />
-        <Stat label={t('stat.received')} amount={summary.pnl.received} />
-        <Stat label={t('stat.xirr')}>
-          <Text fz={22} fw={700} mt={4}>
+        <Stat icon={IconChartLine} label={t('stat.pnl')} amount={summary.pnl.pnl} signed />
+        <Stat icon={IconWallet} label={t('stat.currentValue')} amount={summary.pnl.closing_value} />
+        <Stat
+          icon={IconCoin}
+          color="blue"
+          label={t('stat.invested')}
+          amount={summary.pnl.invested}
+        />
+        <Stat
+          icon={IconCash}
+          color="teal"
+          label={t('stat.received')}
+          amount={summary.pnl.received}
+        />
+        <Stat icon={IconPercentage} color="orange" label={t('stat.xirr')}>
+          <Text fz={24} fw={800} lh={1.2}>
             {formatPercent(summary.xirr_usd)}{' '}
             <Text span size="sm" c="dimmed">
               USD
@@ -125,7 +142,7 @@ export function PackageDetailPage() {
         </Stat>
       </SimpleGrid>
       <ValueChart period={period} lotId={lotId} />
-      <Paper withBorder radius="md">
+      <Paper withBorder>
         <Text fw={600} p="md" pb={0}>
           {t('packageDetail.flows')}
         </Text>

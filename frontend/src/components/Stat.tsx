@@ -1,4 +1,5 @@
-import { Group, Paper, Stack, Text } from '@mantine/core';
+import { Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
+import type { Icon } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -37,28 +38,50 @@ export function MoneyText({
 
 interface StatProps {
   label: string;
+  icon: Icon;
+  /** Mantine color name for the icon and the top accent; signed stats follow the sign instead. */
+  color?: string;
   amount?: AmountPair;
   signed?: boolean;
   children?: ReactNode;
 }
 
 /** KPI card: USD first (the user's planning currency), UAH below. */
-export function Stat({ label, amount, signed = false, children }: StatProps) {
+export function Stat({
+  label,
+  icon: Icon,
+  color = 'brand',
+  amount,
+  signed = false,
+  children,
+}: StatProps) {
+  const accent = (signed && amount && signColor(amount.usd)) || color;
   return (
-    <Paper withBorder radius="md" p="md">
-      <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-        {label}
-      </Text>
+    <Paper
+      withBorder
+      p="md"
+      className="stat"
+      style={{
+        '--stat-from': `var(--mantine-color-${accent}-4)`,
+        '--stat-to': `var(--mantine-color-${accent}-7)`,
+      }}
+    >
+      <Group justify="space-between" align="flex-start" wrap="nowrap" gap="xs">
+        <Text size="xs" c="dimmed" tt="uppercase" fw={700} lts={0.4}>
+          {label}
+        </Text>
+        <ThemeIcon variant="light" color={accent} size={32} radius="md">
+          <Icon size={18} />
+        </ThemeIcon>
+      </Group>
       {amount && (
         <>
-          <Text fz={22} fw={700} mt={4}>
+          <Text fz={24} fw={800} lh={1.2}>
             <MoneyText value={amount.usd} currency="USD" signed={signed} />
           </Text>
-          <Group gap={4}>
-            <Text size="sm" c="dimmed">
-              <MoneyText value={amount.uah} currency="UAH" signed={signed} />
-            </Text>
-          </Group>
+          <Text size="sm" c="dimmed">
+            <MoneyText value={amount.uah} currency="UAH" signed={signed} />
+          </Text>
         </>
       )}
       {children}

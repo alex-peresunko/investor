@@ -7,12 +7,19 @@ import {
   SimpleGrid,
   Stack,
   Text,
-  Title,
   Tooltip,
 } from '@mantine/core';
-import { IconDownload } from '@tabler/icons-react';
+import {
+  IconDownload,
+  IconCash,
+  IconChartLine,
+  IconCoin,
+  IconPercentage,
+  IconWallet,
+} from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
+import { PageTitle } from '@/components/PageTitle';
 import { usePortfolioReport } from '@/api/reportHooks';
 import { PeriodPicker, usePeriod } from '@/components/PeriodPicker';
 import { PnlSplit, Stat } from '@/components/Stat';
@@ -33,7 +40,7 @@ export function DashboardPage() {
     <Stack gap="lg">
       <Group justify="space-between">
         <div>
-          <Title order={2}>{t('dashboard.title')}</Title>
+          <PageTitle page="dashboard">{t('dashboard.title')}</PageTitle>
           {report.data && (
             <Text size="sm" c="dimmed">
               {formatDate(report.data.start)} – {formatDate(report.data.end)}
@@ -62,7 +69,7 @@ export function DashboardPage() {
       ) : (
         <>
           <SimpleGrid cols={{ base: 1, xs: 2, md: 5 }}>
-            <Stat label={t('stat.pnl')} amount={report.data.totals.pnl} signed>
+            <Stat icon={IconChartLine} label={t('stat.pnl')} amount={report.data.totals.pnl} signed>
               <PnlSplit
                 realized={report.data.realized}
                 unrealized={report.data.unrealized}
@@ -72,11 +79,25 @@ export function DashboardPage() {
                 }}
               />
             </Stat>
-            <Stat label={t('stat.currentValue')} amount={report.data.totals.closing_value} />
-            <Stat label={t('stat.invested')} amount={report.data.totals.invested} />
-            <Stat label={t('stat.received')} amount={report.data.totals.received} />
-            <Stat label={t('stat.xirr')}>
-              <Text fz={22} fw={700} mt={4}>
+            <Stat
+              icon={IconWallet}
+              label={t('stat.currentValue')}
+              amount={report.data.totals.closing_value}
+            />
+            <Stat
+              icon={IconCoin}
+              color="blue"
+              label={t('stat.invested')}
+              amount={report.data.totals.invested}
+            />
+            <Stat
+              icon={IconCash}
+              color="teal"
+              label={t('stat.received')}
+              amount={report.data.totals.received}
+            />
+            <Stat icon={IconPercentage} color="orange" label={t('stat.xirr')}>
+              <Text fz={24} fw={800} lh={1.2}>
                 {formatPercent(report.data.xirr_usd)}{' '}
                 <Text span size="sm" c="dimmed">
                   USD
@@ -88,7 +109,7 @@ export function DashboardPage() {
             </Stat>
           </SimpleGrid>
           <ValueChart period={period} />
-          <Paper withBorder radius="md">
+          <Paper withBorder>
             <Text fw={600} p="md" pb={0}>
               {t('dashboard.packages')}
             </Text>
