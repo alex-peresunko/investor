@@ -231,3 +231,4 @@ backups/
 *.csv
 node_modules/
 frontend/dist/
+*.tsbuildinfo
