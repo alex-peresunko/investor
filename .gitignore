@@ -232,3 +232,5 @@ backups/
 node_modules/
 frontend/dist/
 *.tsbuildinfo
+# The Python template above ignores lib/; the frontend source folder is not a build artifact.
+!frontend/src/lib/
