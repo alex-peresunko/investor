@@ -84,6 +84,8 @@ def test_portfolio_report_interview_example(client: TestClient) -> None:
     assert body["lots"][0]["isin"] == "UA4000200000"
     assert body["realized"] == {"uah": "5000.00", "usd": "62.41"}
     assert body["unrealized"] == {"uah": "0.00", "usd": "0.00"}
+    assert body["realized_xirr_uah"] == body["xirr_uah"]
+    assert body["realized_xirr_usd"] == body["xirr_usd"]
 
 
 def test_lot_report_lists_flows(client: TestClient) -> None:
@@ -161,6 +163,7 @@ def test_open_package_pnl_is_unrealized(client: TestClient) -> None:
     assert body["realized"] == {"uah": "0.00", "usd": "0.00"}
     assert body["unrealized"] == body["totals"]["pnl"]
     assert Decimal(body["unrealized"]["uah"]) != 0
+    assert body["realized_xirr_uah"] is None
 
 
 def test_received_payments_in_period(client: TestClient) -> None:

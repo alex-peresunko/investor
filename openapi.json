@@ -2264,6 +2264,28 @@
           "unrealized": {
             "$ref": "#/components/schemas/AmountOut"
           },
+          "realized_xirr_uah": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Realized Xirr Uah"
+          },
+          "realized_xirr_usd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Realized Xirr Usd"
+          },
           "xirr_uah": {
             "anyOf": [
               {
@@ -2301,6 +2323,8 @@
           "totals",
           "realized",
           "unrealized",
+          "realized_xirr_uah",
+          "realized_xirr_usd",
           "xirr_uah",
           "xirr_usd",
           "lots"

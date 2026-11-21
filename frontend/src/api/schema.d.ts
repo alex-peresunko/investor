@@ -672,6 +672,10 @@ export interface components {
             totals: components["schemas"]["PnlOut"];
             realized: components["schemas"]["AmountOut"];
             unrealized: components["schemas"]["AmountOut"];
+            /** Realized Xirr Uah */
+            realized_xirr_uah: string | null;
+            /** Realized Xirr Usd */
+            realized_xirr_usd: string | null;
             /** Xirr Uah */
             xirr_uah: string | null;
             /** Xirr Usd */

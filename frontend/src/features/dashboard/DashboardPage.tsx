@@ -60,7 +60,14 @@ export function DashboardPage() {
         <>
           <SimpleGrid cols={{ base: 1, xs: 2, md: 5 }}>
             <Stat label="Profit / loss" amount={report.data.totals.pnl} signed>
-              <PnlSplit realized={report.data.realized} unrealized={report.data.unrealized} />
+              <PnlSplit
+                realized={report.data.realized}
+                unrealized={report.data.unrealized}
+                realizedXirr={{
+                  usd: report.data.realized_xirr_usd,
+                  uah: report.data.realized_xirr_uah,
+                }}
+              />
             </Stat>
             <Stat label="Current value" amount={report.data.totals.closing_value} />
             <Stat label="Invested" amount={report.data.totals.invested} />

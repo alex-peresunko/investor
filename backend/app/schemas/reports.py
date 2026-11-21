@@ -56,6 +56,8 @@ class PortfolioReport(BaseModel):
     # unrealized = packages still (partly) held. realized + unrealized == totals.pnl exactly.
     realized: AmountOut
     unrealized: AmountOut
+    realized_xirr_uah: Decimal | None
+    realized_xirr_usd: Decimal | None
     xirr_uah: Decimal | None
     xirr_usd: Decimal | None
     lots: list[LotSummary]

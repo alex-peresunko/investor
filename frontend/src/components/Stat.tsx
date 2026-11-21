@@ -1,7 +1,7 @@
 import { Group, Paper, Stack, Text } from '@mantine/core';
 import type { ReactNode } from 'react';
 
-import { formatMoney } from '@/lib/format';
+import { formatMoney, formatPercent } from '@/lib/format';
 
 interface AmountPair {
   uah: string;
@@ -65,13 +65,18 @@ export function Stat({ label, amount, signed = false, children }: StatProps) {
   );
 }
 
-/** Realized / unrealized lines under the P&L figure; they sum to the total shown above. */
+/**
+ * Realized / unrealized lines under the P&L figure; they sum to the total shown above. The
+ * realized line also shows the annual return (XIRR) of the closed packages.
+ */
 export function PnlSplit({
   realized,
   unrealized,
+  realizedXirr,
 }: {
   realized: AmountPair;
   unrealized: AmountPair;
+  realizedXirr: { usd: string | null; uah: string | null };
 }) {
   return (
     <Stack
@@ -80,21 +85,27 @@ export function PnlSplit({
       pt="xs"
       style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
     >
-      {(
-        [
-          ['Realized', 'Sold or redeemed packages', realized],
-          ['Unrealized', 'Packages still held', unrealized],
-        ] as const
-      ).map(([label, hint, amount]) => (
-        <Group key={label} justify="space-between" gap="xs" wrap="nowrap">
-          <Text size="xs" c="dimmed" title={hint}>
-            {label}
-          </Text>
-          <Text size="sm" fw={500}>
-            <MoneyText value={amount.usd} currency="USD" signed />
-          </Text>
-        </Group>
-      ))}
+      <Group justify="space-between" gap="xs" wrap="nowrap">
+        <Text size="xs" c="dimmed" title="Sold or redeemed packages">
+          Realized
+        </Text>
+        <Text size="sm" fw={500}>
+          <MoneyText value={realized.usd} currency="USD" signed />
+        </Text>
+      </Group>
+      {realizedXirr.usd !== null && (
+        <Text size="xs" c="dimmed" ta="right" title="Annual return (XIRR) of closed packages">
+          {formatPercent(realizedXirr.usd)} p.a. USD · {formatPercent(realizedXirr.uah)} UAH
+        </Text>
+      )}
+      <Group justify="space-between" gap="xs" wrap="nowrap">
+        <Text size="xs" c="dimmed" title="Packages still held">
+          Unrealized
+        </Text>
+        <Text size="sm" fw={500}>
+          <MoneyText value={unrealized.usd} currency="USD" signed />
+        </Text>
+      </Group>
     </Stack>
   );
 }

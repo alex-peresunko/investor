@@ -88,6 +88,8 @@ def portfolio_report(session: Session, start: date | None, end: date | None) -> 
         realized=AmountOut.of(realized),
         # Derived from the total so the two parts always sum to it despite per-part rounding.
         unrealized=AmountOut.of(totals.pnl - realized),
+        realized_xirr_uah=portfolio.xirr(closed, start, end, fx_at, "UAH"),
+        realized_xirr_usd=portfolio.xirr(closed, start, end, fx_at, "USD"),
         xirr_uah=portfolio.xirr(ids, start, end, fx_at, "UAH"),
         xirr_usd=portfolio.xirr(ids, start, end, fx_at, "USD"),
         lots=[_summary(portfolio, instruments, i, start, end, fx_at) for i in ids],
