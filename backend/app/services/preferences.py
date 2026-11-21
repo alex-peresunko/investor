@@ -8,8 +8,11 @@ from app.schemas.preferences import PreferencesOut, PreferencesUpdate
 def get_preferences(session: Session) -> PreferencesOut:
     stored = repo.get_all(session)
     language = stored.get("language")
+    demo = stored.get("demo") == "true"
     # A language removed from the app since it was saved falls back to the default.
-    return PreferencesOut.model_validate({"language": language} if language in LANGUAGES else {})
+    if language in LANGUAGES:
+        return PreferencesOut.model_validate({"language": language, "demo": demo})
+    return PreferencesOut(demo=demo)
 
 
 def update_preferences(session: Session, data: PreferencesUpdate) -> PreferencesOut:

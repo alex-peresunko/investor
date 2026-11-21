@@ -709,6 +709,11 @@ export interface components {
              * @enum {string}
              */
             language: "en" | "uk";
+            /**
+             * Demo
+             * @default false
+             */
+            demo: boolean;
         };
         /**
          * PreferencesUpdate

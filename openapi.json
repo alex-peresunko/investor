@@ -2467,6 +2467,11 @@
             ],
             "title": "Language",
             "default": "en"
+          },
+          "demo": {
+            "type": "boolean",
+            "title": "Demo",
+            "default": false
           }
         },
         "type": "object",

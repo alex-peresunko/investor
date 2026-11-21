@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.demo import has_data, isin, seed
 from app.models import Lot, Payment, Sale
+from app.services.preferences import get_preferences
 from app.services.reports import portfolio_report, upcoming
 
 NBU = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange"
@@ -26,6 +27,7 @@ def test_seed_builds_a_consistent_portfolio(session: Session) -> None:
     assert not has_data(session)
     seed(session, today)
     assert has_data(session)
+    assert get_preferences(session).demo
 
     assert session.scalar(select(func.count()).select_from(Lot)) == 12
     assert session.scalar(select(func.count()).select_from(Sale)) == 3

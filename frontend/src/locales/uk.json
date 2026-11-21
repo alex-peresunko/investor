@@ -2,7 +2,9 @@
   "app": {
     "name": "Інвестор",
     "toggleColorScheme": "Змінити тему",
-    "language": "Мова"
+    "language": "Мова",
+    "demo": "Демо-дані",
+    "demoHint": "Приклад даних для ознайомлення із застосунком. Видалити: make demo-clean"
   },
   "nav": {
     "dashboard": "Огляд",

@@ -13,6 +13,7 @@ from app.engine.portfolio import BondTerms, accrued_coupon
 from app.engine.schedule import add_months, generate_schedule
 from app.models import Instrument, Lot
 from app.repositories import operations as operations_repo
+from app.repositories import preferences as preferences_repo
 from app.schemas.instruments import InstrumentIn
 from app.schemas.operations import LotIn, PaymentIn, SaleIn
 from app.services import fx, instruments, operations
@@ -117,6 +118,7 @@ def has_data(session: Session) -> bool:
 
 
 def seed(session: Session, today: date) -> None:
+    preferences_repo.save(session, "demo", "true")
     start = add_months(today, -24)
     created: list[tuple[Instrument, BondTerms]] = []
     for bond in BONDS:
