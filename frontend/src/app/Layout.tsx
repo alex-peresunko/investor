@@ -1,25 +1,23 @@
 import {
   ActionIcon,
   AppShell,
-  Badge,
   Burger,
   Group,
   NavLink,
   Text,
   ThemeIcon,
-  Tooltip,
   useComputedColorScheme,
   useMantineColorScheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconFlask, IconMoon, IconSun, IconTrendingUp } from '@tabler/icons-react';
+import { IconMoon, IconSun, IconTrendingUp } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { NavLink as RouterNavLink, Outlet, useLocation } from 'react-router';
 
 import { LanguageMenu } from '@/i18n/LanguageMenu';
-import { usePreferences } from '@/i18n/preferences';
 
 import { NAV } from './nav';
+import { StackSwitch } from './StackSwitch';
 
 export function Layout() {
   const { t } = useTranslation();
@@ -27,7 +25,6 @@ export function Layout() {
   const [opened, { toggle, close }] = useDisclosure();
   const { setColorScheme } = useMantineColorScheme();
   const scheme = useComputedColorScheme('light');
-  const demo = usePreferences().data?.demo ?? false;
 
   return (
     <AppShell
@@ -45,18 +42,7 @@ export function Layout() {
             <Text fz={20} fw={800} className="brand-text">
               {t('app.name')}
             </Text>
-            {demo && (
-              <Tooltip label={t('app.demoHint')} multiline w={260} withArrow>
-                <Badge
-                  size="lg"
-                  variant="gradient"
-                  gradient={{ from: 'orange.6', to: 'yellow.5' }}
-                  leftSection={<IconFlask size={14} />}
-                >
-                  {t('app.demo')}
-                </Badge>
-              </Tooltip>
-            )}
+            <StackSwitch />
           </Group>
           <Group gap="xs">
             <LanguageMenu />

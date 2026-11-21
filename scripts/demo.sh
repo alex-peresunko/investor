@@ -8,7 +8,9 @@ cd "$(dirname "$0")/.."
 
 export INVESTOR_PROJECT=investor-demo
 export INVESTOR_VOLUME=investor_demo_pgdata
-export INVESTOR_PORT="${INVESTOR_DEMO_PORT:-8081}"
+export INVESTOR_LIVE_PORT="${INVESTOR_PORT:-8080}"
+export INVESTOR_DEMO_PORT="${INVESTOR_DEMO_PORT:-8081}"
+export INVESTOR_PORT="$INVESTOR_DEMO_PORT"
 compose=(podman compose -p "$INVESTOR_PROJECT")
 
 case "${1:-}" in

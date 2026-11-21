@@ -34,7 +34,8 @@ today: purchases, partial sales, coupons, redemptions and an upcoming maturity. 
 the real NBU rates of each date, so the first run needs internet access. Running it again keeps
 the existing demo data.
 
-The demo never touches the data of `make start`, and both can run at the same time. To start
+The demo never touches the data of `make start`, and both can run at the same time. While both
+run, a **My data | Demo** switch in the header opens the same page in the other one. To start
 from scratch with your own data, run `make demo-clean`, then `make start` (below).
 
 ## Run

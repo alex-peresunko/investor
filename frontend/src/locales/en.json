@@ -4,7 +4,10 @@
     "toggleColorScheme": "Toggle color scheme",
     "language": "Language",
     "demo": "Demo data",
-    "demoHint": "Sample data for trying the app. Remove it with: make demo-clean"
+    "demoHint": "Sample data for trying the app. Remove it with: make demo-clean",
+    "stackLive": "My data",
+    "stackDemo": "Demo",
+    "stackHint": "Open the same page in the other copy of the app"
   },
   "nav": {
     "dashboard": "Dashboard",

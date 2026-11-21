@@ -38,6 +38,8 @@ Dependency versions are pinned exactly (`==` in `backend/pyproject.toml`, exact 
   `down -v` and rebuilds. `scripts/demo.sh` runs the same compose file as project `investor-demo`
   with volume `investor_demo_pgdata` (via `INVESTOR_VOLUME`) on port 8081; it shares the password
   secret because podman-compose cannot mount a renamed external secret.
+  Both stacks get `INVESTOR_LIVE_PORT`/`INVESTOR_DEMO_PORT`; nginx serves them as
+  `/stacks.json` and allows them in CSP `connect-src` for the header switcher (`app/StackSwitch.tsx`).
 - Backend `backend/app/`, strictly layered:
   - `api/`: thin routers under `/api/v1`, registered in `api/router.py`. Only call services.
   - `schemas/`: Pydantic request/response models. ORM objects are never returned directly.

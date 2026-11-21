@@ -43,6 +43,9 @@ services:
   frontend:
     build: ./frontend
     image: localhost/investor-frontend:latest
+    environment:
+      INVESTOR_LIVE_PORT: ${INVESTOR_LIVE_PORT:-8080}
+      INVESTOR_DEMO_PORT: ${INVESTOR_DEMO_PORT:-8081}
     ports:
       - "127.0.0.1:${INVESTOR_PORT:-8080}:8080"
     depends_on:

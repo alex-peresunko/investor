@@ -8,6 +8,7 @@ INVESTOR_HOME="${INVESTOR_HOME:-$HOME/.investor}"
 project="${INVESTOR_PROJECT:-investor}"
 volume="${INVESTOR_VOLUME:-investor_pgdata}"
 export INVESTOR_VOLUME="$volume"
+export INVESTOR_LIVE_PORT="${INVESTOR_LIVE_PORT:-${INVESTOR_PORT:-8080}}"
 mkdir -p "$INVESTOR_HOME/backups" "$INVESTOR_HOME/imports"
 chmod 700 "$INVESTOR_HOME"
 
