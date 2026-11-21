@@ -21,10 +21,486 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/instruments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Instruments */
+        get: operations["list_instruments_api_v1_instruments_get"];
+        put?: never;
+        /** Create Instrument */
+        post: operations["create_instrument_api_v1_instruments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/instruments/{instrument_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Instrument */
+        get: operations["get_instrument_api_v1_instruments__instrument_id__get"];
+        /** Update Instrument */
+        put: operations["update_instrument_api_v1_instruments__instrument_id__put"];
+        post?: never;
+        /** Delete Instrument */
+        delete: operations["delete_instrument_api_v1_instruments__instrument_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/instruments/{instrument_id}/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Schedule */
+        get: operations["get_schedule_api_v1_instruments__instrument_id__schedule_get"];
+        /** Replace Schedule */
+        put: operations["replace_schedule_api_v1_instruments__instrument_id__schedule_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/instruments/{instrument_id}/schedule/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Regenerate Schedule */
+        post: operations["regenerate_schedule_api_v1_instruments__instrument_id__schedule_generate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Lots */
+        get: operations["list_lots_api_v1_lots_get"];
+        put?: never;
+        /** Create Lot */
+        post: operations["create_lot_api_v1_lots_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lots/{lot_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Lot */
+        get: operations["get_lot_api_v1_lots__lot_id__get"];
+        /** Update Lot */
+        put: operations["update_lot_api_v1_lots__lot_id__put"];
+        post?: never;
+        /** Delete Lot */
+        delete: operations["delete_lot_api_v1_lots__lot_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Sales */
+        get: operations["list_sales_api_v1_sales_get"];
+        put?: never;
+        /** Create Sale */
+        post: operations["create_sale_api_v1_sales_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/{sale_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Sale */
+        get: operations["get_sale_api_v1_sales__sale_id__get"];
+        /** Update Sale */
+        put: operations["update_sale_api_v1_sales__sale_id__put"];
+        post?: never;
+        /** Delete Sale */
+        delete: operations["delete_sale_api_v1_sales__sale_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Payments */
+        get: operations["list_payments_api_v1_payments_get"];
+        put?: never;
+        /** Create Payment */
+        post: operations["create_payment_api_v1_payments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/{payment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Payment */
+        get: operations["get_payment_api_v1_payments__payment_id__get"];
+        /** Update Payment */
+        put: operations["update_payment_api_v1_payments__payment_id__put"];
+        post?: never;
+        /** Delete Payment */
+        delete: operations["delete_payment_api_v1_payments__payment_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: never;
+    schemas: {
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
+        /** InstrumentIn */
+        InstrumentIn: {
+            /** Isin */
+            isin: string;
+            /** Name */
+            name: string;
+            /**
+             * Currency
+             * @default UAH
+             * @constant
+             */
+            currency: "UAH";
+            /** Face Value */
+            face_value: number | string;
+            /** Coupon Rate */
+            coupon_rate: number | string;
+            /**
+             * Coupon Frequency
+             * @enum {integer}
+             */
+            coupon_frequency: 0 | 1 | 2 | 4 | 12;
+            /**
+             * Issue Date
+             * Format: date
+             */
+            issue_date: string;
+            /**
+             * Maturity Date
+             * Format: date
+             */
+            maturity_date: string;
+        };
+        /** InstrumentOut */
+        InstrumentOut: {
+            /** Isin */
+            isin: string;
+            /** Name */
+            name: string;
+            /**
+             * Currency
+             * @default UAH
+             * @constant
+             */
+            currency: "UAH";
+            /** Face Value */
+            face_value: string;
+            /** Coupon Rate */
+            coupon_rate: string;
+            /**
+             * Coupon Frequency
+             * @enum {integer}
+             */
+            coupon_frequency: 0 | 1 | 2 | 4 | 12;
+            /**
+             * Issue Date
+             * Format: date
+             */
+            issue_date: string;
+            /**
+             * Maturity Date
+             * Format: date
+             */
+            maturity_date: string;
+            /** Id */
+            id: number;
+            /** Kind */
+            kind: string;
+        };
+        /** LotIn */
+        LotIn: {
+            /** Instrument Id */
+            instrument_id: number;
+            /**
+             * Trade Date
+             * Format: date
+             */
+            trade_date: string;
+            /** Quantity */
+            quantity: number | string;
+            /** Price Per Unit */
+            price_per_unit: number | string;
+            /** Total Cost Uah */
+            total_cost_uah: number | string;
+            /**
+             * Accrued Paid Uah
+             * @default 0
+             */
+            accrued_paid_uah: number | string;
+            /**
+             * Fee Uah
+             * @default 0
+             */
+            fee_uah: number | string;
+            /** Fx Rate */
+            fx_rate: number | string;
+            /** Note */
+            note?: string | null;
+        };
+        /** LotOut */
+        LotOut: {
+            /** Instrument Id */
+            instrument_id: number;
+            /**
+             * Trade Date
+             * Format: date
+             */
+            trade_date: string;
+            /** Quantity */
+            quantity: string;
+            /** Price Per Unit */
+            price_per_unit: string;
+            /** Total Cost Uah */
+            total_cost_uah: string;
+            /**
+             * Accrued Paid Uah
+             * @default 0
+             */
+            accrued_paid_uah: string;
+            /**
+             * Fee Uah
+             * @default 0
+             */
+            fee_uah: string;
+            /** Fx Rate */
+            fx_rate: string;
+            /** Note */
+            note?: string | null;
+            /** Id */
+            id: number;
+        };
+        /** PaymentIn */
+        PaymentIn: {
+            /** Instrument Id */
+            instrument_id: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "coupon" | "redemption";
+            /**
+             * Pay Date
+             * Format: date
+             */
+            pay_date: string;
+            /** Total Amount Uah */
+            total_amount_uah: number | string;
+            /**
+             * Fee Uah
+             * @default 0
+             */
+            fee_uah: number | string;
+            /** Fx Rate */
+            fx_rate: number | string;
+            /** Note */
+            note?: string | null;
+        };
+        /** PaymentOut */
+        PaymentOut: {
+            /** Instrument Id */
+            instrument_id: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "coupon" | "redemption";
+            /**
+             * Pay Date
+             * Format: date
+             */
+            pay_date: string;
+            /** Total Amount Uah */
+            total_amount_uah: string;
+            /**
+             * Fee Uah
+             * @default 0
+             */
+            fee_uah: string;
+            /** Fx Rate */
+            fx_rate: string;
+            /** Note */
+            note?: string | null;
+            /** Id */
+            id: number;
+        };
+        /** SaleIn */
+        SaleIn: {
+            /** Lot Id */
+            lot_id: number;
+            /**
+             * Trade Date
+             * Format: date
+             */
+            trade_date: string;
+            /** Quantity */
+            quantity: number | string;
+            /** Total Proceeds Uah */
+            total_proceeds_uah: number | string;
+            /**
+             * Accrued Received Uah
+             * @default 0
+             */
+            accrued_received_uah: number | string;
+            /**
+             * Fee Uah
+             * @default 0
+             */
+            fee_uah: number | string;
+            /** Fx Rate */
+            fx_rate: number | string;
+            /** Note */
+            note?: string | null;
+        };
+        /** SaleOut */
+        SaleOut: {
+            /** Lot Id */
+            lot_id: number;
+            /**
+             * Trade Date
+             * Format: date
+             */
+            trade_date: string;
+            /** Quantity */
+            quantity: string;
+            /** Total Proceeds Uah */
+            total_proceeds_uah: string;
+            /**
+             * Accrued Received Uah
+             * @default 0
+             */
+            accrued_received_uah: string;
+            /**
+             * Fee Uah
+             * @default 0
+             */
+            fee_uah: string;
+            /** Fx Rate */
+            fx_rate: string;
+            /** Note */
+            note?: string | null;
+            /** Id */
+            id: number;
+        };
+        /** ScheduledPaymentIn */
+        ScheduledPaymentIn: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "coupon" | "redemption";
+            /**
+             * Pay Date
+             * Format: date
+             */
+            pay_date: string;
+            /** Amount Per Unit */
+            amount_per_unit: number | string;
+        };
+        /** ScheduledPaymentOut */
+        ScheduledPaymentOut: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "coupon" | "redemption";
+            /**
+             * Pay Date
+             * Format: date
+             */
+            pay_date: string;
+            /** Amount Per Unit */
+            amount_per_unit: string;
+            /** Id */
+            id: number;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
+        };
+    };
     responses: never;
     parameters: never;
     requestBodies: never;
@@ -51,6 +527,728 @@ export interface operations {
                     "application/json": {
                         [key: string]: string;
                     };
+                };
+            };
+        };
+    };
+    list_instruments_api_v1_instruments_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InstrumentOut"][];
+                };
+            };
+        };
+    };
+    create_instrument_api_v1_instruments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InstrumentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InstrumentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_instrument_api_v1_instruments__instrument_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                instrument_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InstrumentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_instrument_api_v1_instruments__instrument_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                instrument_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InstrumentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InstrumentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_instrument_api_v1_instruments__instrument_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                instrument_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_schedule_api_v1_instruments__instrument_id__schedule_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                instrument_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduledPaymentOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    replace_schedule_api_v1_instruments__instrument_id__schedule_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                instrument_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScheduledPaymentIn"][];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduledPaymentOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    regenerate_schedule_api_v1_instruments__instrument_id__schedule_generate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                instrument_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduledPaymentOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_lots_api_v1_lots_get: {
+        parameters: {
+            query?: {
+                instrument_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LotOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_lot_api_v1_lots_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LotIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LotOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_lot_api_v1_lots__lot_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lot_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LotOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_lot_api_v1_lots__lot_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lot_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LotIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LotOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_lot_api_v1_lots__lot_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lot_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_sales_api_v1_sales_get: {
+        parameters: {
+            query?: {
+                lot_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SaleOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_sale_api_v1_sales_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaleIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SaleOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_sale_api_v1_sales__sale_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sale_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SaleOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_sale_api_v1_sales__sale_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sale_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaleIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SaleOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_sale_api_v1_sales__sale_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sale_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_payments_api_v1_payments_get: {
+        parameters: {
+            query?: {
+                instrument_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_payment_api_v1_payments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_payment_api_v1_payments__payment_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payment_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_payment_api_v1_payments__payment_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payment_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_payment_api_v1_payments__payment_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payment_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -29,6 +29,1742 @@
           }
         }
       }
+    },
+    "/api/v1/instruments": {
+      "get": {
+        "tags": [
+          "instruments"
+        ],
+        "summary": "List Instruments",
+        "operationId": "list_instruments_api_v1_instruments_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InstrumentOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Instruments Api V1 Instruments Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "instruments"
+        ],
+        "summary": "Create Instrument",
+        "operationId": "create_instrument_api_v1_instruments_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstrumentIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstrumentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/instruments/{instrument_id}": {
+      "get": {
+        "tags": [
+          "instruments"
+        ],
+        "summary": "Get Instrument",
+        "operationId": "get_instrument_api_v1_instruments__instrument_id__get",
+        "parameters": [
+          {
+            "name": "instrument_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Instrument Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstrumentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "instruments"
+        ],
+        "summary": "Update Instrument",
+        "operationId": "update_instrument_api_v1_instruments__instrument_id__put",
+        "parameters": [
+          {
+            "name": "instrument_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Instrument Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstrumentIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstrumentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "instruments"
+        ],
+        "summary": "Delete Instrument",
+        "operationId": "delete_instrument_api_v1_instruments__instrument_id__delete",
+        "parameters": [
+          {
+            "name": "instrument_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Instrument Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/instruments/{instrument_id}/schedule": {
+      "get": {
+        "tags": [
+          "instruments"
+        ],
+        "summary": "Get Schedule",
+        "operationId": "get_schedule_api_v1_instruments__instrument_id__schedule_get",
+        "parameters": [
+          {
+            "name": "instrument_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Instrument Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScheduledPaymentOut"
+                  },
+                  "title": "Response Get Schedule Api V1 Instruments  Instrument Id  Schedule Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "instruments"
+        ],
+        "summary": "Replace Schedule",
+        "operationId": "replace_schedule_api_v1_instruments__instrument_id__schedule_put",
+        "parameters": [
+          {
+            "name": "instrument_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Instrument Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ScheduledPaymentIn"
+                },
+                "title": "Items"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScheduledPaymentOut"
+                  },
+                  "title": "Response Replace Schedule Api V1 Instruments  Instrument Id  Schedule Put"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/instruments/{instrument_id}/schedule/generate": {
+      "post": {
+        "tags": [
+          "instruments"
+        ],
+        "summary": "Regenerate Schedule",
+        "operationId": "regenerate_schedule_api_v1_instruments__instrument_id__schedule_generate_post",
+        "parameters": [
+          {
+            "name": "instrument_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Instrument Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScheduledPaymentOut"
+                  },
+                  "title": "Response Regenerate Schedule Api V1 Instruments  Instrument Id  Schedule Generate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lots": {
+      "get": {
+        "tags": [
+          "lots"
+        ],
+        "summary": "List Lots",
+        "operationId": "list_lots_api_v1_lots_get",
+        "parameters": [
+          {
+            "name": "instrument_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Instrument Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LotOut"
+                  },
+                  "title": "Response List Lots Api V1 Lots Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "lots"
+        ],
+        "summary": "Create Lot",
+        "operationId": "create_lot_api_v1_lots_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LotOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lots/{lot_id}": {
+      "get": {
+        "tags": [
+          "lots"
+        ],
+        "summary": "Get Lot",
+        "operationId": "get_lot_api_v1_lots__lot_id__get",
+        "parameters": [
+          {
+            "name": "lot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lot Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LotOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "lots"
+        ],
+        "summary": "Update Lot",
+        "operationId": "update_lot_api_v1_lots__lot_id__put",
+        "parameters": [
+          {
+            "name": "lot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lot Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LotOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "lots"
+        ],
+        "summary": "Delete Lot",
+        "operationId": "delete_lot_api_v1_lots__lot_id__delete",
+        "parameters": [
+          {
+            "name": "lot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lot Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sales": {
+      "get": {
+        "tags": [
+          "sales"
+        ],
+        "summary": "List Sales",
+        "operationId": "list_sales_api_v1_sales_get",
+        "parameters": [
+          {
+            "name": "lot_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Lot Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SaleOut"
+                  },
+                  "title": "Response List Sales Api V1 Sales Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "sales"
+        ],
+        "summary": "Create Sale",
+        "operationId": "create_sale_api_v1_sales_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaleIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaleOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sales/{sale_id}": {
+      "get": {
+        "tags": [
+          "sales"
+        ],
+        "summary": "Get Sale",
+        "operationId": "get_sale_api_v1_sales__sale_id__get",
+        "parameters": [
+          {
+            "name": "sale_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Sale Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaleOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "sales"
+        ],
+        "summary": "Update Sale",
+        "operationId": "update_sale_api_v1_sales__sale_id__put",
+        "parameters": [
+          {
+            "name": "sale_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Sale Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaleIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaleOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "sales"
+        ],
+        "summary": "Delete Sale",
+        "operationId": "delete_sale_api_v1_sales__sale_id__delete",
+        "parameters": [
+          {
+            "name": "sale_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Sale Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payments": {
+      "get": {
+        "tags": [
+          "payments"
+        ],
+        "summary": "List Payments",
+        "operationId": "list_payments_api_v1_payments_get",
+        "parameters": [
+          {
+            "name": "instrument_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Instrument Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentOut"
+                  },
+                  "title": "Response List Payments Api V1 Payments Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "payments"
+        ],
+        "summary": "Create Payment",
+        "operationId": "create_payment_api_v1_payments_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payments/{payment_id}": {
+      "get": {
+        "tags": [
+          "payments"
+        ],
+        "summary": "Get Payment",
+        "operationId": "get_payment_api_v1_payments__payment_id__get",
+        "parameters": [
+          {
+            "name": "payment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Payment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "payments"
+        ],
+        "summary": "Update Payment",
+        "operationId": "update_payment_api_v1_payments__payment_id__put",
+        "parameters": [
+          {
+            "name": "payment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Payment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "payments"
+        ],
+        "summary": "Delete Payment",
+        "operationId": "delete_payment_api_v1_payments__payment_id__delete",
+        "parameters": [
+          {
+            "name": "payment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Payment Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InstrumentIn": {
+        "properties": {
+          "isin": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+            "title": "Isin"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "currency": {
+            "type": "string",
+            "const": "UAH",
+            "title": "Currency",
+            "default": "UAH"
+          },
+          "face_value": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Face Value"
+          },
+          "coupon_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMaximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Coupon Rate"
+          },
+          "coupon_frequency": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2,
+              4,
+              12
+            ],
+            "title": "Coupon Frequency"
+          },
+          "issue_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Issue Date"
+          },
+          "maturity_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Maturity Date"
+          }
+        },
+        "type": "object",
+        "required": [
+          "isin",
+          "name",
+          "face_value",
+          "coupon_rate",
+          "coupon_frequency",
+          "issue_date",
+          "maturity_date"
+        ],
+        "title": "InstrumentIn"
+      },
+      "InstrumentOut": {
+        "properties": {
+          "isin": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+            "title": "Isin"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "currency": {
+            "type": "string",
+            "const": "UAH",
+            "title": "Currency",
+            "default": "UAH"
+          },
+          "face_value": {
+            "type": "string",
+            "title": "Face Value"
+          },
+          "coupon_rate": {
+            "type": "string",
+            "title": "Coupon Rate"
+          },
+          "coupon_frequency": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2,
+              4,
+              12
+            ],
+            "title": "Coupon Frequency"
+          },
+          "issue_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Issue Date"
+          },
+          "maturity_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Maturity Date"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          }
+        },
+        "type": "object",
+        "required": [
+          "isin",
+          "name",
+          "face_value",
+          "coupon_rate",
+          "coupon_frequency",
+          "issue_date",
+          "maturity_date",
+          "id",
+          "kind"
+        ],
+        "title": "InstrumentOut"
+      },
+      "LotIn": {
+        "properties": {
+          "instrument_id": {
+            "type": "integer",
+            "title": "Instrument Id"
+          },
+          "trade_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Trade Date"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "price_per_unit": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Price Per Unit"
+          },
+          "total_cost_uah": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Total Cost Uah"
+          },
+          "accrued_paid_uah": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Accrued Paid Uah",
+            "default": "0"
+          },
+          "fee_uah": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fee Uah",
+            "default": "0"
+          },
+          "fx_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fx Rate"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "instrument_id",
+          "trade_date",
+          "quantity",
+          "price_per_unit",
+          "total_cost_uah",
+          "fx_rate"
+        ],
+        "title": "LotIn"
+      },
+      "LotOut": {
+        "properties": {
+          "instrument_id": {
+            "type": "integer",
+            "title": "Instrument Id"
+          },
+          "trade_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Trade Date"
+          },
+          "quantity": {
+            "type": "string",
+            "title": "Quantity"
+          },
+          "price_per_unit": {
+            "type": "string",
+            "title": "Price Per Unit"
+          },
+          "total_cost_uah": {
+            "type": "string",
+            "title": "Total Cost Uah"
+          },
+          "accrued_paid_uah": {
+            "type": "string",
+            "title": "Accrued Paid Uah",
+            "default": "0"
+          },
+          "fee_uah": {
+            "type": "string",
+            "title": "Fee Uah",
+            "default": "0"
+          },
+          "fx_rate": {
+            "type": "string",
+            "title": "Fx Rate"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "instrument_id",
+          "trade_date",
+          "quantity",
+          "price_per_unit",
+          "total_cost_uah",
+          "fx_rate",
+          "id"
+        ],
+        "title": "LotOut"
+      },
+      "PaymentIn": {
+        "properties": {
+          "instrument_id": {
+            "type": "integer",
+            "title": "Instrument Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "coupon",
+              "redemption"
+            ],
+            "title": "Kind"
+          },
+          "pay_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay Date"
+          },
+          "total_amount_uah": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Total Amount Uah"
+          },
+          "fee_uah": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fee Uah",
+            "default": "0"
+          },
+          "fx_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fx Rate"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "instrument_id",
+          "kind",
+          "pay_date",
+          "total_amount_uah",
+          "fx_rate"
+        ],
+        "title": "PaymentIn"
+      },
+      "PaymentOut": {
+        "properties": {
+          "instrument_id": {
+            "type": "integer",
+            "title": "Instrument Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "coupon",
+              "redemption"
+            ],
+            "title": "Kind"
+          },
+          "pay_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay Date"
+          },
+          "total_amount_uah": {
+            "type": "string",
+            "title": "Total Amount Uah"
+          },
+          "fee_uah": {
+            "type": "string",
+            "title": "Fee Uah",
+            "default": "0"
+          },
+          "fx_rate": {
+            "type": "string",
+            "title": "Fx Rate"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "instrument_id",
+          "kind",
+          "pay_date",
+          "total_amount_uah",
+          "fx_rate",
+          "id"
+        ],
+        "title": "PaymentOut"
+      },
+      "SaleIn": {
+        "properties": {
+          "lot_id": {
+            "type": "integer",
+            "title": "Lot Id"
+          },
+          "trade_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Trade Date"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "total_proceeds_uah": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Total Proceeds Uah"
+          },
+          "accrued_received_uah": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Accrued Received Uah",
+            "default": "0"
+          },
+          "fee_uah": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fee Uah",
+            "default": "0"
+          },
+          "fx_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fx Rate"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lot_id",
+          "trade_date",
+          "quantity",
+          "total_proceeds_uah",
+          "fx_rate"
+        ],
+        "title": "SaleIn"
+      },
+      "SaleOut": {
+        "properties": {
+          "lot_id": {
+            "type": "integer",
+            "title": "Lot Id"
+          },
+          "trade_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Trade Date"
+          },
+          "quantity": {
+            "type": "string",
+            "title": "Quantity"
+          },
+          "total_proceeds_uah": {
+            "type": "string",
+            "title": "Total Proceeds Uah"
+          },
+          "accrued_received_uah": {
+            "type": "string",
+            "title": "Accrued Received Uah",
+            "default": "0"
+          },
+          "fee_uah": {
+            "type": "string",
+            "title": "Fee Uah",
+            "default": "0"
+          },
+          "fx_rate": {
+            "type": "string",
+            "title": "Fx Rate"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lot_id",
+          "trade_date",
+          "quantity",
+          "total_proceeds_uah",
+          "fx_rate",
+          "id"
+        ],
+        "title": "SaleOut"
+      },
+      "ScheduledPaymentIn": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "coupon",
+              "redemption"
+            ],
+            "title": "Kind"
+          },
+          "pay_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay Date"
+          },
+          "amount_per_unit": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Amount Per Unit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "pay_date",
+          "amount_per_unit"
+        ],
+        "title": "ScheduledPaymentIn"
+      },
+      "ScheduledPaymentOut": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "coupon",
+              "redemption"
+            ],
+            "title": "Kind"
+          },
+          "pay_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay Date"
+          },
+          "amount_per_unit": {
+            "type": "string",
+            "title": "Amount Per Unit"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "pay_date",
+          "amount_per_unit",
+          "id"
+        ],
+        "title": "ScheduledPaymentOut"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
     }
   }
 }
