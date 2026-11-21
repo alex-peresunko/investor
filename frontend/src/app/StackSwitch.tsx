@@ -1,4 +1,4 @@
-import { Badge, Center, SegmentedControl, Tooltip } from '@mantine/core';
+import { Center, SegmentedControl, Tooltip } from '@mantine/core';
 import { IconDatabase, IconFlask } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +17,7 @@ function peerOrigin(port: number): string {
 
 /**
  * Switches between the live and demo stacks, keeping the current page. Shown only while the other
- * stack answers; otherwise the demo stack shows a badge and the live stack shows nothing.
+ * stack answers.
  */
 export function StackSwitch() {
   const { t } = useTranslation();
@@ -80,17 +80,5 @@ export function StackSwitch() {
       </Tooltip>
     );
   }
-  if (!demo) return null;
-  return (
-    <Tooltip label={t('app.demoHint')} multiline w={260} withArrow>
-      <Badge
-        size="lg"
-        variant="gradient"
-        gradient={{ from: 'orange.6', to: 'yellow.5' }}
-        leftSection={<IconFlask size={14} />}
-      >
-        {t('app.demo')}
-      </Badge>
-    </Tooltip>
-  );
+  return null;
 }

@@ -10,14 +10,18 @@ import {
   useMantineColorScheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconMoon, IconSun, IconTrendingUp } from '@tabler/icons-react';
+import { IconFlask, IconMoon, IconSun, IconTrendingUp } from '@tabler/icons-react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink as RouterNavLink, Outlet, useLocation } from 'react-router';
 
 import { LanguageMenu } from '@/i18n/LanguageMenu';
+import { usePreferences } from '@/i18n/preferences';
 
 import { NAV } from './nav';
 import { StackSwitch } from './StackSwitch';
+
+const DEMO_BANNER_HEIGHT = 36;
 
 export function Layout() {
   const { t } = useTranslation();
@@ -25,18 +29,39 @@ export function Layout() {
   const [opened, { toggle, close }] = useDisclosure();
   const { setColorScheme } = useMantineColorScheme();
   const scheme = useComputedColorScheme('light');
+  const demo = usePreferences().data?.demo ?? false;
+
+  useEffect(() => {
+    document.documentElement.toggleAttribute('data-demo', demo);
+  }, [demo]);
 
   return (
     <AppShell
-      header={{ height: 60 }}
+      header={{ height: demo ? 60 + DEMO_BANNER_HEIGHT : 60 }}
       navbar={{ width: 240, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       padding="lg"
     >
       <AppShell.Header className="glass">
-        <Group h="100%" px="md" justify="space-between">
+        {demo && (
+          <Group h={DEMO_BANNER_HEIGHT} className="demo-banner" justify="center" gap="xs" px="md">
+            <IconFlask size={18} />
+            <Text fw={800} tt="uppercase" lts={1}>
+              {t('app.demo')}
+            </Text>
+            <Text size="sm" fw={500} visibleFrom="sm">
+              {t('app.demoBanner')}
+            </Text>
+          </Group>
+        )}
+        <Group h={60} px="md" justify="space-between">
           <Group gap="sm">
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-            <ThemeIcon size={34} radius="md" variant="gradient">
+            <ThemeIcon
+              size={34}
+              radius="md"
+              variant="gradient"
+              gradient={demo ? { from: 'orange.6', to: 'yellow.5' } : undefined}
+            >
               <IconTrendingUp size={20} stroke={2.2} />
             </ThemeIcon>
             <Text fz={20} fw={800} className="brand-text">

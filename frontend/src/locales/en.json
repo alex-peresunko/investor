@@ -3,8 +3,8 @@
     "name": "Investor",
     "toggleColorScheme": "Toggle color scheme",
     "language": "Language",
-    "demo": "Demo data",
-    "demoHint": "Sample data for trying the app. Remove it with: make demo-clean",
+    "demo": "Demo",
+    "demoBanner": "Sample data for trying the app. Changes here never touch your own data. Remove it with: make demo-clean",
     "stackLive": "My data",
     "stackDemo": "Demo",
     "stackHint": "Open the same page in the other copy of the app"
