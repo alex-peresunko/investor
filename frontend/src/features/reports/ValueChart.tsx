@@ -49,6 +49,7 @@ export function ValueChart({ period, lotId }: Props) {
           withLegend
           curveType="monotone"
           valueFormatter={(v) => formatNumber(v, 0)}
+          yAxisProps={{ width: 80 }}
           series={[
             { name: 'value', label: 'Value', color: 'blue.6' },
             { name: 'pnl', label: 'Cumulative P&L', color: 'teal.6' },

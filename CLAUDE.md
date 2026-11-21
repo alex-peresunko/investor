@@ -29,7 +29,10 @@ Dependency versions are pinned exactly (`==` in `backend/pyproject.toml`, exact 
 
 - `podman-compose.yml`: `db` (Postgres, internal network only), `backend` (FastAPI, read-only
   rootfs), `frontend` (nginx serving the SPA and proxying `/api/` to backend, the only published
-  port, `127.0.0.1:8080`). The DB password is the external podman secret `investor_db_password`;
+  port, `127.0.0.1:8080`). `frontend/nginx.conf.template` is rendered at container start; nginx
+  re-resolves `backend` on every request because its IP changes when that container restarts.
+  podman-compose ignores Containerfile `HEALTHCHECK` and does not recreate containers when only
+  the image changed, so healthchecks live in compose and `start.sh` passes `--force-recreate`. The DB password is the external podman secret `investor_db_password`;
   data is the external volume `investor_pgdata`. Both are created by `scripts/start.sh` and survive
   `down -v` and rebuilds.
 - Backend `backend/app/`, strictly layered:
@@ -41,8 +44,10 @@ Dependency versions are pinned exactly (`==` in `backend/pyproject.toml`, exact 
   - `repositories/`: SQLAlchemy 2 queries only.
   - `models/`: ORM models on `models.base.Base`; every model module must be imported in
     `models/__init__.py` or Alembic will not see it.
-  - `engine/`: pure calculation functions (P&L, allocation, valuation, XIRR). No DB, FastAPI or
-    ORM imports; inputs are plain dataclasses.
+  - `engine/`: pure calculation code. `schedule.py` generates coupon schedules; `portfolio.py`
+    `Portfolio` derives holdings, payment allocation, valuation, period P&L and XIRR. No DB,
+    FastAPI or ORM imports; inputs are plain dataclasses. `services/portfolio_loader.py` builds a
+    `Portfolio` from the DB on every report request.
   - `core/`: settings (`INVESTOR_*` env vars; `INVESTOR_DATABASE_URL` overrides the secret-file
     URL), DB session dependency `get_session` (commits per request), logging, errors.
 - The container runs `alembic upgrade head` on every start. Migrations are forward-only and must
@@ -62,4 +67,14 @@ Dependency versions are pinned exactly (`==` in `backend/pyproject.toml`, exact 
   operation's UAH amount divided by that operation's rate. Derived values (P&L, allocations,
   valuations) are computed on request and never stored.
 - Coupons and redemptions are recorded once per bond (`payment`) and split across lots by
-  quantity held at the end of the day before the payment date.
+  quantity held at the end of the day before the payment date. A redemption closes every lot of
+  that bond.
+- Open lots are valued at amortized cost plus accrued coupon. Amortized cost moves linearly from
+  the clean purchase price (cost minus accrued paid, per unit) to face value at maturity; accrued
+  coupon is linear between schedule dates. `frontend/src/lib/accrued.ts` must use the same
+  accrual formula as `engine.portfolio.accrued_coupon`.
+- Period P&L = closing value − opening value + received − invested. Opening is valued at the
+  end of the day before `start`. Valuations convert to USD at the NBU rate for the valuation date
+  (`services/fx.py`, cached in `fx_rate`); flows convert at their own operation's rate.
+- Valuation assumes every scheduled coupon was recorded. If a coupon date has passed without a
+  `payment` record, the accrued coupon drops to zero on that date and P&L understates.

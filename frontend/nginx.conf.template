@@ -15,8 +15,13 @@ server {
         return 200 "ok\n";
     }
 
+    # Re-resolve the backend on every request: its IP changes whenever the container restarts.
+    # NGINX_LOCAL_RESOLVERS is filled in from /etc/resolv.conf by the image's entrypoint.
+    resolver ${NGINX_LOCAL_RESOLVERS} valid=10s;
+
     location /api/ {
-        proxy_pass http://backend:8000;
+        set $backend_upstream http://backend:8000;
+        proxy_pass $backend_upstream;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;

@@ -78,6 +78,7 @@ export function UpcomingPage() {
               type="stacked"
               withLegend
               valueFormatter={(v) => formatNumber(v, 0)}
+              yAxisProps={{ width: 80 }}
               series={[
                 { name: 'coupon', label: 'Coupons', color: 'teal.6' },
                 { name: 'redemption', label: 'Redemptions', color: 'grape.6' },
