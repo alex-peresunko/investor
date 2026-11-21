@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 
 import { formatMoney, formatPercent } from '@/lib/format';
 
+import { type HelpSection, HelpLink, type HelpTopic } from './HelpLink';
+
 interface AmountPair {
   uah: string;
   usd: string;
@@ -43,6 +45,7 @@ interface StatProps {
   color?: string;
   amount?: AmountPair;
   signed?: boolean;
+  help?: HelpSection | HelpTopic;
   children?: ReactNode;
 }
 
@@ -53,6 +56,7 @@ export function Stat({
   color = 'brand',
   amount,
   signed = false,
+  help,
   children,
 }: StatProps) {
   const accent = (signed && amount && signColor(amount.usd)) || color;
@@ -68,9 +72,12 @@ export function Stat({
       }}
     >
       <Group justify="space-between" align="flex-start" wrap="nowrap" gap="xs">
-        <Text size="xs" c="dimmed" tt="uppercase" fw={700} lts={0.4}>
-          {label}
-        </Text>
+        <Group gap={4} wrap="nowrap">
+          <Text size="xs" c="dimmed" tt="uppercase" fw={700} lts={0.4}>
+            {label}
+          </Text>
+          {help && <HelpLink to={help} size="xs" />}
+        </Group>
         <ThemeIcon variant="light" color={accent} size={32} radius="md">
           <Icon size={18} />
         </ThemeIcon>
@@ -134,9 +141,12 @@ function SplitTile({
 }) {
   return (
     <Paper p="sm" radius="md" bg="var(--mantine-color-default-hover)">
-      <Text size="xs" c="dimmed" title={hint}>
-        {label}
-      </Text>
+      <Group gap={4} wrap="nowrap">
+        <Text size="xs" c="dimmed" title={hint}>
+          {label}
+        </Text>
+        <HelpLink to="realized" size="xs" />
+      </Group>
       <Text size="lg" fw={700} lh={1.3}>
         <MoneyText value={amount.usd} currency="USD" signed />
       </Text>

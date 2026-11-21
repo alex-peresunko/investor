@@ -4,6 +4,8 @@ import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { HelpLink } from '@/components/HelpLink';
+
 import { PageTitle } from '@/components/PageTitle';
 import { type UpcomingPayment, useUpcoming } from '@/api/reportHooks';
 import { type SortColumns, SortTh, useSortedRows } from '@/components/SortableTable';
@@ -72,7 +74,10 @@ export function UpcomingPage() {
         <>
           <Paper withBorder p="md">
             <Group justify="space-between" mb="md">
-              <Text fw={600}>{t('upcoming.byMonthUah')}</Text>
+              <Group gap={4}>
+                <Text fw={600}>{t('upcoming.byMonthUah')}</Text>
+                <HelpLink to="upcoming" size="xs" />
+              </Group>
               <SeriesLegend series={series} isVisible={toggle.isVisible} onToggle={toggle.toggle} />
               <Text fw={600}>
                 {t('upcoming.total', {

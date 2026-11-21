@@ -1,6 +1,7 @@
 import {
   IconCalendarDue,
   IconCertificate,
+  IconHelp,
   IconLayoutDashboard,
   IconListDetails,
   IconPackage,
@@ -44,6 +45,7 @@ export const NAV = {
     end: false,
   },
   bonds: { to: '/bonds', label: 'nav.bonds', icon: IconCertificate, color: 'grape', end: false },
+  help: { to: '/help', label: 'nav.help', icon: IconHelp, color: 'gray', end: false },
 } as const;
 
 export type Page = keyof typeof NAV;

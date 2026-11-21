@@ -3,6 +3,8 @@ import { Alert, Group, Loader, Paper, SegmentedControl, Text } from '@mantine/co
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { HelpLink } from '@/components/HelpLink';
+
 import { type Period, useTimeseries } from '@/api/reportHooks';
 import { type SeriesDef, SeriesLegend, useSeriesToggle } from '@/components/SeriesLegend';
 import { formatDate, formatNumber } from '@/lib/format';
@@ -32,7 +34,10 @@ export function ValueChart({ period, lotId }: Props) {
   return (
     <Paper withBorder p="md">
       <Group justify="space-between" mb="md">
-        <Text fw={600}>{t('chart.valueTitle')}</Text>
+        <Group gap={4}>
+          <Text fw={600}>{t('chart.valueTitle')}</Text>
+          <HelpLink to="value" size="xs" />
+        </Group>
         <Group gap="lg">
           <SeriesLegend series={series} isVisible={toggle.isVisible} onToggle={toggle.toggle} />
           <SegmentedControl

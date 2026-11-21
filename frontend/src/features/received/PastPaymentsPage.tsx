@@ -93,6 +93,7 @@ export function PastPaymentsPage() {
               icon={IconReceipt}
               color="teal"
               label={t('pastPayments.coupons')}
+              help="pastPayments"
               amount={coupons}
             >
               <NetIncome usd={coupons.netUsd} uah={coupons.netUah} />
@@ -101,6 +102,7 @@ export function PastPaymentsPage() {
               icon={IconCertificate}
               color="grape"
               label={t('pastPayments.redemptions')}
+              help="pastPayments"
               amount={redemptions}
             >
               <NetIncome usd={redemptions.netUsd} uah={redemptions.netUah} />
@@ -108,6 +110,7 @@ export function PastPaymentsPage() {
             <Stat
               icon={IconSum}
               label={t('pastPayments.total')}
+              help="pastPayments"
               amount={{
                 uah: String(Number(coupons.uah) + Number(redemptions.uah)),
                 usd: String(Number(coupons.usd) + Number(redemptions.usd)),

@@ -67,6 +67,10 @@ Dependency versions are pinned exactly (`==` in `backend/pyproject.toml`, exact 
 
 - UI text lives in `frontend/src/locales/<code>.json` (react-i18next, keys typed from `en.json`);
   never hard-code user-visible text. Ukrainian needs `_one/_few/_many/_other` plural forms.
+- The in-app manual (`features/help/HelpPage.tsx`) is the `help` locale tree, written in a small
+  markup that page's `RichText` renders. Section and topic ids are the URL anchors that
+  `components/HelpLink.tsx` (the ? icons) links to; keep the help text in step with calculation
+  changes in `engine/`.
 - The chosen language is the `language` row of the `preference` table
   (`GET`/`PATCH /api/v1/preferences`); `i18n/LanguageGate.tsx` applies it before the first render.
 - Backend errors carry a stable `code` and `params` next to the English `detail`

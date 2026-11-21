@@ -74,6 +74,7 @@ export function DashboardPage() {
               <Stat
                 icon={IconChartLine}
                 label={t('stat.pnl')}
+                help="pnl"
                 amount={report.data.totals.pnl}
                 signed
               >
@@ -92,21 +93,24 @@ export function DashboardPage() {
                 <Stat
                   icon={IconWallet}
                   label={t('stat.currentValue')}
+                  help="value"
                   amount={report.data.totals.closing_value}
                 />
                 <Stat
                   icon={IconCoin}
                   color="blue"
                   label={t('stat.invested')}
+                  help="pnl"
                   amount={report.data.totals.invested}
                 />
                 <Stat
                   icon={IconCash}
                   color="teal"
                   label={t('stat.received')}
+                  help="pnl"
                   amount={report.data.totals.received}
                 />
-                <Stat icon={IconPercentage} color="orange" label={t('stat.xirr')}>
+                <Stat icon={IconPercentage} color="orange" label={t('stat.xirr')} help="xirr">
                   <Text fz={24} fw={800} lh={1.2}>
                     {formatPercent(report.data.xirr_usd)}{' '}
                     <Text span size="sm" c="dimmed">

@@ -15,7 +15,8 @@
     "operations": "Operations",
     "upcoming": "Upcoming payments",
     "pastPayments": "Past payments",
-    "bonds": "Bonds"
+    "bonds": "Bonds",
+    "help": "Help"
   },
   "common": {
     "cancel": "Cancel",
@@ -286,5 +287,76 @@
     "total": "Total received",
     "netIncome": "Net income",
     "split": "Split by package"
+  },
+  "help": {
+    "title": "Help",
+    "subtitle": "How to use the app and how every figure is calculated.",
+    "contents": "Contents",
+    "pageHelp": "Help for this page",
+    "sections": {
+      "overview": {
+        "title": "How it works",
+        "body": "Investor tracks Ukrainian domestic government bonds (OVDP). You record what actually happened — purchases, sales, coupons and redemptions — in hryvnias, and the app works out what your bonds are worth and how much you earned, in UAH and in US dollars.\n\nNothing calculated is stored. Every figure is recalculated from your records each time a page opens, so you can edit or delete any record, even an old one, and all reports follow at once.\n\n1. **Add a bond** on the Bonds page and generate its payment schedule.\n2. **Buy** it on the Operations page. Each purchase becomes a package.\n3. When a coupon or redemption arrives, **record it once** for the bond. The app splits it across your packages.\n4. To sell, pick the package you sell from.\n5. Follow the results on the **Dashboard**, **Upcoming payments** and **Past payments** pages.\n\n> Every page title has a ? button that opens its part of this help."
+      },
+      "terms": {
+        "title": "Terms",
+        "body": "- **OVDP**: domestic government bonds of Ukraine, in hryvnias.\n- **ISIN**: the 12-character code of a bond, e.g. UA4000227045.\n- **Face value**: what the state pays back per bond at maturity, usually 1 000 UAH.\n- **Coupon**: periodic interest. A 16.5 % semi-annual coupon on 1 000 UAH pays 82.50 UAH per bond twice a year. Zero-coupon (discount) bonds pay no coupons; they are bought below face value instead.\n- **Redemption**: repayment of face value at maturity. It closes all your packages of that bond.\n- **Accrued coupon**: the part of the next coupon earned since the previous coupon date. Buying between coupon dates, you pay it to the seller on top of the price and get it back with the next coupon; selling, you receive it from the buyer.\n- **Clean and dirty price**: the price without and with accrued coupon. The app asks for the dirty price, i.e. what you actually pay.\n- **Package**: one purchase of one bond. Sales, coupons and P&L are tracked per package.\n- **USD/UAH rate**: hryvnias per one US dollar.\n- **P&L**: profit and loss."
+      },
+      "bonds": {
+        "title": "Bonds",
+        "body": "A bond must be added here before you can buy it. Enter its ISIN, face value, coupon rate (% per year), coupon frequency, issue date and maturity date; they are in the Ministry of Finance auction results and in your broker's statement.\n\n**Payment schedule.** Generate it from the bond terms: coupons every 12 ÷ frequency months, counted back from maturity to the issue date, plus redemption of face value at maturity. Each coupon per bond is:\n= coupon = face value × annual rate ÷ frequency, rounded to kopiyky\nIf the real payment calendar differs (holidays, an irregular first coupon), edit dates or amounts and save. The schedule drives the accrued coupon, valuation and upcoming payments.\n\nA bond that has operations cannot be deleted; delete its operations first."
+      },
+      "operations": {
+        "title": "Operations",
+        "body": "All your records in one list. Filter by type or bond, edit with the pencil, delete with the bin, and download everything to Excel.\n\n**Buy.** Choose the bond, date, quantity and price per bond including accrued coupon. Total cost is filled in as quantity × price; correct it to the amount actually debited. Accrued coupon paid is calculated from the schedule. Fee is anything extra you paid (broker, bank).\n\n**Sell.** Choose the package to sell from; you can sell any part of what it holds on that date. Proceeds are the total received, including accrued coupon; the accrued part is calculated from the schedule.\n\n**Coupon / redemption.** Record each payment once per bond, with the total received for all your packages of that bond. The app splits it across packages in proportion to the bonds each held at the end of the day before the payment date. Kopiyky left over from rounding go to the largest holding, so the parts always add up to the total.\n\n**USD/UAH rate.** Every operation stores its own rate. The official NBU rate for the date is filled in (for weekends and holidays, the latest earlier rate). Replace it with your bank's rate if you exchanged at a different one. If NBU is unreachable, type the rate in.\n\n> The app checks your records: a purchase must fall between the bond's issue and maturity dates, a sale cannot exceed what the package holds that day, and a payment needs bonds held the day before."
+      },
+      "packages": {
+        "title": "Packages",
+        "body": "One row per purchase. **Open** packages still hold bonds; **closed** ones were fully sold or redeemed.\n\nClick a package for its details: cash flows in the selected period, a value chart, P&L and XIRR. They are the same figures as on the dashboard, for this package alone. You can also sell from it there."
+      },
+      "dashboard": {
+        "title": "Dashboard",
+        "body": "The whole portfolio for the period chosen at the top right: all time, year to date, the last 1 or 3 years, or your own dates. The period is kept in the page address, so a reload or a bookmark keeps it.\n\n- **Profit / loss**: see “How everything is calculated” below. It is split into **realized**, for packages closed by the end of the period, and **unrealized**, for packages still held. A partly sold package counts as unrealized.\n- **Current value**: what the bonds held at the end of the period are worth.\n- **Invested**: money paid in the period: purchases and all fees.\n- **Received**: money received in the period: sales, coupons and redemptions.\n- **Annual return (XIRR)**: the result as a yearly rate.\n- **Value and cumulative P&L**: value and P&L at each month end of the period.\n- **Packages**: P&L of each package for the period. The download button exports it to Excel."
+      },
+      "upcoming": {
+        "title": "Upcoming payments",
+        "body": "Coupons and redemptions expected from the bonds you hold today, taken from the payment schedules:\n= expected = amount per bond in the schedule × bonds held today\nThe USD amount is only an estimate at today's NBU rate; the real rate is known on the payment day. Buying or selling changes the list."
+      },
+      "pastPayments": {
+        "title": "Past payments",
+        "body": "Coupons and redemptions recorded in the period, and how each was split across packages.\n\n**Net income** subtracts what you paid for that money:\n- for a **redemption**, the purchase cost of the redeemed bonds without accrued coupon, plus the purchase fee;\n- for the **first coupon** after a purchase, the accrued coupon you paid the seller, which this coupon returns;\n- other coupons are income in full.\nPayment fees are subtracted as well. In USD, the payment converts at its own rate and the cost at the purchase rate, so currency moves show up here."
+      },
+      "calculations": {
+        "title": "How everything is calculated",
+        "body": "All reports use the same few rules, explained below."
+      },
+      "data": {
+        "title": "Your data",
+        "body": "Your data lives only on this computer, in a database outside the app's source code, and survives restarts and updates.\n\n- **Backup**: `make backup` writes a file to ~/.investor/backups/. `make restore FILE=<file>` replaces all data with that file.\n- **Excel**: the Dashboard and Operations pages have download buttons.\n- **Demo**: `make demo` starts a separate copy with sample data on port 8081. The My data | Demo switch in the header moves between the two. `make demo-clean` deletes the demo.\n- **Language and theme**: the buttons at the top right. The language is saved with your data."
+      }
+    },
+    "topics": {
+      "value": {
+        "title": "Value of a package",
+        "body": "Open packages are valued at amortized cost plus accrued coupon, not at a market price, which the app does not know. Amortized cost starts at the clean price you paid and moves in a straight line to face value at maturity, so a bond bought below face value gains value gradually and one bought above it loses value:\n= clean cost = (total cost − accrued paid) ÷ quantity\n= amortized price = clean cost + (face value − clean cost) × days held ÷ days from purchase to maturity\n= accrued coupon = next coupon × days since the previous coupon ÷ days between the two coupons\n= value = bonds held × (amortized price + accrued coupon)\nExample: clean cost 950 UAH, 400 days to maturity. After 100 days, the amortized price is 950 + 50 × 100 ÷ 400 = 962.50 UAH.\n\n> Valuation assumes every scheduled coupon was recorded. If a coupon date passes without a payment record, the accrued coupon drops to zero on that date and P&L is understated until you record it."
+      },
+      "pnl": {
+        "title": "Profit / loss for a period",
+        "body": "= P&L = value at the end − value at the start + received − invested\nThe start value is taken at the end of the day before the period starts, so operations on the first day count. **Invested** is money paid in the period: purchases and all fees. **Received** is money that came in: sales, coupons and redemptions. **Current value** is the value at the end of the period (see above)."
+      },
+      "realized": {
+        "title": "Realized and unrealized",
+        "body": "Realized P&L is the P&L of packages closed by the end of the period; unrealized is the rest, so the two always add up to the total."
+      },
+      "usd": {
+        "title": "US dollars",
+        "body": "Each cash flow converts at the rate stored on its own operation. Values at the start and end of the period convert at the NBU rate of that day. So the USD result includes the hryvnia's moves against the dollar.\nExample: buy for 100 000 UAH at 41.00, receive a 5 000 UAH coupon at 41.50 and a 100 000 UAH redemption at 42.00. In UAH you earned +5 000. In USD: −2 439.02 + 120.48 + 2 380.95 = +62.41."
+      },
+      "xirr": {
+        "title": "Annual return (XIRR)",
+        "body": "**XIRR** is the yearly rate r at which all cash flows of the period sum to zero once discounted. The start value counts as money paid in and the end value as money received:\n= Σ flow ÷ (1 + r) ^ (days since the first flow ÷ 365) = 0\nIt takes into account when each payment happened, so it compares directly with a deposit rate. It is blank when it cannot be determined, e.g. when money only went in or only came out, or everything happened on one day. Over short periods it swings strongly."
+      }
+    },
+    "explain": "How is this calculated?"
   }
 }

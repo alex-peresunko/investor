@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router';
 
 import { BondsPage } from '@/features/bonds/BondsPage';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
+import { HelpPage } from '@/features/help/HelpPage';
 import { OperationsPage } from '@/features/operations/OperationsPage';
 import { PackageDetailPage } from '@/features/packages/PackageDetailPage';
 import { PackagesPage } from '@/features/packages/PackagesPage';
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
       { path: 'operations', element: <OperationsPage /> },
       { path: 'upcoming', element: <UpcomingPage /> },
       { path: 'past-payments', element: <PastPaymentsPage /> },
+      { path: 'help', element: <HelpPage /> },
     ],
   },
 ]);

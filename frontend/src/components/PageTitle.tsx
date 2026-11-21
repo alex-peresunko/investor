@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 
 import { NAV, type Page } from '@/app/nav';
 
+import { HelpLink } from './HelpLink';
+
 export function PageTitle({ page, children }: { page: Page; children: ReactNode }) {
   const { icon: Icon, color } = NAV[page];
   return (
@@ -16,6 +18,7 @@ export function PageTitle({ page, children }: { page: Page; children: ReactNode 
         <Icon size={22} />
       </ThemeIcon>
       <Title order={2}>{children}</Title>
+      {page !== 'help' && <HelpLink to={page} />}
     </Group>
   );
 }

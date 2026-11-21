@@ -115,21 +115,34 @@ export function PackageDetailPage() {
         </Group>
       </Group>
       <SimpleGrid cols={{ base: 1, xs: 2, md: 5 }}>
-        <Stat icon={IconChartLine} label={t('stat.pnl')} amount={summary.pnl.pnl} signed />
-        <Stat icon={IconWallet} label={t('stat.currentValue')} amount={summary.pnl.closing_value} />
+        <Stat
+          icon={IconChartLine}
+          label={t('stat.pnl')}
+          help="pnl"
+          amount={summary.pnl.pnl}
+          signed
+        />
+        <Stat
+          icon={IconWallet}
+          label={t('stat.currentValue')}
+          help="value"
+          amount={summary.pnl.closing_value}
+        />
         <Stat
           icon={IconCoin}
           color="blue"
           label={t('stat.invested')}
+          help="pnl"
           amount={summary.pnl.invested}
         />
         <Stat
           icon={IconCash}
           color="teal"
           label={t('stat.received')}
+          help="pnl"
           amount={summary.pnl.received}
         />
-        <Stat icon={IconPercentage} color="orange" label={t('stat.xirr')}>
+        <Stat icon={IconPercentage} color="orange" label={t('stat.xirr')} help="xirr">
           <Text fz={24} fw={800} lh={1.2}>
             {formatPercent(summary.xirr_usd)}{' '}
             <Text span size="sm" c="dimmed">

@@ -12,6 +12,8 @@ the USD/UAH rate of each operation's own date, so currency moves show up in the 
 - Dashboard for any period: P&L, current value, invested, received, XIRR, and a value chart. The
   same is available per package.
 - Calendar of upcoming coupons and redemptions; Excel and CSV export.
+- A built-in help page (in English and Ukrainian) explaining every page and calculation; the ? next
+  to a figure opens its explanation.
 - A one-command demo with 24 months of sample data (`make demo`), separate from your own data.
 
 ## Requirements
