@@ -47,7 +47,7 @@ export function UpcomingPage() {
     byMonth.set(month, bucket);
   }
   const chartData = [...byMonth.entries()].map(([month, v]) => ({ month, ...v }));
-  const sort = useSortedRows(items, COLUMNS, 'date');
+  const sort = useSortedRows('table:upcoming', items, COLUMNS, 'date');
   const total = items.reduce((sum, i) => sum + Number(i.expected_uah), 0);
   const totalUsd = items.reduce((sum, i) => sum + Number(i.expected_usd_estimate), 0);
 

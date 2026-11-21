@@ -1,6 +1,6 @@
 import { MantineProvider, Table } from '@mantine/core';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { expect, it } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, expect, it } from 'vitest';
 
 import { type SortColumns, SortTh, useSortedRows } from './SortableTable';
 
@@ -23,7 +23,7 @@ const COLUMNS = {
 } satisfies SortColumns<Row, string>;
 
 function Harness() {
-  const sort = useSortedRows(ROWS, COLUMNS, 'date');
+  const sort = useSortedRows('test-table', ROWS, COLUMNS, 'date');
   return (
     <MantineProvider env="test">
       <Table>
@@ -38,6 +38,9 @@ function Harness() {
     </MantineProvider>
   );
 }
+
+beforeEach(() => window.localStorage.clear());
+afterEach(cleanup);
 
 it('cycles ascending, descending, default; empties last; ties in date order', () => {
   render(<Harness />);
@@ -54,4 +57,18 @@ it('cycles ascending, descending, default; empties last; ties in date order', ()
   fireEvent.click(amount);
   expect(order()).toBe('cabd');
   expect(header().getAttribute('aria-sort')).toBeNull();
+});
+
+it('remembers the order across remounts and ignores unknown stored columns', () => {
+  const { unmount } = render(<Harness />);
+  fireEvent.click(screen.getByRole('button', { name: 'Amount' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Amount' }));
+  unmount();
+  render(<Harness />);
+  expect(screen.getByTestId('order').textContent).toBe('abdc');
+  cleanup();
+
+  window.localStorage.setItem('test-table', JSON.stringify({ key: 'gone', direction: 'asc' }));
+  render(<Harness />);
+  expect(screen.getByTestId('order').textContent).toBe('cabd');
 });

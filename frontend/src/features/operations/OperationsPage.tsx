@@ -146,7 +146,7 @@ export function OperationsPage() {
       .filter((r) => typeFilter === 'all' || r.type === typeFilter)
       .filter((r) => bondFilter === null || r.instrumentId === Number(bondFilter));
   }, [instruments.data, lots.data, sales.data, payments.data, typeFilter, bondFilter]);
-  const sort = useSortedRows(rows, COLUMNS, 'date');
+  const sort = useSortedRows('table:operations', rows, COLUMNS, 'date');
 
   const queries = [instruments, lots, sales, payments];
   const error = queries.find((q) => q.isError)?.error;

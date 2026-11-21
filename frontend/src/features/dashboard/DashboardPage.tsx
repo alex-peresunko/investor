@@ -89,7 +89,7 @@ export function DashboardPage() {
             <Text fw={600} p="md" pb={0}>
               Packages
             </Text>
-            <LotsTable lots={report.data.lots} />
+            <LotsTable lots={report.data.lots} storageKey="table:dashboard-packages" />
           </Paper>
         </>
       )}

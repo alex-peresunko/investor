@@ -19,16 +19,49 @@ function sortBy<T>(rows: readonly T[], value: (row: T) => SortValue, direction: 
   });
 }
 
+interface SortState<K extends string> {
+  key: K;
+  direction: SortDirection;
+}
+
+function readSort<K extends string>(storageKey: string, columns: object): SortState<K> | null {
+  try {
+    const parsed: unknown = JSON.parse(window.localStorage.getItem(storageKey) ?? 'null');
+    if (typeof parsed !== 'object' || parsed === null) return null;
+    const { key, direction } = parsed as Record<string, unknown>;
+    return typeof key === 'string' &&
+      Object.hasOwn(columns, key) &&
+      (direction === 'asc' || direction === 'desc')
+      ? { key: key as K, direction }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Clicking a header cycles ascending → descending → default. The default order is `defaultKey`
- * ascending; it also breaks ties of the chosen column.
+ * ascending; it also breaks ties of the chosen column. The choice is remembered per `storageKey`
+ * in this browser.
  */
 export function useSortedRows<T, K extends string>(
+  storageKey: string,
   rows: readonly T[],
   columns: SortColumns<T, K>,
   defaultKey: NoInfer<K>,
 ) {
-  const [sort, setSort] = useState<{ key: K; direction: SortDirection } | null>(null);
+  const [sort, setSortState] = useState<SortState<K> | null>(() =>
+    readSort<K>(storageKey, columns),
+  );
+  const setSort = (next: SortState<K> | null) => {
+    setSortState(next);
+    try {
+      if (next) window.localStorage.setItem(storageKey, JSON.stringify(next));
+      else window.localStorage.removeItem(storageKey);
+    } catch {
+      // Storage unavailable (private mode): the order just isn't remembered.
+    }
+  };
   const sorted = useMemo(() => {
     const byDefault = sortBy(rows, columns[defaultKey], 'asc');
     return sort ? sortBy(byDefault, columns[sort.key], sort.direction) : byDefault;

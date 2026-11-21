@@ -44,7 +44,7 @@ export function PastPaymentsPage() {
   const received = useReceived(period);
   const [currency, setCurrency] = useState<'usd' | 'uah'>('usd');
   const items = received.data ?? [];
-  const sort = useSortedRows(items, COLUMNS, 'date');
+  const sort = useSortedRows('table:past-payments', items, COLUMNS, 'date');
 
   const sum = (kind: 'coupon' | 'redemption') => {
     const ofKind = items.filter((i) => i.kind === kind);

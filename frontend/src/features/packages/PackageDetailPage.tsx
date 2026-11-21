@@ -54,7 +54,7 @@ export function PackageDetailPage() {
     () => (report.data?.flows ?? []).map((f, key) => ({ ...f, key })),
     [report.data],
   );
-  const sort = useSortedRows(flows, COLUMNS, 'date');
+  const sort = useSortedRows('table:package-flows', flows, COLUMNS, 'date');
 
   if (report.isPending) return <Loader />;
   if (report.isError) return <Alert color="red">{report.error.message}</Alert>;

@@ -18,9 +18,9 @@ const COLUMNS = {
   xirr: (l) => (l.xirr_usd === null ? null : Number(l.xirr_usd)),
 } satisfies SortColumns<LotSummary, string>;
 
-export function LotsTable({ lots }: { lots: LotSummary[] }) {
+export function LotsTable({ lots, storageKey }: { lots: LotSummary[]; storageKey: string }) {
   const navigate = useNavigate();
-  const sort = useSortedRows(lots, COLUMNS, 'bought');
+  const sort = useSortedRows(storageKey, lots, COLUMNS, 'bought');
   if (lots.length === 0) {
     return (
       <Text c="dimmed" p="lg">

@@ -43,7 +43,7 @@ const COLUMNS = {
 export function BondsPage() {
   const instruments = useInstruments();
   const remove = useDeleteInstrument();
-  const sort = useSortedRows(instruments.data ?? [], COLUMNS, 'issued');
+  const sort = useSortedRows('table:bonds', instruments.data ?? [], COLUMNS, 'issued');
   // undefined = closed, null = new bond.
   const [editing, setEditing] = useState<Instrument | null | undefined>(undefined);
   const [scheduleFor, setScheduleFor] = useState<Instrument | null>(null);

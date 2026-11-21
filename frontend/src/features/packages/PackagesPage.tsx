@@ -37,7 +37,7 @@ export function PackagesPage() {
         ) : report.isError ? (
           <Alert color="red">{report.error.message}</Alert>
         ) : (
-          <LotsTable lots={lots} />
+          <LotsTable lots={lots} storageKey="table:packages" />
         )}
       </Paper>
     </Stack>
