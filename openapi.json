@@ -1062,10 +1062,449 @@
           }
         }
       }
+    },
+    "/api/v1/reports/portfolio": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Portfolio",
+        "operationId": "portfolio_api_v1_reports_portfolio_get",
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/lots/{lot_id}": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Lot",
+        "operationId": "lot_api_v1_reports_lots__lot_id__get",
+        "parameters": [
+          {
+            "name": "lot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lot Id"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LotReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/timeseries": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Timeseries",
+        "operationId": "timeseries_api_v1_reports_timeseries_get",
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End"
+            }
+          },
+          {
+            "name": "lot_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Lot Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TimeseriesPoint"
+                  },
+                  "title": "Response Timeseries Api V1 Reports Timeseries Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/upcoming": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Upcoming",
+        "operationId": "upcoming_api_v1_reports_upcoming_get",
+        "parameters": [
+          {
+            "name": "months",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 12,
+              "title": "Months"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UpcomingPayment"
+                  },
+                  "title": "Response Upcoming Api V1 Reports Upcoming Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/export/operations.csv": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Operations Csv",
+        "operationId": "operations_csv_api_v1_export_operations_csv_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/export/operations.xlsx": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Operations Xlsx",
+        "operationId": "operations_xlsx_api_v1_export_operations_xlsx_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/export/portfolio.xlsx": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Portfolio Xlsx",
+        "operationId": "portfolio_xlsx_api_v1_export_portfolio_xlsx_get",
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AmountOut": {
+        "properties": {
+          "uah": {
+            "type": "string",
+            "title": "Uah"
+          },
+          "usd": {
+            "type": "string",
+            "title": "Usd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uah",
+          "usd"
+        ],
+        "title": "AmountOut"
+      },
+      "FlowOut": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "buy",
+              "sell",
+              "coupon",
+              "redemption",
+              "fee"
+            ],
+            "title": "Kind"
+          },
+          "amount_uah": {
+            "type": "string",
+            "title": "Amount Uah"
+          },
+          "fx_rate": {
+            "type": "string",
+            "title": "Fx Rate"
+          },
+          "amount_usd": {
+            "type": "string",
+            "title": "Amount Usd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "day",
+          "kind",
+          "amount_uah",
+          "fx_rate",
+          "amount_usd"
+        ],
+        "title": "FlowOut"
+      },
       "FxRateOut": {
         "properties": {
           "rate_date": {
@@ -1428,6 +1867,116 @@
         ],
         "title": "LotOut"
       },
+      "LotReport": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "title": "End"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/LotSummary"
+          },
+          "flows": {
+            "items": {
+              "$ref": "#/components/schemas/FlowOut"
+            },
+            "type": "array",
+            "title": "Flows"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "end",
+          "summary",
+          "flows"
+        ],
+        "title": "LotReport"
+      },
+      "LotSummary": {
+        "properties": {
+          "lot_id": {
+            "type": "integer",
+            "title": "Lot Id"
+          },
+          "instrument_id": {
+            "type": "integer",
+            "title": "Instrument Id"
+          },
+          "isin": {
+            "type": "string",
+            "title": "Isin"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "trade_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Trade Date"
+          },
+          "maturity_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Maturity Date"
+          },
+          "quantity": {
+            "type": "string",
+            "title": "Quantity"
+          },
+          "open_quantity": {
+            "type": "string",
+            "title": "Open Quantity"
+          },
+          "pnl": {
+            "$ref": "#/components/schemas/PnlOut"
+          },
+          "xirr_uah": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Xirr Uah"
+          },
+          "xirr_usd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Xirr Usd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lot_id",
+          "instrument_id",
+          "isin",
+          "name",
+          "trade_date",
+          "maturity_date",
+          "quantity",
+          "open_quantity",
+          "pnl",
+          "xirr_uah",
+          "xirr_usd"
+        ],
+        "title": "LotSummary"
+      },
       "PaymentIn": {
         "properties": {
           "instrument_id": {
@@ -1566,6 +2115,90 @@
           "id"
         ],
         "title": "PaymentOut"
+      },
+      "PnlOut": {
+        "properties": {
+          "opening_value": {
+            "$ref": "#/components/schemas/AmountOut"
+          },
+          "closing_value": {
+            "$ref": "#/components/schemas/AmountOut"
+          },
+          "invested": {
+            "$ref": "#/components/schemas/AmountOut"
+          },
+          "received": {
+            "$ref": "#/components/schemas/AmountOut"
+          },
+          "pnl": {
+            "$ref": "#/components/schemas/AmountOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "opening_value",
+          "closing_value",
+          "invested",
+          "received",
+          "pnl"
+        ],
+        "title": "PnlOut"
+      },
+      "PortfolioReport": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "title": "End"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/PnlOut"
+          },
+          "xirr_uah": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Xirr Uah"
+          },
+          "xirr_usd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Xirr Usd"
+          },
+          "lots": {
+            "items": {
+              "$ref": "#/components/schemas/LotSummary"
+            },
+            "type": "array",
+            "title": "Lots"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "end",
+          "totals",
+          "xirr_uah",
+          "xirr_usd",
+          "lots"
+        ],
+        "title": "PortfolioReport"
       },
       "SaleIn": {
         "properties": {
@@ -1792,6 +2425,86 @@
           "id"
         ],
         "title": "ScheduledPaymentOut"
+      },
+      "TimeseriesPoint": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "value": {
+            "$ref": "#/components/schemas/AmountOut"
+          },
+          "cumulative_pnl": {
+            "$ref": "#/components/schemas/AmountOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "day",
+          "value",
+          "cumulative_pnl"
+        ],
+        "title": "TimeseriesPoint"
+      },
+      "UpcomingPayment": {
+        "properties": {
+          "pay_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay Date"
+          },
+          "instrument_id": {
+            "type": "integer",
+            "title": "Instrument Id"
+          },
+          "isin": {
+            "type": "string",
+            "title": "Isin"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "coupon",
+              "redemption"
+            ],
+            "title": "Kind"
+          },
+          "amount_per_unit": {
+            "type": "string",
+            "title": "Amount Per Unit"
+          },
+          "quantity": {
+            "type": "string",
+            "title": "Quantity"
+          },
+          "expected_uah": {
+            "type": "string",
+            "title": "Expected Uah"
+          },
+          "expected_usd_estimate": {
+            "type": "string",
+            "title": "Expected Usd Estimate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pay_date",
+          "instrument_id",
+          "isin",
+          "name",
+          "kind",
+          "amount_per_unit",
+          "quantity",
+          "expected_uah",
+          "expected_usd_estimate"
+        ],
+        "title": "UpcomingPayment"
       },
       "ValidationError": {
         "properties": {

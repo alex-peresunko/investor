@@ -221,10 +221,155 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports/portfolio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Portfolio */
+        get: operations["portfolio_api_v1_reports_portfolio_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/lots/{lot_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lot */
+        get: operations["lot_api_v1_reports_lots__lot_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/timeseries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Timeseries */
+        get: operations["timeseries_api_v1_reports_timeseries_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/upcoming": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Upcoming */
+        get: operations["upcoming_api_v1_reports_upcoming_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/export/operations.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Operations Csv */
+        get: operations["operations_csv_api_v1_export_operations_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/export/operations.xlsx": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Operations Xlsx */
+        get: operations["operations_xlsx_api_v1_export_operations_xlsx_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/export/portfolio.xlsx": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Portfolio Xlsx */
+        get: operations["portfolio_xlsx_api_v1_export_portfolio_xlsx_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AmountOut */
+        AmountOut: {
+            /** Uah */
+            uah: string;
+            /** Usd */
+            usd: string;
+        };
+        /** FlowOut */
+        FlowOut: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "buy" | "sell" | "coupon" | "redemption" | "fee";
+            /** Amount Uah */
+            amount_uah: string;
+            /** Fx Rate */
+            fx_rate: string;
+            /** Amount Usd */
+            amount_usd: string;
+        };
         /** FxRateOut */
         FxRateOut: {
             /**
@@ -376,6 +521,52 @@ export interface components {
             /** Id */
             id: number;
         };
+        /** LotReport */
+        LotReport: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            summary: components["schemas"]["LotSummary"];
+            /** Flows */
+            flows: components["schemas"]["FlowOut"][];
+        };
+        /** LotSummary */
+        LotSummary: {
+            /** Lot Id */
+            lot_id: number;
+            /** Instrument Id */
+            instrument_id: number;
+            /** Isin */
+            isin: string;
+            /** Name */
+            name: string;
+            /**
+             * Trade Date
+             * Format: date
+             */
+            trade_date: string;
+            /**
+             * Maturity Date
+             * Format: date
+             */
+            maturity_date: string;
+            /** Quantity */
+            quantity: string;
+            /** Open Quantity */
+            open_quantity: string;
+            pnl: components["schemas"]["PnlOut"];
+            /** Xirr Uah */
+            xirr_uah: string | null;
+            /** Xirr Usd */
+            xirr_usd: string | null;
+        };
         /** PaymentIn */
         PaymentIn: {
             /** Instrument Id */
@@ -429,6 +620,34 @@ export interface components {
             note?: string | null;
             /** Id */
             id: number;
+        };
+        /** PnlOut */
+        PnlOut: {
+            opening_value: components["schemas"]["AmountOut"];
+            closing_value: components["schemas"]["AmountOut"];
+            invested: components["schemas"]["AmountOut"];
+            received: components["schemas"]["AmountOut"];
+            pnl: components["schemas"]["AmountOut"];
+        };
+        /** PortfolioReport */
+        PortfolioReport: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            totals: components["schemas"]["PnlOut"];
+            /** Xirr Uah */
+            xirr_uah: string | null;
+            /** Xirr Usd */
+            xirr_usd: string | null;
+            /** Lots */
+            lots: components["schemas"]["LotSummary"][];
         };
         /** SaleIn */
         SaleIn: {
@@ -519,6 +738,43 @@ export interface components {
             amount_per_unit: string;
             /** Id */
             id: number;
+        };
+        /** TimeseriesPoint */
+        TimeseriesPoint: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            value: components["schemas"]["AmountOut"];
+            cumulative_pnl: components["schemas"]["AmountOut"];
+        };
+        /** UpcomingPayment */
+        UpcomingPayment: {
+            /**
+             * Pay Date
+             * Format: date
+             */
+            pay_date: string;
+            /** Instrument Id */
+            instrument_id: number;
+            /** Isin */
+            isin: string;
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "coupon" | "redemption";
+            /** Amount Per Unit */
+            amount_per_unit: string;
+            /** Quantity */
+            quantity: string;
+            /** Expected Uah */
+            expected_uah: string;
+            /** Expected Usd Estimate */
+            expected_usd_estimate: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -1304,6 +1560,208 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FxRateOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    portfolio_api_v1_reports_portfolio_get: {
+        parameters: {
+            query?: {
+                start?: string | null;
+                end?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    lot_api_v1_reports_lots__lot_id__get: {
+        parameters: {
+            query?: {
+                start?: string | null;
+                end?: string | null;
+            };
+            header?: never;
+            path: {
+                lot_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LotReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    timeseries_api_v1_reports_timeseries_get: {
+        parameters: {
+            query?: {
+                start?: string | null;
+                end?: string | null;
+                lot_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimeseriesPoint"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upcoming_api_v1_reports_upcoming_get: {
+        parameters: {
+            query?: {
+                months?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpcomingPayment"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    operations_csv_api_v1_export_operations_csv_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    operations_xlsx_api_v1_export_operations_xlsx_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    portfolio_xlsx_api_v1_export_portfolio_xlsx_get: {
+        parameters: {
+            query?: {
+                start?: string | null;
+                end?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
