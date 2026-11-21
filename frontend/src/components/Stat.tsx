@@ -1,4 +1,4 @@
-import { Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
+import { Group, Paper, SimpleGrid, Text, ThemeIcon } from '@mantine/core';
 import type { Icon } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -60,6 +60,7 @@ export function Stat({
     <Paper
       withBorder
       p="md"
+      h="100%"
       className="stat"
       style={{
         '--stat-from': `var(--mantine-color-${accent}-4)`,
@@ -90,8 +91,8 @@ export function Stat({
 }
 
 /**
- * Realized / unrealized lines under the P&L figure; they sum to the total shown above. The
- * realized line also shows the annual return (XIRR) of the closed packages.
+ * Realized / unrealized tiles under the P&L figure; they sum to the total shown above. The
+ * realized tile also shows the annual return (XIRR) of the closed packages.
  */
 export function PnlSplit({
   realized,
@@ -104,36 +105,45 @@ export function PnlSplit({
 }) {
   const { t } = useTranslation();
   return (
-    <Stack
-      gap={2}
-      mt="xs"
-      pt="xs"
-      style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
-    >
-      <Group justify="space-between" gap="xs" wrap="nowrap">
-        <Text size="xs" c="dimmed" title={t('stat.realizedHint')}>
-          {t('stat.realized')}
-        </Text>
-        <Text size="sm" fw={500}>
-          <MoneyText value={realized.usd} currency="USD" signed />
-        </Text>
-      </Group>
-      {realizedXirr.usd !== null && (
-        <Text size="xs" c="dimmed" ta="right" title={t('stat.realizedXirrHint')}>
-          {t('stat.xirrLine', {
-            usd: formatPercent(realizedXirr.usd),
-            uah: formatPercent(realizedXirr.uah),
-          })}
-        </Text>
-      )}
-      <Group justify="space-between" gap="xs" wrap="nowrap">
-        <Text size="xs" c="dimmed" title={t('stat.unrealizedHint')}>
-          {t('stat.unrealized')}
-        </Text>
-        <Text size="sm" fw={500}>
-          <MoneyText value={unrealized.usd} currency="USD" signed />
-        </Text>
-      </Group>
-    </Stack>
+    <SimpleGrid cols={2} spacing="xs" mt="md">
+      <SplitTile label={t('stat.realized')} hint={t('stat.realizedHint')} amount={realized}>
+        {realizedXirr.usd !== null && (
+          <Text size="xs" c="dimmed" mt={4} title={t('stat.realizedXirrHint')}>
+            {t('stat.xirrLine', {
+              usd: formatPercent(realizedXirr.usd),
+              uah: formatPercent(realizedXirr.uah),
+            })}
+          </Text>
+        )}
+      </SplitTile>
+      <SplitTile label={t('stat.unrealized')} hint={t('stat.unrealizedHint')} amount={unrealized} />
+    </SimpleGrid>
+  );
+}
+
+function SplitTile({
+  label,
+  hint,
+  amount,
+  children,
+}: {
+  label: string;
+  hint: string;
+  amount: AmountPair;
+  children?: ReactNode;
+}) {
+  return (
+    <Paper p="sm" radius="md" bg="var(--mantine-color-default-hover)">
+      <Text size="xs" c="dimmed" title={hint}>
+        {label}
+      </Text>
+      <Text size="lg" fw={700} lh={1.3}>
+        <MoneyText value={amount.usd} currency="USD" signed />
+      </Text>
+      <Text size="xs" c="dimmed">
+        <MoneyText value={amount.uah} currency="UAH" signed />
+      </Text>
+      {children}
+    </Paper>
   );
 }

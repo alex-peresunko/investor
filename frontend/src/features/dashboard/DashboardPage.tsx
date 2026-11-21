@@ -1,6 +1,7 @@
 import {
   ActionIcon,
   Alert,
+  Grid,
   Group,
   Loader,
   Paper,
@@ -68,46 +69,57 @@ export function DashboardPage() {
         <Alert color="red">{report.error.message}</Alert>
       ) : (
         <>
-          <SimpleGrid cols={{ base: 1, xs: 2, md: 5 }}>
-            <Stat icon={IconChartLine} label={t('stat.pnl')} amount={report.data.totals.pnl} signed>
-              <PnlSplit
-                realized={report.data.realized}
-                unrealized={report.data.unrealized}
-                realizedXirr={{
-                  usd: report.data.realized_xirr_usd,
-                  uah: report.data.realized_xirr_uah,
-                }}
-              />
-            </Stat>
-            <Stat
-              icon={IconWallet}
-              label={t('stat.currentValue')}
-              amount={report.data.totals.closing_value}
-            />
-            <Stat
-              icon={IconCoin}
-              color="blue"
-              label={t('stat.invested')}
-              amount={report.data.totals.invested}
-            />
-            <Stat
-              icon={IconCash}
-              color="teal"
-              label={t('stat.received')}
-              amount={report.data.totals.received}
-            />
-            <Stat icon={IconPercentage} color="orange" label={t('stat.xirr')}>
-              <Text fz={24} fw={800} lh={1.2}>
-                {formatPercent(report.data.xirr_usd)}{' '}
-                <Text span size="sm" c="dimmed">
-                  USD
-                </Text>
-              </Text>
-              <Text size="sm" c="dimmed">
-                {formatPercent(report.data.xirr_uah)} UAH
-              </Text>
-            </Stat>
-          </SimpleGrid>
+          <Grid>
+            <Grid.Col span={{ base: 12, md: 5 }}>
+              <Stat
+                icon={IconChartLine}
+                label={t('stat.pnl')}
+                amount={report.data.totals.pnl}
+                signed
+              >
+                <PnlSplit
+                  realized={report.data.realized}
+                  unrealized={report.data.unrealized}
+                  realizedXirr={{
+                    usd: report.data.realized_xirr_usd,
+                    uah: report.data.realized_xirr_uah,
+                  }}
+                />
+              </Stat>
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, md: 7 }}>
+              <SimpleGrid cols={{ base: 1, xs: 2 }} h="100%">
+                <Stat
+                  icon={IconWallet}
+                  label={t('stat.currentValue')}
+                  amount={report.data.totals.closing_value}
+                />
+                <Stat
+                  icon={IconCoin}
+                  color="blue"
+                  label={t('stat.invested')}
+                  amount={report.data.totals.invested}
+                />
+                <Stat
+                  icon={IconCash}
+                  color="teal"
+                  label={t('stat.received')}
+                  amount={report.data.totals.received}
+                />
+                <Stat icon={IconPercentage} color="orange" label={t('stat.xirr')}>
+                  <Text fz={24} fw={800} lh={1.2}>
+                    {formatPercent(report.data.xirr_usd)}{' '}
+                    <Text span size="sm" c="dimmed">
+                      USD
+                    </Text>
+                  </Text>
+                  <Text size="sm" c="dimmed">
+                    {formatPercent(report.data.xirr_uah)} UAH
+                  </Text>
+                </Stat>
+              </SimpleGrid>
+            </Grid.Col>
+          </Grid>
           <ValueChart period={period} />
           <Paper withBorder>
             <Text fw={600} p="md" pb={0}>
