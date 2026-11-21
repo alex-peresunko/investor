@@ -26,6 +26,7 @@ def create_instrument(session: Session, data: InstrumentIn) -> Instrument:
     instrument = Instrument(kind="bond", **data.model_dump())
     session.add(instrument)
     session.flush()
+    regenerate_schedule(session, instrument.id)
     session.refresh(instrument)
     return instrument
 

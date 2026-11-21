@@ -35,8 +35,8 @@ lint-frontend:
 	cd frontend && npm run lint && npm run typecheck
 
 format:
-	$(UV) ruff check --fix .
 	$(UV) ruff format .
+	$(UV) ruff check --fix .
 	cd frontend && npm run format
 
 # Regenerates openapi.json and the typed frontend client; run after any API change.

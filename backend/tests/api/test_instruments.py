@@ -90,3 +90,10 @@ def test_delete_instrument(client: TestClient) -> None:
     assert response.status_code == 204
 
     assert client.get(f"/api/v1/instruments/{created['id']}").status_code == 404
+
+
+def test_create_generates_schedule(client: TestClient) -> None:
+    bond = make_instrument(client)
+    response = client.get(f"/api/v1/instruments/{bond['id']}/schedule")
+    assert response.status_code == 200
+    assert len(response.json()) == 6
