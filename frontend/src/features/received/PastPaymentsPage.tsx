@@ -17,7 +17,7 @@ import { useState } from 'react';
 
 import { useReceived } from '@/api/reportHooks';
 import { PeriodPicker, usePeriod } from '@/components/PeriodPicker';
-import { Stat } from '@/components/Stat';
+import { MoneyText, Stat } from '@/components/Stat';
 import { type SeriesDef, SeriesLegend, useSeriesToggle } from '@/components/SeriesLegend';
 import { formatDate, formatMoney, formatNumber } from '@/lib/format';
 
@@ -38,6 +38,8 @@ export function PastPaymentsPage() {
     return {
       uah: String(ofKind.reduce((s, i) => s + Number(i.total_amount_uah), 0)),
       usd: String(ofKind.reduce((s, i) => s + Number(i.amount_usd), 0)),
+      netUah: ofKind.reduce((s, i) => s + Number(i.net_income_uah), 0),
+      netUsd: ofKind.reduce((s, i) => s + Number(i.net_income_usd), 0),
     };
   };
   const coupons = sum('coupon');
@@ -58,7 +60,7 @@ export function PastPaymentsPage() {
         <div>
           <Title order={2}>Past payments</Title>
           <Text size="sm" c="dimmed">
-            Coupons and redemptions received. USD at the rate recorded for each payment.
+            Cash received; net income deducts what you paid for the bonds.
           </Text>
         </div>
         <PeriodPicker />
@@ -72,15 +74,24 @@ export function PastPaymentsPage() {
       ) : (
         <>
           <SimpleGrid cols={{ base: 1, xs: 3 }}>
-            <Stat label="Coupons received" amount={coupons} />
-            <Stat label="Redemptions received" amount={redemptions} />
+            <Stat label="Coupons received" amount={coupons}>
+              <NetIncome usd={coupons.netUsd} uah={coupons.netUah} />
+            </Stat>
+            <Stat label="Redemptions received" amount={redemptions}>
+              <NetIncome usd={redemptions.netUsd} uah={redemptions.netUah} />
+            </Stat>
             <Stat
               label="Total received"
               amount={{
                 uah: String(Number(coupons.uah) + Number(redemptions.uah)),
                 usd: String(Number(coupons.usd) + Number(redemptions.usd)),
               }}
-            />
+            >
+              <NetIncome
+                usd={coupons.netUsd + redemptions.netUsd}
+                uah={coupons.netUah + redemptions.netUah}
+              />
+            </Stat>
           </SimpleGrid>
           <Paper withBorder radius="md" p="md">
             <Group justify="space-between" mb="md">
@@ -113,7 +124,7 @@ export function PastPaymentsPage() {
             />
           </Paper>
           <Paper withBorder radius="md">
-            <Table.ScrollContainer minWidth={900}>
+            <Table.ScrollContainer minWidth={1050}>
               <Table verticalSpacing="sm">
                 <Table.Thead>
                   <Table.Tr>
@@ -124,6 +135,7 @@ export function PastPaymentsPage() {
                     <Table.Th ta="right">Amount, UAH</Table.Th>
                     <Table.Th ta="right">USD/UAH</Table.Th>
                     <Table.Th ta="right">Amount, USD</Table.Th>
+                    <Table.Th ta="right">Net income</Table.Th>
                     <Table.Th>Split by package</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -152,6 +164,14 @@ export function PastPaymentsPage() {
                       <Table.Td ta="right" fw={600}>
                         {formatMoney(item.amount_usd, 'USD')}
                       </Table.Td>
+                      <Table.Td ta="right">
+                        <Text size="sm" fw={600}>
+                          <MoneyText value={item.net_income_usd} currency="USD" signed />
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                          <MoneyText value={item.net_income_uah} currency="UAH" signed />
+                        </Text>
+                      </Table.Td>
                       <Table.Td>
                         <Text size="xs" c="dimmed">
                           {item.allocations
@@ -168,5 +188,28 @@ export function PastPaymentsPage() {
         </>
       )}
     </Stack>
+  );
+}
+
+function NetIncome({ usd, uah }: { usd: number; uah: number }) {
+  return (
+    <Group
+      justify="space-between"
+      mt="xs"
+      pt="xs"
+      gap="xs"
+      wrap="nowrap"
+      style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
+    >
+      <Text size="xs" c="dimmed">
+        Net income
+      </Text>
+      <Text size="sm" fw={500}>
+        <MoneyText value={usd} currency="USD" signed />{' '}
+        <Text span size="xs" c="dimmed">
+          <MoneyText value={uah} currency="UAH" signed />
+        </Text>
+      </Text>
+    </Group>
   );
 }

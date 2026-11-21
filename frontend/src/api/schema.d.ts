@@ -590,6 +590,10 @@ export interface components {
             lot_id: number;
             /** Amount Uah */
             amount_uah: string;
+            /** Net Income Uah */
+            net_income_uah: string;
+            /** Net Income Usd */
+            net_income_usd: string;
         };
         /** PaymentIn */
         PaymentIn: {
@@ -705,6 +709,10 @@ export interface components {
             fx_rate: string;
             /** Amount Usd */
             amount_usd: string;
+            /** Net Income Uah */
+            net_income_uah: string;
+            /** Net Income Usd */
+            net_income_usd: string;
             /** Allocations */
             allocations: components["schemas"]["PaymentAllocation"][];
         };

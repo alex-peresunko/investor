@@ -2057,12 +2057,22 @@
           "amount_uah": {
             "type": "string",
             "title": "Amount Uah"
+          },
+          "net_income_uah": {
+            "type": "string",
+            "title": "Net Income Uah"
+          },
+          "net_income_usd": {
+            "type": "string",
+            "title": "Net Income Usd"
           }
         },
         "type": "object",
         "required": [
           "lot_id",
-          "amount_uah"
+          "amount_uah",
+          "net_income_uah",
+          "net_income_usd"
         ],
         "title": "PaymentAllocation"
       },
@@ -2348,6 +2358,14 @@
             "type": "string",
             "title": "Amount Usd"
           },
+          "net_income_uah": {
+            "type": "string",
+            "title": "Net Income Uah"
+          },
+          "net_income_usd": {
+            "type": "string",
+            "title": "Net Income Usd"
+          },
           "allocations": {
             "items": {
               "$ref": "#/components/schemas/PaymentAllocation"
@@ -2369,6 +2387,8 @@
           "fee_uah",
           "fx_rate",
           "amount_usd",
+          "net_income_uah",
+          "net_income_usd",
           "allocations"
         ],
         "title": "ReceivedPayment"

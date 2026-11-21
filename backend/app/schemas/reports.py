@@ -97,6 +97,8 @@ class UpcomingPayment(BaseModel):
 class PaymentAllocation(BaseModel):
     lot_id: int
     amount_uah: Decimal
+    net_income_uah: Decimal
+    net_income_usd: Decimal
 
 
 class ReceivedPayment(BaseModel):
@@ -112,4 +114,10 @@ class ReceivedPayment(BaseModel):
     fee_uah: Decimal
     fx_rate: Decimal
     amount_usd: Decimal
+    # Cash minus what was paid for it: for the first coupon after a purchase, the accrued coupon
+    # bought with the bonds; for a redemption, the purchase cost of the redeemed bonds excluding
+    # that accrued coupon but including the purchase fee. Payment fees are deducted too. Costs
+    # convert to USD at the purchase rate, cash at the payment rate.
+    net_income_uah: Decimal
+    net_income_usd: Decimal
     allocations: list[PaymentAllocation]

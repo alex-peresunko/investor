@@ -5,7 +5,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from sqlalchemy.orm import Session
 
 from app.core.errors import NotFoundError, ValidationError
-from app.engine.portfolio import FxAt, Portfolio
+from app.engine.portfolio import FxAt, PaymentData, Portfolio
 from app.models import Instrument
 from app.schemas.reports import (
     AmountOut,
@@ -192,6 +192,28 @@ def upcoming(session: Session, months: int) -> list[UpcomingPayment]:
     return sorted(result, key=lambda p: (p.pay_date, p.isin, p.kind))
 
 
+def _attributed_cost(
+    portfolio: Portfolio, payment: PaymentData, lot_id: int, units: Decimal
+) -> Decimal:
+    """Purchase cost that `payment` pays back for `units` of the lot; see ReceivedPayment."""
+    lot = portfolio.lots[lot_id]
+    if payment.kind == "redemption":
+        return (lot.total_cost_uah - lot.accrued_paid_uah + lot.fee_uah) / lot.quantity * units
+    first_coupon = min(
+        (
+            p.pay_date
+            for p in portfolio.payments
+            if p.instrument_id == lot.instrument_id
+            and p.kind == "coupon"
+            and p.pay_date > lot.trade_date
+        ),
+        default=None,
+    )
+    if payment.pay_date != first_coupon:
+        return Decimal(0)
+    return lot.accrued_paid_uah / lot.quantity * units
+
+
 def received(session: Session, start: date | None, end: date | None) -> list[ReceivedPayment]:
     portfolio, instruments = load_portfolio(session)
     start, end = _period(portfolio, start, end)
@@ -202,6 +224,20 @@ def received(session: Session, start: date | None, end: date | None) -> list[Rec
         shares = portfolio.allocate(payment)
         record_day = payment.pay_date - timedelta(days=1)
         instrument = instruments[payment.instrument_id]
+        allocations = []
+        for lot_id, (amount, fee) in sorted(shares.items()):
+            units = portfolio.open_quantity(lot_id, record_day)
+            cost = _attributed_cost(portfolio, payment, lot_id, units)
+            allocations.append(
+                PaymentAllocation(
+                    lot_id=lot_id,
+                    amount_uah=amount,
+                    net_income_uah=(amount - fee - cost).quantize(CENT, ROUND_HALF_UP),
+                    net_income_usd=(
+                        (amount - fee) / payment.fx_rate - cost / portfolio.lots[lot_id].fx_rate
+                    ).quantize(CENT, ROUND_HALF_UP),
+                )
+            )
         result.append(
             ReceivedPayment(
                 payment_id=payment.id,
@@ -219,10 +255,9 @@ def received(session: Session, start: date | None, end: date | None) -> list[Rec
                 amount_usd=(payment.total_amount_uah / payment.fx_rate).quantize(
                     CENT, ROUND_HALF_UP
                 ),
-                allocations=[
-                    PaymentAllocation(lot_id=lot_id, amount_uah=amount)
-                    for lot_id, (amount, _fee) in sorted(shares.items())
-                ],
+                net_income_uah=sum((a.net_income_uah for a in allocations), Decimal(0)),
+                net_income_usd=sum((a.net_income_usd for a in allocations), Decimal(0)),
+                allocations=allocations,
             )
         )
     return result

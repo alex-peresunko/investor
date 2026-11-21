@@ -174,6 +174,49 @@ def test_received_payments_in_period(client: TestClient) -> None:
     ]
     assert body[0]["amount_usd"] == "120.48"
     assert Decimal(body[0]["quantity"]) == 100
-    assert body[0]["allocations"] == [{"lot_id": lot_id, "amount_uah": "5000.00"}]
+    assert body[0]["allocations"][0]["lot_id"] == lot_id
+    assert body[0]["allocations"][0]["amount_uah"] == "5000.00"
     later = client.get("/api/v1/reports/received?start=2025-08-01&end=2026-01-31").json()
     assert [p["kind"] for p in later] == ["redemption"]
+
+
+def test_net_income_deducts_purchase_cost(client: TestClient) -> None:
+    """Bought 100 at 1 020 incl. 20 accrued, 10 fee; net income must sum to the lot's P&L."""
+    bond = _post(client, "/api/v1/instruments", BOND)
+    lot = _post(
+        client,
+        "/api/v1/lots",
+        {
+            "instrument_id": bond["id"],
+            "trade_date": "2025-02-01",
+            "quantity": "100",
+            "price_per_unit": "1020",
+            "total_cost_uah": "102000",
+            "accrued_paid_uah": "2000",
+            "fee_uah": "10",
+            "fx_rate": "40",
+        },
+    )
+    for kind, day, amount in (
+        ("coupon", "2025-07-01", "5000"),
+        ("coupon", "2026-01-01", "5000"),
+        ("redemption", "2026-01-01", "100000"),
+    ):
+        _post(
+            client,
+            "/api/v1/payments",
+            {
+                "instrument_id": bond["id"],
+                "kind": kind,
+                "pay_date": day,
+                "total_amount_uah": amount,
+                "fx_rate": "50",
+            },
+        )
+    body = client.get("/api/v1/reports/received?start=2025-01-01&end=2026-01-31").json()
+    assert [p["net_income_uah"] for p in body] == ["3000.00", "5000.00", "-10.00"]
+    assert body[0]["net_income_usd"] == "50.00"  # 5000/50 - 2000/40
+    assert body[2]["net_income_usd"] == "-500.25"  # 100000/50 - 100010/40
+    pnl = client.get(f"/api/v1/reports/lots/{lot['id']}?end=2026-01-31").json()["summary"]["pnl"]
+    assert sum(Decimal(p["net_income_uah"]) for p in body) == Decimal(pnl["pnl"]["uah"])
+    assert sum(Decimal(p["net_income_usd"]) for p in body) == Decimal(pnl["pnl"]["usd"])
