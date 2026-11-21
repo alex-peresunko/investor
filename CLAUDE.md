@@ -19,6 +19,7 @@ and user data never live in it.
 | Autoformat | `make format` |
 | After any API change | `make openapi` (regenerates `openapi.json` and `frontend/src/api/schema.d.ts`; commit both) |
 | New migration | `cd backend && env -u VIRTUAL_ENV uv run alembic revision -m "<msg>"` with `INVESTOR_DATABASE_URL` pointing at a DB; write it by hand |
+| Demo stack (port 8081, own volume) | `make demo` / `make demo-clean` (`scripts/demo.sh`, seeds via `app/demo.py`) |
 | Backup / restore | `make backup`, `make restore FILE=<path>` (files live in `~/.investor/backups/`) |
 | Frontend dev server | `cd frontend && npm run dev` (proxies `/api` to 127.0.0.1:8000) |
 
@@ -34,7 +35,9 @@ Dependency versions are pinned exactly (`==` in `backend/pyproject.toml`, exact 
   podman-compose ignores Containerfile `HEALTHCHECK` and does not recreate containers when only
   the image changed, so healthchecks live in compose and `start.sh` passes `--force-recreate`. The DB password is the external podman secret `investor_db_password`;
   data is the external volume `investor_pgdata`. Both are created by `scripts/start.sh` and survive
-  `down -v` and rebuilds.
+  `down -v` and rebuilds. `scripts/demo.sh` runs the same compose file as project `investor-demo`
+  with volume `investor_demo_pgdata` (via `INVESTOR_VOLUME`) on port 8081; it shares the password
+  secret because podman-compose cannot mount a renamed external secret.
 - Backend `backend/app/`, strictly layered:
   - `api/`: thin routers under `/api/v1`, registered in `api/router.py`. Only call services.
   - `schemas/`: Pydantic request/response models. ORM objects are never returned directly.

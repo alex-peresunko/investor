@@ -60,6 +60,7 @@ services:
 volumes:
   investor_pgdata:
     external: true
+    name: ${INVESTOR_VOLUME:-investor_pgdata}
 
 secrets:
   investor_db_password:

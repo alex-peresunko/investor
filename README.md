@@ -12,12 +12,30 @@ the USD/UAH rate of each operation's own date, so currency moves show up in the 
 - Dashboard for any period: P&L, current value, invested, received, XIRR, and a value chart. The
   same is available per package.
 - Calendar of upcoming coupons and redemptions; Excel and CSV export.
+- A one-command demo with 24 months of sample data (`make demo`), separate from your own data.
 
 ## Requirements
 
 - macOS or Linux with [podman](https://podman.io) and `podman-compose` (on macOS, a running
   `podman machine`)
 - `openssl` (generates the database password on first start)
+
+## Try it with demo data
+
+```bash
+git clone https://github.com/alex-peresunko/investor.git && cd investor
+make demo         # open http://127.0.0.1:8081 (set INVESTOR_DEMO_PORT to change the port)
+make demo-clean   # when done: stop the demo and delete its data
+```
+
+`make demo` starts a separate copy of the app with its own database (podman volume
+`investor_demo_pgdata`) and fills it with six fictional bonds and 24 months of history ending
+today: purchases, partial sales, coupons, redemptions and an upcoming maturity. USD amounts use
+the real NBU rates of each date, so the first run needs internet access. Running it again keeps
+the existing demo data.
+
+The demo never touches the data of `make start`, and both can run at the same time. To start
+from scratch with your own data, run `make demo-clean`, then `make start` (below).
 
 ## Run
 

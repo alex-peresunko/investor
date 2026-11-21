@@ -5,7 +5,7 @@ TEST_ENV := DOCKER_HOST=unix://$(PODMAN_SOCKET) TESTCONTAINERS_RYUK_DISABLED=tru
 UV := cd backend && env -u VIRTUAL_ENV uv run
 
 .PHONY: start stop logs test test-backend test-frontend lint lint-backend lint-frontend \
-        format openapi backup restore
+        format openapi backup restore demo demo-clean
 
 start:
 	scripts/start.sh
@@ -49,3 +49,10 @@ backup:
 
 restore:
 	scripts/restore.sh $(FILE)
+
+# Isolated demo stack on 127.0.0.1:8081 with 24 months of sample data; never touches real data.
+demo:
+	scripts/demo.sh up
+
+demo-clean:
+	scripts/demo.sh down
