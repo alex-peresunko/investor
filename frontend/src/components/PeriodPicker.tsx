@@ -1,6 +1,7 @@
 import { Group, SegmentedControl } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import dayjs from 'dayjs';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 
 import type { Period } from '@/api/reportHooks';
@@ -72,17 +73,37 @@ export function PeriodPicker() {
           { value: 'custom', label: 'Custom' },
         ]}
       />
-      {preset === 'custom' && (
-        <DatePickerInput
-          type="range"
-          valueFormat="DD.MM.YYYY"
-          value={[period.start ?? null, period.end ?? null]}
-          onChange={([start, end]) => {
-            if (start && end) apply(start, end);
-          }}
-          w={240}
-        />
-      )}
+      {preset === 'custom' && <CustomRange period={period} onApply={apply} />}
     </Group>
+  );
+}
+
+/**
+ * The first click of a range yields [start, null]; it must be kept locally (not in the URL) or
+ * the picker resets and the second click never comes.
+ */
+function CustomRange({
+  period,
+  onApply,
+}: {
+  period: Period;
+  onApply: (start: string, end: string) => void;
+}) {
+  const [range, setRange] = useState<[string | null, string | null]>([
+    period.start ?? null,
+    period.end ?? null,
+  ]);
+  return (
+    <DatePickerInput
+      type="range"
+      valueFormat="DD.MM.YYYY"
+      placeholder="Pick start and end dates"
+      value={range}
+      onChange={([start, end]) => {
+        setRange([start, end]);
+        if (start && end) onApply(start, end);
+      }}
+      w={240}
+    />
   );
 }
