@@ -150,6 +150,11 @@ def portfolio_xlsx(session: Session, start: date | None, end: date | None) -> by
                 lot.xirr_usd,
             ]
         )
+    for label, part in (
+        ("Realized (closed packages)", report.realized),
+        ("Unrealized (open packages)", report.unrealized),
+    ):
+        sheet.append([label, "", "", "", "", "", "", "", "", part.uah, "", "", "", part.usd])
     t = report.totals
     sheet.append(
         [

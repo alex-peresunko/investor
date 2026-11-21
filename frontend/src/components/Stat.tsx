@@ -1,4 +1,4 @@
-import { Group, Paper, Text } from '@mantine/core';
+import { Group, Paper, Stack, Text } from '@mantine/core';
 import type { ReactNode } from 'react';
 
 import { formatMoney } from '@/lib/format';
@@ -62,5 +62,39 @@ export function Stat({ label, amount, signed = false, children }: StatProps) {
       )}
       {children}
     </Paper>
+  );
+}
+
+/** Realized / unrealized lines under the P&L figure; they sum to the total shown above. */
+export function PnlSplit({
+  realized,
+  unrealized,
+}: {
+  realized: AmountPair;
+  unrealized: AmountPair;
+}) {
+  return (
+    <Stack
+      gap={2}
+      mt="xs"
+      pt="xs"
+      style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
+    >
+      {(
+        [
+          ['Realized', 'Sold or redeemed packages', realized],
+          ['Unrealized', 'Packages still held', unrealized],
+        ] as const
+      ).map(([label, hint, amount]) => (
+        <Group key={label} justify="space-between" gap="xs" wrap="nowrap">
+          <Text size="xs" c="dimmed" title={hint}>
+            {label}
+          </Text>
+          <Text size="sm" fw={500}>
+            <MoneyText value={amount.usd} currency="USD" signed />
+          </Text>
+        </Group>
+      ))}
+    </Stack>
   );
 }

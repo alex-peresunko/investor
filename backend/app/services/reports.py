@@ -76,10 +76,16 @@ def portfolio_report(session: Session, start: date | None, end: date | None) -> 
     start, end = _period(portfolio, start, end)
     fx_at = fx_lookup(session)
     ids = _active_lot_ids(portfolio, start, end)
+    totals = portfolio.period_pnl(ids, start, end, fx_at)
+    closed = [i for i in ids if portfolio.open_quantity(i, end) == 0]
+    realized = portfolio.period_pnl(closed, start, end, fx_at).pnl
     return PortfolioReport(
         start=start,
         end=end,
-        totals=PnlOut.of(portfolio.period_pnl(ids, start, end, fx_at)),
+        totals=PnlOut.of(totals),
+        realized=AmountOut.of(realized),
+        # Derived from the total so the two parts always sum to it despite per-part rounding.
+        unrealized=AmountOut.of(totals.pnl - realized),
         xirr_uah=portfolio.xirr(ids, start, end, fx_at, "UAH"),
         xirr_usd=portfolio.xirr(ids, start, end, fx_at, "USD"),
         lots=[_summary(portfolio, instruments, i, start, end, fx_at) for i in ids],

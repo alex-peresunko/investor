@@ -82,6 +82,8 @@ def test_portfolio_report_interview_example(client: TestClient) -> None:
     assert len(body["lots"]) == 1
     assert Decimal(body["lots"][0]["open_quantity"]) == 0
     assert body["lots"][0]["isin"] == "UA4000200000"
+    assert body["realized"] == {"uah": "5000.00", "usd": "62.41"}
+    assert body["unrealized"] == {"uah": "0.00", "usd": "0.00"}
 
 
 def test_lot_report_lists_flows(client: TestClient) -> None:
@@ -149,3 +151,13 @@ def test_exports(client: TestClient) -> None:
     assert pnl_response.status_code == 200
     pnl = load_workbook(io.BytesIO(pnl_response.content))["P&L"]
     assert pnl.cell(row=pnl.max_row, column=1).value == "TOTAL"
+
+
+def test_open_package_pnl_is_unrealized(client: TestClient) -> None:
+    _interview_example(client)
+    response = client.get("/api/v1/reports/portfolio?start=2025-01-01&end=2025-03-31")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["realized"] == {"uah": "0.00", "usd": "0.00"}
+    assert body["unrealized"] == body["totals"]["pnl"]
+    assert Decimal(body["unrealized"]["uah"]) != 0

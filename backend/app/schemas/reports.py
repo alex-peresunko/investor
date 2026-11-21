@@ -52,6 +52,10 @@ class PortfolioReport(BaseModel):
     start: date
     end: date
     totals: PnlOut
+    # Split of totals.pnl by package state at `end`: realized = fully sold or redeemed packages,
+    # unrealized = packages still (partly) held. realized + unrealized == totals.pnl exactly.
+    realized: AmountOut
+    unrealized: AmountOut
     xirr_uah: Decimal | None
     xirr_usd: Decimal | None
     lots: list[LotSummary]

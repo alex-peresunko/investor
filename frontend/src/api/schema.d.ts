@@ -642,6 +642,8 @@ export interface components {
              */
             end: string;
             totals: components["schemas"]["PnlOut"];
+            realized: components["schemas"]["AmountOut"];
+            unrealized: components["schemas"]["AmountOut"];
             /** Xirr Uah */
             xirr_uah: string | null;
             /** Xirr Usd */

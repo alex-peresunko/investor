@@ -14,7 +14,7 @@ import { IconDownload } from '@tabler/icons-react';
 
 import { usePortfolioReport } from '@/api/reportHooks';
 import { PeriodPicker, usePeriod } from '@/components/PeriodPicker';
-import { Stat } from '@/components/Stat';
+import { PnlSplit, Stat } from '@/components/Stat';
 import { LotsTable } from '@/features/reports/LotsTable';
 import { ValueChart } from '@/features/reports/ValueChart';
 import { formatDate, formatPercent } from '@/lib/format';
@@ -59,7 +59,9 @@ export function DashboardPage() {
       ) : (
         <>
           <SimpleGrid cols={{ base: 1, xs: 2, md: 5 }}>
-            <Stat label="Profit / loss" amount={report.data.totals.pnl} signed />
+            <Stat label="Profit / loss" amount={report.data.totals.pnl} signed>
+              <PnlSplit realized={report.data.realized} unrealized={report.data.unrealized} />
+            </Stat>
             <Stat label="Current value" amount={report.data.totals.closing_value} />
             <Stat label="Invested" amount={report.data.totals.invested} />
             <Stat label="Received" amount={report.data.totals.received} />

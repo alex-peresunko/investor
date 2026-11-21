@@ -2159,6 +2159,12 @@
           "totals": {
             "$ref": "#/components/schemas/PnlOut"
           },
+          "realized": {
+            "$ref": "#/components/schemas/AmountOut"
+          },
+          "unrealized": {
+            "$ref": "#/components/schemas/AmountOut"
+          },
           "xirr_uah": {
             "anyOf": [
               {
@@ -2194,6 +2200,8 @@
           "start",
           "end",
           "totals",
+          "realized",
+          "unrealized",
           "xirr_uah",
           "xirr_usd",
           "lots"
