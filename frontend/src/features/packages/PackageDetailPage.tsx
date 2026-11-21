@@ -14,11 +14,13 @@ import {
   Title,
 } from '@mantine/core';
 import { IconTrendingDown } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router';
 
 import { useLotReport } from '@/api/reportHooks';
+import type { components } from '@/api/schema';
 import { PeriodPicker, usePeriod } from '@/components/PeriodPicker';
+import { type SortColumns, SortTh, useSortedRows } from '@/components/SortableTable';
 import { MoneyText, Stat } from '@/components/Stat';
 import { SaleFormModal } from '@/features/operations/SaleFormModal';
 import { ValueChart } from '@/features/reports/ValueChart';
@@ -32,15 +34,31 @@ const FLOW_LABEL: Record<string, string> = {
   fee: 'Fee',
 };
 
+type Flow = components['schemas']['FlowOut'] & { key: number };
+
+const COLUMNS = {
+  date: (f) => f.day,
+  type: (f) => FLOW_LABEL[f.kind],
+  uah: (f) => Number(f.amount_uah),
+  fx: (f) => Number(f.fx_rate),
+  usd: (f) => Number(f.amount_usd),
+} satisfies SortColumns<Flow, string>;
+
 export function PackageDetailPage() {
   const lotId = Number(useParams().lotId);
   const period = usePeriod();
   const report = useLotReport(lotId, period);
   const [selling, setSelling] = useState(false);
 
+  const flows = useMemo<Flow[]>(
+    () => (report.data?.flows ?? []).map((f, key) => ({ ...f, key })),
+    [report.data],
+  );
+  const sort = useSortedRows(flows, COLUMNS, 'date');
+
   if (report.isPending) return <Loader />;
   if (report.isError) return <Alert color="red">{report.error.message}</Alert>;
-  const { summary, flows } = report.data;
+  const { summary } = report.data;
   const open = Number(summary.open_quantity) > 0;
 
   return (
@@ -106,16 +124,22 @@ export function PackageDetailPage() {
           <Table verticalSpacing="sm">
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Date</Table.Th>
-                <Table.Th>Type</Table.Th>
-                <Table.Th ta="right">Amount, UAH</Table.Th>
-                <Table.Th ta="right">USD/UAH</Table.Th>
-                <Table.Th ta="right">Amount, USD</Table.Th>
+                <SortTh {...sort.th('date')}>Date</SortTh>
+                <SortTh {...sort.th('type')}>Type</SortTh>
+                <SortTh ta="right" {...sort.th('uah')}>
+                  Amount, UAH
+                </SortTh>
+                <SortTh ta="right" {...sort.th('fx')}>
+                  USD/UAH
+                </SortTh>
+                <SortTh ta="right" {...sort.th('usd')}>
+                  Amount, USD
+                </SortTh>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {flows.map((flow, index) => (
-                <Table.Tr key={index}>
+              {sort.rows.map((flow) => (
+                <Table.Tr key={flow.key}>
                   <Table.Td>{formatDate(flow.day)}</Table.Td>
                   <Table.Td>{FLOW_LABEL[flow.kind]}</Table.Td>
                   <Table.Td ta="right">

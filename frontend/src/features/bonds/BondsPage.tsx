@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { useDeleteInstrument, useInstruments } from '@/api/hooks';
 import type { Instrument } from '@/api/types';
 import { ConfirmDeleteButton } from '@/components/ConfirmDeleteButton';
+import { type SortColumns, SortTh, useSortedRows } from '@/components/SortableTable';
 import { formatDate, formatMoney, formatPercent } from '@/lib/format';
 
 import { BondFormModal } from './BondFormModal';
@@ -29,9 +30,20 @@ const FREQUENCY_LABEL: Record<number, string> = {
   12: 'Monthly',
 };
 
+const COLUMNS = {
+  isin: (b) => b.isin,
+  name: (b) => b.name,
+  face: (b) => Number(b.face_value),
+  coupon: (b) => Number(b.coupon_rate),
+  frequency: (b) => b.coupon_frequency,
+  issued: (b) => b.issue_date,
+  maturity: (b) => b.maturity_date,
+} satisfies SortColumns<Instrument, string>;
+
 export function BondsPage() {
   const instruments = useInstruments();
   const remove = useDeleteInstrument();
+  const sort = useSortedRows(instruments.data ?? [], COLUMNS, 'issued');
   // undefined = closed, null = new bond.
   const [editing, setEditing] = useState<Instrument | null | undefined>(undefined);
   const [scheduleFor, setScheduleFor] = useState<Instrument | null>(null);
@@ -58,18 +70,22 @@ export function BondsPage() {
             <Table highlightOnHover verticalSpacing="sm">
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th>ISIN</Table.Th>
-                  <Table.Th>Name</Table.Th>
-                  <Table.Th ta="right">Face value</Table.Th>
-                  <Table.Th ta="right">Coupon</Table.Th>
-                  <Table.Th>Frequency</Table.Th>
-                  <Table.Th>Issued</Table.Th>
-                  <Table.Th>Maturity</Table.Th>
+                  <SortTh {...sort.th('isin')}>ISIN</SortTh>
+                  <SortTh {...sort.th('name')}>Name</SortTh>
+                  <SortTh ta="right" {...sort.th('face')}>
+                    Face value
+                  </SortTh>
+                  <SortTh ta="right" {...sort.th('coupon')}>
+                    Coupon
+                  </SortTh>
+                  <SortTh {...sort.th('frequency')}>Frequency</SortTh>
+                  <SortTh {...sort.th('issued')}>Issued</SortTh>
+                  <SortTh {...sort.th('maturity')}>Maturity</SortTh>
                   <Table.Th />
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {instruments.data.map((bond) => (
+                {sort.rows.map((bond) => (
                   <Table.Tr key={bond.id}>
                     <Table.Td ff="monospace">{bond.isin}</Table.Td>
                     <Table.Td>{bond.name}</Table.Td>

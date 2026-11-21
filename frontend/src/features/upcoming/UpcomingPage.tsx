@@ -14,7 +14,8 @@ import {
 import dayjs from 'dayjs';
 import { useState } from 'react';
 
-import { useUpcoming } from '@/api/reportHooks';
+import { type UpcomingPayment, useUpcoming } from '@/api/reportHooks';
+import { type SortColumns, SortTh, useSortedRows } from '@/components/SortableTable';
 import { type SeriesDef, SeriesLegend, useSeriesToggle } from '@/components/SeriesLegend';
 import { formatDate, formatMoney, formatNumber } from '@/lib/format';
 
@@ -22,6 +23,16 @@ const SERIES: SeriesDef[] = [
   { name: 'coupon', label: 'Coupons', color: 'teal.6' },
   { name: 'redemption', label: 'Redemptions', color: 'grape.6' },
 ];
+
+const COLUMNS = {
+  date: (i) => i.pay_date,
+  type: (i) => i.kind,
+  bond: (i) => i.isin,
+  perBond: (i) => Number(i.amount_per_unit),
+  held: (i) => Number(i.quantity),
+  uah: (i) => Number(i.expected_uah),
+  usd: (i) => Number(i.expected_usd_estimate),
+} satisfies SortColumns<UpcomingPayment, string>;
 
 export function UpcomingPage() {
   const toggle = useSeriesToggle('chart:upcoming', SERIES);
@@ -36,6 +47,7 @@ export function UpcomingPage() {
     byMonth.set(month, bucket);
   }
   const chartData = [...byMonth.entries()].map(([month, v]) => ({ month, ...v }));
+  const sort = useSortedRows(items, COLUMNS, 'date');
   const total = items.reduce((sum, i) => sum + Number(i.expected_uah), 0);
   const totalUsd = items.reduce((sum, i) => sum + Number(i.expected_usd_estimate), 0);
 
@@ -94,17 +106,25 @@ export function UpcomingPage() {
               <Table verticalSpacing="sm">
                 <Table.Thead>
                   <Table.Tr>
-                    <Table.Th>Date</Table.Th>
-                    <Table.Th>Type</Table.Th>
-                    <Table.Th>Bond</Table.Th>
-                    <Table.Th ta="right">Per bond</Table.Th>
-                    <Table.Th ta="right">Bonds held</Table.Th>
-                    <Table.Th ta="right">Expected, UAH</Table.Th>
-                    <Table.Th ta="right">≈ USD</Table.Th>
+                    <SortTh {...sort.th('date')}>Date</SortTh>
+                    <SortTh {...sort.th('type')}>Type</SortTh>
+                    <SortTh {...sort.th('bond')}>Bond</SortTh>
+                    <SortTh ta="right" {...sort.th('perBond')}>
+                      Per bond
+                    </SortTh>
+                    <SortTh ta="right" {...sort.th('held')}>
+                      Bonds held
+                    </SortTh>
+                    <SortTh ta="right" {...sort.th('uah')}>
+                      Expected, UAH
+                    </SortTh>
+                    <SortTh ta="right" {...sort.th('usd')}>
+                      ≈ USD
+                    </SortTh>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {items.map((item) => (
+                  {sort.rows.map((item) => (
                     <Table.Tr key={`${item.instrument_id}-${item.kind}-${item.pay_date}`}>
                       <Table.Td>{formatDate(item.pay_date)}</Table.Td>
                       <Table.Td>

@@ -2,11 +2,25 @@ import { Badge, Table, Text } from '@mantine/core';
 import { useNavigate } from 'react-router';
 
 import type { LotSummary } from '@/api/reportHooks';
+import { type SortColumns, SortTh, useSortedRows } from '@/components/SortableTable';
 import { MoneyText } from '@/components/Stat';
 import { formatDate, formatNumber, formatPercent } from '@/lib/format';
 
+const COLUMNS = {
+  package: (l) => l.lot_id,
+  bond: (l) => l.isin,
+  bought: (l) => l.trade_date,
+  maturity: (l) => l.maturity_date,
+  held: (l) => Number(l.open_quantity),
+  value: (l) => Number(l.pnl.closing_value.usd),
+  pnlUah: (l) => Number(l.pnl.pnl.uah),
+  pnlUsd: (l) => Number(l.pnl.pnl.usd),
+  xirr: (l) => (l.xirr_usd === null ? null : Number(l.xirr_usd)),
+} satisfies SortColumns<LotSummary, string>;
+
 export function LotsTable({ lots }: { lots: LotSummary[] }) {
   const navigate = useNavigate();
+  const sort = useSortedRows(lots, COLUMNS, 'bought');
   if (lots.length === 0) {
     return (
       <Text c="dimmed" p="lg">
@@ -19,19 +33,29 @@ export function LotsTable({ lots }: { lots: LotSummary[] }) {
       <Table highlightOnHover verticalSpacing="sm">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Package</Table.Th>
-            <Table.Th>Bond</Table.Th>
-            <Table.Th>Bought</Table.Th>
-            <Table.Th>Maturity</Table.Th>
-            <Table.Th ta="right">Held / bought</Table.Th>
-            <Table.Th ta="right">Value, USD</Table.Th>
-            <Table.Th ta="right">P&L, UAH</Table.Th>
-            <Table.Th ta="right">P&L, USD</Table.Th>
-            <Table.Th ta="right">XIRR, USD</Table.Th>
+            <SortTh {...sort.th('package')}>Package</SortTh>
+            <SortTh {...sort.th('bond')}>Bond</SortTh>
+            <SortTh {...sort.th('bought')}>Bought</SortTh>
+            <SortTh {...sort.th('maturity')}>Maturity</SortTh>
+            <SortTh ta="right" {...sort.th('held')}>
+              Held / bought
+            </SortTh>
+            <SortTh ta="right" {...sort.th('value')}>
+              Value, USD
+            </SortTh>
+            <SortTh ta="right" {...sort.th('pnlUah')}>
+              P&L, UAH
+            </SortTh>
+            <SortTh ta="right" {...sort.th('pnlUsd')}>
+              P&L, USD
+            </SortTh>
+            <SortTh ta="right" {...sort.th('xirr')}>
+              XIRR, USD
+            </SortTh>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {lots.map((lot) => {
+          {sort.rows.map((lot) => {
             const open = Number(lot.open_quantity) > 0;
             return (
               <Table.Tr

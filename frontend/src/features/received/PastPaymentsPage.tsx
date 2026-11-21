@@ -15,8 +15,9 @@ import {
 import dayjs from 'dayjs';
 import { useState } from 'react';
 
-import { useReceived } from '@/api/reportHooks';
+import { type ReceivedPayment, useReceived } from '@/api/reportHooks';
 import { PeriodPicker, usePeriod } from '@/components/PeriodPicker';
+import { type SortColumns, SortTh, useSortedRows } from '@/components/SortableTable';
 import { MoneyText, Stat } from '@/components/Stat';
 import { type SeriesDef, SeriesLegend, useSeriesToggle } from '@/components/SeriesLegend';
 import { formatDate, formatMoney, formatNumber } from '@/lib/format';
@@ -26,12 +27,24 @@ const SERIES: SeriesDef[] = [
   { name: 'redemption', label: 'Redemptions', color: 'grape.6' },
 ];
 
+const COLUMNS = {
+  date: (i) => i.pay_date,
+  type: (i) => i.kind,
+  bond: (i) => i.isin,
+  held: (i) => Number(i.quantity),
+  uah: (i) => Number(i.total_amount_uah),
+  fx: (i) => Number(i.fx_rate),
+  usd: (i) => Number(i.amount_usd),
+  net: (i) => Number(i.net_income_usd),
+} satisfies SortColumns<ReceivedPayment, string>;
+
 export function PastPaymentsPage() {
   const toggle = useSeriesToggle('chart:past-payments', SERIES);
   const period = usePeriod();
   const received = useReceived(period);
   const [currency, setCurrency] = useState<'usd' | 'uah'>('usd');
-  const items = [...(received.data ?? [])].reverse();
+  const items = received.data ?? [];
+  const sort = useSortedRows(items, COLUMNS, 'date');
 
   const sum = (kind: 'coupon' | 'redemption') => {
     const ofKind = items.filter((i) => i.kind === kind);
@@ -128,19 +141,29 @@ export function PastPaymentsPage() {
               <Table verticalSpacing="sm">
                 <Table.Thead>
                   <Table.Tr>
-                    <Table.Th>Date</Table.Th>
-                    <Table.Th>Type</Table.Th>
-                    <Table.Th>Bond</Table.Th>
-                    <Table.Th ta="right">Bonds held</Table.Th>
-                    <Table.Th ta="right">Amount, UAH</Table.Th>
-                    <Table.Th ta="right">USD/UAH</Table.Th>
-                    <Table.Th ta="right">Amount, USD</Table.Th>
-                    <Table.Th ta="right">Net income</Table.Th>
+                    <SortTh {...sort.th('date')}>Date</SortTh>
+                    <SortTh {...sort.th('type')}>Type</SortTh>
+                    <SortTh {...sort.th('bond')}>Bond</SortTh>
+                    <SortTh ta="right" {...sort.th('held')}>
+                      Bonds held
+                    </SortTh>
+                    <SortTh ta="right" {...sort.th('uah')}>
+                      Amount, UAH
+                    </SortTh>
+                    <SortTh ta="right" {...sort.th('fx')}>
+                      USD/UAH
+                    </SortTh>
+                    <SortTh ta="right" {...sort.th('usd')}>
+                      Amount, USD
+                    </SortTh>
+                    <SortTh ta="right" {...sort.th('net')}>
+                      Net income
+                    </SortTh>
                     <Table.Th>Split by package</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {items.map((item) => (
+                  {sort.rows.map((item) => (
                     <Table.Tr key={item.payment_id}>
                       <Table.Td>{formatDate(item.pay_date)}</Table.Td>
                       <Table.Td>

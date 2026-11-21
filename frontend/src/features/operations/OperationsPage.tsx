@@ -33,6 +33,7 @@ import {
 } from '@/api/hooks';
 import type { Lot, Payment, Sale } from '@/api/types';
 import { ConfirmDeleteButton } from '@/components/ConfirmDeleteButton';
+import { type SortColumns, SortTh, useSortedRows } from '@/components/SortableTable';
 import { formatDate, formatMoney, formatNumber } from '@/lib/format';
 
 import { LotFormModal } from './LotFormModal';
@@ -53,6 +54,7 @@ interface Row {
   type: OpType;
   date: string;
   instrumentId: number;
+  isin: string;
   lotId: number | null;
   quantity: string | null;
   /** Signed from the investor's view: money paid out is negative. */
@@ -64,6 +66,18 @@ interface Row {
     | { kind: 'sale'; value: Sale }
     | { kind: 'payment'; value: Payment };
 }
+
+const COLUMNS = {
+  date: (r) => r.date,
+  type: (r) => TYPE_META[r.type].label,
+  bond: (r) => r.isin,
+  package: (r) => r.lotId,
+  quantity: (r) => (r.quantity === null ? null : Number(r.quantity)),
+  amount: (r) => r.amountUah,
+  fee: (r) => r.feeUah || null,
+  fx: (r) => r.fxRate,
+  amountUsd: (r) => r.amountUah / r.fxRate,
+} satisfies SortColumns<Row, string>;
 
 type Editing =
   | { kind: 'lot'; value: Lot | null }
@@ -85,12 +99,15 @@ export function OperationsPage() {
 
   const rows = useMemo<Row[]>(() => {
     const lotById = new Map((lots.data ?? []).map((l) => [l.id, l]));
+    const isinById = new Map((instruments.data ?? []).map((i) => [i.id, i.isin]));
+    const isin = (id: number) => isinById.get(id) ?? '—';
     const all: Row[] = [
       ...(lots.data ?? []).map((l): Row => ({
         key: `lot-${l.id}`,
         type: 'buy',
         date: l.trade_date,
         instrumentId: l.instrument_id,
+        isin: isin(l.instrument_id),
         lotId: l.id,
         quantity: l.quantity,
         amountUah: -Number(l.total_cost_uah),
@@ -103,6 +120,7 @@ export function OperationsPage() {
         type: 'sell',
         date: s.trade_date,
         instrumentId: lotById.get(s.lot_id)?.instrument_id ?? 0,
+        isin: isin(lotById.get(s.lot_id)?.instrument_id ?? 0),
         lotId: s.lot_id,
         quantity: s.quantity,
         amountUah: Number(s.total_proceeds_uah),
@@ -115,6 +133,7 @@ export function OperationsPage() {
         type: p.kind,
         date: p.pay_date,
         instrumentId: p.instrument_id,
+        isin: isin(p.instrument_id),
         lotId: null,
         quantity: null,
         amountUah: Number(p.total_amount_uah),
@@ -125,11 +144,10 @@ export function OperationsPage() {
     ];
     return all
       .filter((r) => typeFilter === 'all' || r.type === typeFilter)
-      .filter((r) => bondFilter === null || r.instrumentId === Number(bondFilter))
-      .sort((a, b) => b.date.localeCompare(a.date) || a.key.localeCompare(b.key));
-  }, [lots.data, sales.data, payments.data, typeFilter, bondFilter]);
+      .filter((r) => bondFilter === null || r.instrumentId === Number(bondFilter));
+  }, [instruments.data, lots.data, sales.data, payments.data, typeFilter, bondFilter]);
+  const sort = useSortedRows(rows, COLUMNS, 'date');
 
-  const isin = (id: number) => instruments.data?.find((i) => i.id === id)?.isin ?? '—';
   const queries = [instruments, lots, sales, payments];
   const error = queries.find((q) => q.isError)?.error;
 
@@ -217,20 +235,30 @@ export function OperationsPage() {
             <Table highlightOnHover verticalSpacing="sm">
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th>Date</Table.Th>
-                  <Table.Th>Type</Table.Th>
-                  <Table.Th>Bond</Table.Th>
-                  <Table.Th>Package</Table.Th>
-                  <Table.Th ta="right">Quantity</Table.Th>
-                  <Table.Th ta="right">Amount</Table.Th>
-                  <Table.Th ta="right">Fee</Table.Th>
-                  <Table.Th ta="right">USD/UAH</Table.Th>
-                  <Table.Th ta="right">Amount, USD</Table.Th>
+                  <SortTh {...sort.th('date')}>Date</SortTh>
+                  <SortTh {...sort.th('type')}>Type</SortTh>
+                  <SortTh {...sort.th('bond')}>Bond</SortTh>
+                  <SortTh {...sort.th('package')}>Package</SortTh>
+                  <SortTh ta="right" {...sort.th('quantity')}>
+                    Quantity
+                  </SortTh>
+                  <SortTh ta="right" {...sort.th('amount')}>
+                    Amount
+                  </SortTh>
+                  <SortTh ta="right" {...sort.th('fee')}>
+                    Fee
+                  </SortTh>
+                  <SortTh ta="right" {...sort.th('fx')}>
+                    USD/UAH
+                  </SortTh>
+                  <SortTh ta="right" {...sort.th('amountUsd')}>
+                    Amount, USD
+                  </SortTh>
                   <Table.Th />
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {rows.map((row) => (
+                {sort.rows.map((row) => (
                   <Table.Tr key={row.key}>
                     <Table.Td>{formatDate(row.date)}</Table.Td>
                     <Table.Td>
@@ -238,7 +266,7 @@ export function OperationsPage() {
                         {TYPE_META[row.type].label}
                       </Badge>
                     </Table.Td>
-                    <Table.Td ff="monospace">{isin(row.instrumentId)}</Table.Td>
+                    <Table.Td ff="monospace">{row.isin}</Table.Td>
                     <Table.Td>{row.lotId === null ? 'all held' : `#${row.lotId}`}</Table.Td>
                     <Table.Td ta="right">
                       {row.quantity === null ? '' : formatNumber(row.quantity, 0)}
