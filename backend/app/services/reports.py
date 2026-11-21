@@ -12,8 +12,10 @@ from app.schemas.reports import (
     FlowOut,
     LotReport,
     LotSummary,
+    PaymentAllocation,
     PnlOut,
     PortfolioReport,
+    ReceivedPayment,
     TimeseriesPoint,
     UpcomingPayment,
 )
@@ -188,3 +190,39 @@ def upcoming(session: Session, months: int) -> list[UpcomingPayment]:
                     )
                 )
     return sorted(result, key=lambda p: (p.pay_date, p.isin, p.kind))
+
+
+def received(session: Session, start: date | None, end: date | None) -> list[ReceivedPayment]:
+    portfolio, instruments = load_portfolio(session)
+    start, end = _period(portfolio, start, end)
+    result = []
+    for payment in portfolio.payments:
+        if not start <= payment.pay_date <= end:
+            continue
+        shares = portfolio.allocate(payment)
+        record_day = payment.pay_date - timedelta(days=1)
+        instrument = instruments[payment.instrument_id]
+        result.append(
+            ReceivedPayment(
+                payment_id=payment.id,
+                pay_date=payment.pay_date,
+                instrument_id=payment.instrument_id,
+                isin=instrument.isin,
+                name=instrument.name,
+                kind=payment.kind,
+                quantity=sum(
+                    (portfolio.open_quantity(lot_id, record_day) for lot_id in shares), Decimal(0)
+                ),
+                total_amount_uah=payment.total_amount_uah,
+                fee_uah=payment.fee_uah,
+                fx_rate=payment.fx_rate,
+                amount_usd=(payment.total_amount_uah / payment.fx_rate).quantize(
+                    CENT, ROUND_HALF_UP
+                ),
+                allocations=[
+                    PaymentAllocation(lot_id=lot_id, amount_uah=amount)
+                    for lot_id, (amount, _fee) in sorted(shares.items())
+                ],
+            )
+        )
+    return result

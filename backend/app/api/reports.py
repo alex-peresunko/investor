@@ -4,7 +4,13 @@ from fastapi import APIRouter
 from fastapi.responses import Response
 
 from app.api.deps import SessionDep
-from app.schemas.reports import LotReport, PortfolioReport, TimeseriesPoint, UpcomingPayment
+from app.schemas.reports import (
+    LotReport,
+    PortfolioReport,
+    ReceivedPayment,
+    TimeseriesPoint,
+    UpcomingPayment,
+)
 from app.services import export
 from app.services import reports as service
 
@@ -40,6 +46,13 @@ def timeseries(
 @router.get("/reports/upcoming")
 def upcoming(session: SessionDep, months: int = 12) -> list[UpcomingPayment]:
     return service.upcoming(session, months)
+
+
+@router.get("/reports/received")
+def received(
+    session: SessionDep, start: date | None = None, end: date | None = None
+) -> list[ReceivedPayment]:
+    return service.received(session, start, end)
 
 
 @router.get("/export/operations.csv")

@@ -16,6 +16,7 @@ import {
   IconListDetails,
   IconMoon,
   IconPackage,
+  IconReceipt,
   IconSun,
 } from '@tabler/icons-react';
 import { NavLink as RouterNavLink, Outlet } from 'react-router';
@@ -25,6 +26,7 @@ const NAV = [
   { to: '/packages', label: 'Packages', icon: IconPackage, end: false },
   { to: '/operations', label: 'Operations', icon: IconListDetails, end: false },
   { to: '/upcoming', label: 'Upcoming payments', icon: IconCalendarDue, end: false },
+  { to: '/past-payments', label: 'Past payments', icon: IconReceipt, end: false },
   { to: '/bonds', label: 'Bonds', icon: IconCertificate, end: false },
 ];
 

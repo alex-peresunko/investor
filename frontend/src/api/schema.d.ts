@@ -289,6 +289,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports/received": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Received */
+        get: operations["received_api_v1_reports_received_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/export/operations.csv": {
         parameters: {
             query?: never;
@@ -567,6 +584,13 @@ export interface components {
             /** Xirr Usd */
             xirr_usd: string | null;
         };
+        /** PaymentAllocation */
+        PaymentAllocation: {
+            /** Lot Id */
+            lot_id: number;
+            /** Amount Uah */
+            amount_uah: string;
+        };
         /** PaymentIn */
         PaymentIn: {
             /** Instrument Id */
@@ -650,6 +674,39 @@ export interface components {
             xirr_usd: string | null;
             /** Lots */
             lots: components["schemas"]["LotSummary"][];
+        };
+        /** ReceivedPayment */
+        ReceivedPayment: {
+            /** Payment Id */
+            payment_id: number;
+            /**
+             * Pay Date
+             * Format: date
+             */
+            pay_date: string;
+            /** Instrument Id */
+            instrument_id: number;
+            /** Isin */
+            isin: string;
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "coupon" | "redemption";
+            /** Quantity */
+            quantity: string;
+            /** Total Amount Uah */
+            total_amount_uah: string;
+            /** Fee Uah */
+            fee_uah: string;
+            /** Fx Rate */
+            fx_rate: string;
+            /** Amount Usd */
+            amount_usd: string;
+            /** Allocations */
+            allocations: components["schemas"]["PaymentAllocation"][];
         };
         /** SaleIn */
         SaleIn: {
@@ -1692,6 +1749,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UpcomingPayment"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    received_api_v1_reports_received_get: {
+        parameters: {
+            query?: {
+                start?: string | null;
+                end?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReceivedPayment"][];
                 };
             };
             /** @description Validation Error */

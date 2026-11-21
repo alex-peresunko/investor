@@ -1340,6 +1340,77 @@
         }
       }
     },
+    "/api/v1/reports/received": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Received",
+        "operationId": "received_api_v1_reports_received_get",
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReceivedPayment"
+                  },
+                  "title": "Response Received Api V1 Reports Received Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/export/operations.csv": {
       "get": {
         "tags": [
@@ -1977,6 +2048,24 @@
         ],
         "title": "LotSummary"
       },
+      "PaymentAllocation": {
+        "properties": {
+          "lot_id": {
+            "type": "integer",
+            "title": "Lot Id"
+          },
+          "amount_uah": {
+            "type": "string",
+            "title": "Amount Uah"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lot_id",
+          "amount_uah"
+        ],
+        "title": "PaymentAllocation"
+      },
       "PaymentIn": {
         "properties": {
           "instrument_id": {
@@ -2207,6 +2296,82 @@
           "lots"
         ],
         "title": "PortfolioReport"
+      },
+      "ReceivedPayment": {
+        "properties": {
+          "payment_id": {
+            "type": "integer",
+            "title": "Payment Id"
+          },
+          "pay_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay Date"
+          },
+          "instrument_id": {
+            "type": "integer",
+            "title": "Instrument Id"
+          },
+          "isin": {
+            "type": "string",
+            "title": "Isin"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "coupon",
+              "redemption"
+            ],
+            "title": "Kind"
+          },
+          "quantity": {
+            "type": "string",
+            "title": "Quantity"
+          },
+          "total_amount_uah": {
+            "type": "string",
+            "title": "Total Amount Uah"
+          },
+          "fee_uah": {
+            "type": "string",
+            "title": "Fee Uah"
+          },
+          "fx_rate": {
+            "type": "string",
+            "title": "Fx Rate"
+          },
+          "amount_usd": {
+            "type": "string",
+            "title": "Amount Usd"
+          },
+          "allocations": {
+            "items": {
+              "$ref": "#/components/schemas/PaymentAllocation"
+            },
+            "type": "array",
+            "title": "Allocations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "payment_id",
+          "pay_date",
+          "instrument_id",
+          "isin",
+          "name",
+          "kind",
+          "quantity",
+          "total_amount_uah",
+          "fee_uah",
+          "fx_rate",
+          "amount_usd",
+          "allocations"
+        ],
+        "title": "ReceivedPayment"
       },
       "SaleIn": {
         "properties": {

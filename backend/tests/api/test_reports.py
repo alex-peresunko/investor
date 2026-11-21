@@ -161,3 +161,19 @@ def test_open_package_pnl_is_unrealized(client: TestClient) -> None:
     assert body["realized"] == {"uah": "0.00", "usd": "0.00"}
     assert body["unrealized"] == body["totals"]["pnl"]
     assert Decimal(body["unrealized"]["uah"]) != 0
+
+
+def test_received_payments_in_period(client: TestClient) -> None:
+    lot_id = _interview_example(client)
+    response = client.get("/api/v1/reports/received?start=2025-01-01&end=2026-01-31")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert [(p["kind"], p["pay_date"]) for p in body] == [
+        ("coupon", "2025-07-01"),
+        ("redemption", "2026-01-01"),
+    ]
+    assert body[0]["amount_usd"] == "120.48"
+    assert Decimal(body[0]["quantity"]) == 100
+    assert body[0]["allocations"] == [{"lot_id": lot_id, "amount_uah": "5000.00"}]
+    later = client.get("/api/v1/reports/received?start=2025-08-01&end=2026-01-31").json()
+    assert [p["kind"] for p in later] == ["redemption"]

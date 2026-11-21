@@ -55,3 +55,13 @@ export function useUpcoming(months: number) {
       unwrap(await api.GET('/api/v1/reports/upcoming', { params: { query: { months } } })),
   });
 }
+
+export type ReceivedPayment = components['schemas']['ReceivedPayment'];
+
+export function useReceived(period: Period) {
+  return useQuery({
+    queryKey: ['report', 'received', period],
+    queryFn: async () =>
+      unwrap(await api.GET('/api/v1/reports/received', { params: { query: period } })),
+  });
+}

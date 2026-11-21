@@ -92,3 +92,24 @@ class UpcomingPayment(BaseModel):
     quantity: Decimal
     expected_uah: Decimal
     expected_usd_estimate: Decimal
+
+
+class PaymentAllocation(BaseModel):
+    lot_id: int
+    amount_uah: Decimal
+
+
+class ReceivedPayment(BaseModel):
+    payment_id: int
+    pay_date: date
+    instrument_id: int
+    isin: str
+    name: str
+    kind: Literal["coupon", "redemption"]
+    # Units held at the end of the previous day, which the amount was split over.
+    quantity: Decimal
+    total_amount_uah: Decimal
+    fee_uah: Decimal
+    fx_rate: Decimal
+    amount_usd: Decimal
+    allocations: list[PaymentAllocation]
