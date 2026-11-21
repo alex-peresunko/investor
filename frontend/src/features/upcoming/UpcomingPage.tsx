@@ -15,9 +15,16 @@ import dayjs from 'dayjs';
 import { useState } from 'react';
 
 import { useUpcoming } from '@/api/reportHooks';
+import { type SeriesDef, SeriesLegend, useSeriesToggle } from '@/components/SeriesLegend';
 import { formatDate, formatMoney, formatNumber } from '@/lib/format';
 
+const SERIES: SeriesDef[] = [
+  { name: 'coupon', label: 'Coupons', color: 'teal.6' },
+  { name: 'redemption', label: 'Redemptions', color: 'grape.6' },
+];
+
 export function UpcomingPage() {
+  const toggle = useSeriesToggle('chart:upcoming', SERIES);
   const [months, setMonths] = useState('12');
   const upcoming = useUpcoming(Number(months));
   const items = upcoming.data ?? [];
@@ -67,6 +74,7 @@ export function UpcomingPage() {
           <Paper withBorder radius="md" p="md">
             <Group justify="space-between" mb="md">
               <Text fw={600}>By month, UAH</Text>
+              <SeriesLegend series={SERIES} isVisible={toggle.isVisible} onToggle={toggle.toggle} />
               <Text fw={600}>
                 Total {formatMoney(total, 'UAH')} ≈ {formatMoney(totalUsd, 'USD')}
               </Text>
@@ -76,13 +84,9 @@ export function UpcomingPage() {
               data={chartData}
               dataKey="month"
               type="stacked"
-              withLegend
               valueFormatter={(v) => formatNumber(v, 0)}
               yAxisProps={{ width: 80 }}
-              series={[
-                { name: 'coupon', label: 'Coupons', color: 'teal.6' },
-                { name: 'redemption', label: 'Redemptions', color: 'grape.6' },
-              ]}
+              series={toggle.visible}
             />
           </Paper>
           <Paper withBorder radius="md">

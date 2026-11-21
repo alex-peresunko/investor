@@ -18,9 +18,16 @@ import { useState } from 'react';
 import { useReceived } from '@/api/reportHooks';
 import { PeriodPicker, usePeriod } from '@/components/PeriodPicker';
 import { Stat } from '@/components/Stat';
+import { type SeriesDef, SeriesLegend, useSeriesToggle } from '@/components/SeriesLegend';
 import { formatDate, formatMoney, formatNumber } from '@/lib/format';
 
+const SERIES: SeriesDef[] = [
+  { name: 'coupon', label: 'Coupons', color: 'teal.6' },
+  { name: 'redemption', label: 'Redemptions', color: 'grape.6' },
+];
+
 export function PastPaymentsPage() {
+  const toggle = useSeriesToggle('chart:past-payments', SERIES);
   const period = usePeriod();
   const received = useReceived(period);
   const [currency, setCurrency] = useState<'usd' | 'uah'>('usd');
@@ -78,28 +85,31 @@ export function PastPaymentsPage() {
           <Paper withBorder radius="md" p="md">
             <Group justify="space-between" mb="md">
               <Text fw={600}>By month</Text>
-              <SegmentedControl
-                size="xs"
-                value={currency}
-                onChange={(v) => setCurrency(v === 'uah' ? 'uah' : 'usd')}
-                data={[
-                  { value: 'usd', label: 'USD' },
-                  { value: 'uah', label: 'UAH' },
-                ]}
-              />
+              <Group gap="lg">
+                <SeriesLegend
+                  series={SERIES}
+                  isVisible={toggle.isVisible}
+                  onToggle={toggle.toggle}
+                />
+                <SegmentedControl
+                  size="xs"
+                  value={currency}
+                  onChange={(v) => setCurrency(v === 'uah' ? 'uah' : 'usd')}
+                  data={[
+                    { value: 'usd', label: 'USD' },
+                    { value: 'uah', label: 'UAH' },
+                  ]}
+                />
+              </Group>
             </Group>
             <BarChart
               h={260}
               data={chartData}
               dataKey="month"
               type="stacked"
-              withLegend
               valueFormatter={(v) => formatNumber(v, 0)}
               yAxisProps={{ width: 80 }}
-              series={[
-                { name: 'coupon', label: 'Coupons', color: 'teal.6' },
-                { name: 'redemption', label: 'Redemptions', color: 'grape.6' },
-              ]}
+              series={toggle.visible}
             />
           </Paper>
           <Paper withBorder radius="md">
