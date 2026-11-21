@@ -1019,10 +1019,78 @@
           }
         }
       }
+    },
+    "/api/v1/fx/usd/{day}": {
+      "get": {
+        "tags": [
+          "fx"
+        ],
+        "summary": "Get Usd Rate",
+        "operationId": "get_usd_rate_api_v1_fx_usd__day__get",
+        "parameters": [
+          {
+            "name": "day",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Day"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FxRateOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "FxRateOut": {
+        "properties": {
+          "rate_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Rate Date"
+          },
+          "rate": {
+            "type": "string",
+            "title": "Rate"
+          },
+          "source": {
+            "type": "string",
+            "const": "NBU",
+            "title": "Source",
+            "default": "NBU"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rate_date",
+          "rate"
+        ],
+        "title": "FxRateOut"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
