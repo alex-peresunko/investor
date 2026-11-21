@@ -221,3 +221,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Investor: user data and secrets never belong in the repo ---
+backups/
+*.dump
+*.sql
+*.xlsx
+*.xls
+*.csv
+node_modules/
+frontend/dist/

@@ -1,0 +1,71 @@
+name: investor
+
+services:
+  db:
+    image: docker.io/library/postgres:16.15-alpine
+    environment:
+      POSTGRES_DB: investor
+      POSTGRES_USER: investor
+      POSTGRES_PASSWORD_FILE: /run/secrets/investor_db_password
+    secrets:
+      - investor_db_password
+    volumes:
+      - investor_pgdata:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U investor -d investor"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    image: localhost/investor-backend:latest
+    environment:
+      INVESTOR_DB_HOST: db
+      INVESTOR_LOG_LEVEL: ${INVESTOR_LOG_LEVEL:-INFO}
+    secrets:
+      - investor_db_password
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [internal, egress]
+    read_only: true
+    tmpfs: [/tmp]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    image: localhost/investor-frontend:latest
+    ports:
+      - "127.0.0.1:${INVESTOR_PORT:-8080}:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [internal, egress]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+# Created by scripts/start.sh; external so that `down -v` and rebuilds never delete them.
+volumes:
+  investor_pgdata:
+    external: true
+
+secrets:
+  investor_db_password:
+    external: true
+
+networks:
+  internal:
+    internal: true
+  egress: {}
