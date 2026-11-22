@@ -350,7 +350,7 @@
       },
       "usd": {
         "title": "US dollars",
-        "body": "Each cash flow converts at the rate stored on its own operation. Values at the start and end of the period convert at the NBU rate of that day. So the USD result includes the hryvnia's moves against the dollar.\nExample: buy for 100 000 UAH at 41.00, receive a 5 000 UAH coupon at 41.50 and a 100 000 UAH redemption at 42.00. In UAH you earned +5 000. In USD: −2 439.02 + 120.48 + 2 380.95 = +62.41."
+        "body": "Each cash flow converts at the rate stored on its own operation. Values at the start and end of the period convert at the NBU rate of that day. If NBU is unreachable and that rate is not saved yet, the closest-dated rate the app already has is used until NBU responds. So the USD result includes the hryvnia's moves against the dollar.\nExample: buy for 100 000 UAH at 41.00, receive a 5 000 UAH coupon at 41.50 and a 100 000 UAH redemption at 42.00. In UAH you earned +5 000. In USD: −2 439.02 + 120.48 + 2 380.95 = +62.41."
       },
       "xirr": {
         "title": "Annual return (XIRR)",

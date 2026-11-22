@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.engine.portfolio import BondTerms, LotData, PaymentData, Portfolio, SaleData
 from app.engine.schedule import ScheduleItem
 from app.models import Instrument, Lot, Payment, Sale
-from app.services.fx import usd_rate
+from app.services.fx import usd_rate_for_valuation
 
 
 def load_portfolio(session: Session) -> tuple[Portfolio, dict[int, Instrument]]:
@@ -74,7 +74,7 @@ def fx_lookup(session: Session) -> Callable[[date], Decimal]:
     def fx_at(day: date) -> Decimal:
         day = min(day, date.today())  # noqa: DTZ011
         if day not in cache:
-            cache[day] = usd_rate(session, day)
+            cache[day] = usd_rate_for_valuation(session, day)
         return cache[day]
 
     return fx_at

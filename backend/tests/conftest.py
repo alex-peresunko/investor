@@ -12,6 +12,7 @@ from testcontainers.community.postgres import PostgresContainer
 from app.core.config import get_settings
 from app.core.db import get_session
 from app.main import create_app
+from app.services.fx import reset_nbu_cooldown
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,6 +25,11 @@ def database_url(monkeypatch_session: pytest.MonkeyPatch) -> Iterator[str]:
         get_settings.cache_clear()
         command.upgrade(Config(str(BACKEND_DIR / "alembic.ini")), "head")
         yield url
+
+
+@pytest.fixture(autouse=True)
+def _nbu_cooldown() -> None:
+    reset_nbu_cooldown()
 
 
 @pytest.fixture(scope="session")

@@ -1,8 +1,11 @@
 from datetime import date, timedelta
+from decimal import Decimal
 
 import httpx
 import respx
 from fastapi.testclient import TestClient
+
+from tests.factories import make_instrument, make_lot
 
 NBU = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange"
 
@@ -53,3 +56,36 @@ def test_nbu_down_returns_502(client: TestClient) -> None:
     assert response.status_code == 502
     assert "manually" in response.json()["detail"]
     assert route.call_count == 3
+
+
+@respx.mock
+def test_nbu_down_skips_network_during_cooldown(client: TestClient) -> None:
+    route = respx.get(NBU).mock(side_effect=httpx.ConnectError("down"))
+    client.get("/api/v1/fx/usd/2025-03-04")
+    response = client.get("/api/v1/fx/usd/2025-03-05")
+    assert response.status_code == 502
+    assert route.call_count == 3
+
+
+@respx.mock
+def test_reports_use_nearest_known_rate_when_nbu_down(client: TestClient) -> None:
+    respx.get(NBU).mock(side_effect=httpx.ConnectError("down"))
+    lot = make_lot(client, make_instrument(client)["id"], fx_rate="40")
+    upcoming = client.get("/api/v1/reports/upcoming")
+    assert upcoming.status_code == 200, upcoming.text
+    first = upcoming.json()[0]
+    assert Decimal(first["expected_usd_estimate"]) == round(Decimal(first["expected_uah"]) / 40, 2)
+
+    client.get("/api/v1/fx/usd/2025-03-04")  # still down; nothing cached
+    assert client.get("/api/v1/reports/portfolio").status_code == 200
+    assert client.get(f"/api/v1/reports/lots/{lot['id']}").status_code == 200
+
+
+@respx.mock
+def test_cached_nbu_rate_preferred_over_operation_rate(client: TestClient) -> None:
+    route = respx.get(NBU).mock(return_value=httpx.Response(200, text=_nbu_row("44", "x")))
+    client.get(f"/api/v1/fx/usd/{(date.today() - timedelta(days=3)).isoformat()}")  # noqa: DTZ011
+    route.side_effect = httpx.ConnectError("down")
+    make_lot(client, make_instrument(client)["id"], fx_rate="40")
+    first = client.get("/api/v1/reports/upcoming").json()[0]
+    assert Decimal(first["expected_usd_estimate"]) == round(Decimal(first["expected_uah"]) / 44, 2)

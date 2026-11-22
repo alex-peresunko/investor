@@ -21,7 +21,9 @@ BOND = {
 
 @pytest.fixture(autouse=True)
 def constant_rate(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(portfolio_loader, "usd_rate", lambda _session, _day: Decimal("43"))
+    monkeypatch.setattr(
+        portfolio_loader, "usd_rate_for_valuation", lambda _session, _day: Decimal("43")
+    )
 
 
 def _post(client: TestClient, path: str, body: dict[str, Any]) -> dict[str, Any]:
