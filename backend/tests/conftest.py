@@ -63,8 +63,15 @@ def client(session: Session) -> Iterator[TestClient]:
     app = create_app()
 
     def _session() -> Iterator[Session]:
-        yield session
-        session.flush()
+        """Like `get_session`: a failed request leaves no trace."""
+        request = session.begin_nested()
+        try:
+            yield session
+            session.flush()
+            request.commit()
+        except Exception:
+            request.rollback()
+            raise
 
     app.dependency_overrides[get_session] = _session
     with TestClient(app, raise_server_exceptions=False) as c:

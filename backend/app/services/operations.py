@@ -16,6 +16,16 @@ def _instrument_for(session: Session, instrument_id: int) -> Instrument:
     return instrument
 
 
+def _ensure_payments_held(session: Session, *instrument_ids: int) -> None:
+    """Raises if any recorded payment of these bonds no longer has holdings the day before it;
+    the engine would allocate such a payment to no package and drop it from every report."""
+    session.flush()
+    for instrument_id in set(instrument_ids):
+        for payment in repo.list_payments(session, instrument_id):
+            if repo.held_quantity_before(session, instrument_id, payment.pay_date) <= 0:
+                raise ConflictError("payment_loses_holdings", date=payment.pay_date.isoformat())
+
+
 # --- Lots ---
 
 
@@ -55,9 +65,10 @@ def update_lot(session: Session, lot_id: int, data: LotIn) -> Lot:
     first_sale = repo.earliest_sale_date(session, lot_id)
     if first_sale is not None and data.trade_date > first_sale:
         raise ValidationError("purchase_after_first_sale")
+    old_instrument_id = lot.instrument_id
     for field, value in data.model_dump().items():
         setattr(lot, field, value)
-    session.flush()
+    _ensure_payments_held(session, old_instrument_id, lot.instrument_id)
     session.refresh(lot)
     return lot
 
@@ -67,7 +78,7 @@ def delete_lot(session: Session, lot_id: int) -> None:
     if repo.sold_quantity(session, lot_id) > 0:
         raise ConflictError("package_has_sales")
     session.delete(lot)
-    session.flush()
+    _ensure_payments_held(session, lot.instrument_id)
 
 
 # --- Sales ---
@@ -96,11 +107,17 @@ def _check_sale(session: Session, data: SaleIn, sale_id: int | None) -> None:
         raise ValidationError("sale_exceeds_available", available=f"{available.normalize():f}")
 
 
+def _lot_instrument_id(session: Session, lot_id: int) -> int:
+    lot = session.get(Lot, lot_id)
+    assert lot is not None
+    return lot.instrument_id
+
+
 def create_sale(session: Session, data: SaleIn) -> Sale:
     _check_sale(session, data, sale_id=None)
     sale = Sale(**data.model_dump())
     session.add(sale)
-    session.flush()
+    _ensure_payments_held(session, _lot_instrument_id(session, sale.lot_id))
     session.refresh(sale)
     return sale
 
@@ -108,9 +125,10 @@ def create_sale(session: Session, data: SaleIn) -> Sale:
 def update_sale(session: Session, sale_id: int, data: SaleIn) -> Sale:
     sale = get_sale(session, sale_id)
     _check_sale(session, data, sale_id=sale_id)
+    old_instrument_id = _lot_instrument_id(session, sale.lot_id)
     for field, value in data.model_dump().items():
         setattr(sale, field, value)
-    session.flush()
+    _ensure_payments_held(session, old_instrument_id, _lot_instrument_id(session, sale.lot_id))
     session.refresh(sale)
     return sale
 
@@ -144,7 +162,7 @@ def create_payment(session: Session, data: PaymentIn) -> Payment:
     _check_payment(session, data)
     payment = Payment(**data.model_dump())
     session.add(payment)
-    session.flush()
+    _ensure_payments_held(session, payment.instrument_id)
     session.refresh(payment)
     return payment
 
@@ -152,9 +170,10 @@ def create_payment(session: Session, data: PaymentIn) -> Payment:
 def update_payment(session: Session, payment_id: int, data: PaymentIn) -> Payment:
     payment = get_payment(session, payment_id)
     _check_payment(session, data)
+    old_instrument_id = payment.instrument_id
     for field, value in data.model_dump().items():
         setattr(payment, field, value)
-    session.flush()
+    _ensure_payments_held(session, old_instrument_id, payment.instrument_id)
     session.refresh(payment)
     return payment
 

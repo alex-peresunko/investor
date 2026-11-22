@@ -41,7 +41,18 @@ def earliest_sale_date(session: Session, lot_id: int) -> date | None:
 
 
 def held_quantity_before(session: Session, instrument_id: int, day: date) -> Decimal:
-    """Units of the instrument held at the end of the day before `day`."""
+    """Units of the instrument held at the end of the day before `day`; zero once redeemed."""
+    redeemed = session.scalar(
+        select(Payment.id)
+        .where(
+            Payment.instrument_id == instrument_id,
+            Payment.kind == "redemption",
+            Payment.pay_date < day,
+        )
+        .limit(1)
+    )
+    if redeemed is not None:
+        return Decimal(0)
     bought = session.scalar(
         select(func.coalesce(func.sum(Lot.quantity), 0)).where(
             Lot.instrument_id == instrument_id, Lot.trade_date < day

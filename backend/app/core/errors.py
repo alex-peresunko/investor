@@ -26,6 +26,10 @@ MESSAGES: dict[str, str] = {
     "payment_without_holdings": (
         "No packages of this bond were held the day before the payment date"
     ),
+    "payment_loses_holdings": (
+        "The payment of {date} would have no packages held the day before it; "
+        "change or delete that payment first"
+    ),
     "fx_future_date": "No official rate for a future date",
     "fx_unavailable": "NBU rate service is unavailable; enter the rate manually",
     "fx_no_rate": "NBU has no rate for this date; enter the rate manually",

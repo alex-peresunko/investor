@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from httpx import Response
 
 from tests.factories import make_instrument, make_lot, make_sale
 
@@ -178,3 +179,89 @@ def test_payment_on_purchase_day_rejected(client: TestClient) -> None:
     )
 
     assert response.status_code == 422
+
+
+def _post_payment(client: TestClient, instrument_id: int, **overrides: str) -> Response:
+    body = {
+        "instrument_id": instrument_id,
+        "kind": "coupon",
+        "pay_date": "2026-03-01",
+        "total_amount_uah": "8250",
+        "fx_rate": "41.5",
+        **overrides,
+    }
+    response: Response = client.post("/api/v1/payments", json=body)
+    return response
+
+
+def test_delete_lot_with_payments_conflicts(client: TestClient) -> None:
+    instrument = make_instrument(client)
+    lot = make_lot(client, instrument["id"])
+    assert _post_payment(client, instrument["id"]).status_code == 201
+
+    response = client.delete(f"/api/v1/lots/{lot['id']}")
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "payment_loses_holdings"
+    assert response.json()["params"] == {"date": "2026-03-01"}
+
+
+def test_moving_purchase_past_received_coupon_conflicts(client: TestClient) -> None:
+    instrument = make_instrument(client)
+    lot = make_lot(client, instrument["id"], trade_date="2026-01-10")
+    assert _post_payment(client, instrument["id"]).status_code == 201
+
+    body = {**lot, "trade_date": "2026-03-05"}
+    del body["id"]
+    response = client.put(f"/api/v1/lots/{lot['id']}", json=body)
+
+    assert response.status_code == 409
+    assert client.get(f"/api/v1/lots/{lot['id']}").json()["trade_date"] == "2026-01-10"
+
+
+def test_selling_everything_before_received_coupon_conflicts(client: TestClient) -> None:
+    instrument = make_instrument(client)
+    lot = make_lot(client, instrument["id"], quantity="100")
+    assert _post_payment(client, instrument["id"]).status_code == 201
+
+    response = client.post(
+        "/api/v1/sales",
+        json={
+            "lot_id": lot["id"],
+            "trade_date": "2026-02-01",
+            "quantity": "100",
+            "total_proceeds_uah": "101000",
+            "fx_rate": "41.8",
+        },
+    )
+
+    assert response.status_code == 409
+    make_sale(client, lot["id"], trade_date="2026-02-01", quantity="99")
+
+
+def test_redemption_before_recorded_coupon_conflicts(client: TestClient) -> None:
+    instrument = make_instrument(client)
+    make_lot(client, instrument["id"])
+    assert _post_payment(client, instrument["id"], pay_date="2026-09-01").status_code == 201
+
+    response = _post_payment(
+        client, instrument["id"], kind="redemption", pay_date="2026-06-01", total_amount_uah="1"
+    )
+
+    assert response.status_code == 409
+
+
+def test_coupon_after_redemption_rejected(client: TestClient) -> None:
+    instrument = make_instrument(client)
+    make_lot(client, instrument["id"])
+    assert (
+        _post_payment(
+            client, instrument["id"], kind="redemption", pay_date="2026-06-01"
+        ).status_code
+        == 201
+    )
+
+    response = _post_payment(client, instrument["id"], pay_date="2026-09-01")
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "payment_without_holdings"
