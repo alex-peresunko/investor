@@ -79,9 +79,11 @@ interface Props {
   opened: boolean;
   onClose: () => void;
   instrument: Instrument | null;
+  /** For a new bond: start filled in from this NBU record, keeping its schedule. */
+  prefill?: Security;
 }
 
-export function BondFormModal({ opened, onClose, instrument }: Props) {
+export function BondFormModal({ opened, onClose, instrument, prefill }: Props) {
   const { t } = useTranslation();
   const save = useSaveInstrument();
   const form = useForm<Values>({
@@ -96,23 +98,33 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
           issue_date: instrument.issue_date,
           maturity_date: instrument.maturity_date,
         }
-      : {
-          isin: '',
-          name: '',
-          currency: 'UAH',
-          face_value: 1000,
-          coupon_rate_percent: '',
-          coupon_frequency: '2',
-          issue_date: null,
-          maturity_date: null,
-        },
+      : prefill
+        ? valuesOf(prefill)
+        : {
+            isin: '',
+            name: '',
+            currency: 'UAH',
+            face_value: 1000,
+            coupon_rate_percent: '',
+            coupon_frequency: '2',
+            issue_date: null,
+            maturity_date: null,
+          },
     validate: translateErrors(schemaResolver(schema, { sync: true })),
   });
   const [nbu, setNbu] = useState<{
     terms: Values;
     schedule: Security['schedule'];
     variableRate: boolean;
-  } | null>(null);
+  } | null>(
+    prefill
+      ? {
+          terms: valuesOf(prefill),
+          schedule: prefill.schedule,
+          variableRate: prefill.variable_rate,
+        }
+      : null,
+  );
   const [lookingUp, setLookingUp] = useState(false);
   const securities = useSecurities(opened && !instrument);
   const byIsin = useMemo(

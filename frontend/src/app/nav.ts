@@ -1,6 +1,7 @@
 import {
   IconCalendarDue,
   IconCertificate,
+  IconChartCandle,
   IconHelp,
   IconLayoutDashboard,
   IconListDetails,
@@ -45,6 +46,13 @@ export const NAV = {
     end: false,
   },
   bonds: { to: '/bonds', label: 'nav.bonds', icon: IconCertificate, color: 'grape', end: false },
+  market: {
+    to: '/market',
+    label: 'nav.market',
+    icon: IconChartCandle,
+    color: 'cyan',
+    end: false,
+  },
   help: { to: '/help', label: 'nav.help', icon: IconHelp, color: 'gray', end: false },
 } as const;
 

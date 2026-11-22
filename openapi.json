@@ -1146,6 +1146,144 @@
         }
       }
     },
+    "/api/v1/market/bonds": {
+      "get": {
+        "tags": [
+          "market"
+        ],
+        "summary": "Bonds",
+        "description": "Domestic government bonds outstanding, with the latest NBU trading and auction data.",
+        "operationId": "bonds_api_v1_market_bonds_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketBonds"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/market/bonds/{isin}": {
+      "get": {
+        "tags": [
+          "market"
+        ],
+        "summary": "Bond",
+        "operationId": "bond_api_v1_market_bonds__isin__get",
+        "parameters": [
+          {
+            "name": "isin",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Isin"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketBondDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/market/holders": {
+      "get": {
+        "tags": [
+          "market"
+        ],
+        "summary": "Holders",
+        "description": "Principal outstanding by holder group, from the NBU depositary.",
+        "operationId": "holders_api_v1_market_holders_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HoldersReport"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/market/auctions": {
+      "get": {
+        "tags": [
+          "market"
+        ],
+        "summary": "Auctions",
+        "description": "Primary auctions of the last year, newest first.",
+        "operationId": "auctions_api_v1_market_auctions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AuctionOut"
+                  },
+                  "type": "array",
+                  "title": "Response Auctions Api V1 Market Auctions Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/market/repayments": {
+      "get": {
+        "tags": [
+          "market"
+        ],
+        "summary": "Repayments",
+        "description": "Remaining coupons and redemptions of every domestic bond on today's amount outstanding.",
+        "operationId": "repayments_api_v1_market_repayments_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Repayment"
+                  },
+                  "type": "array",
+                  "title": "Response Repayments Api V1 Market Repayments Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/reports/portfolio": {
       "get": {
         "tags": [
@@ -1894,6 +2032,127 @@
         ],
         "title": "AmountOut"
       },
+      "AuctionOut": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "number": {
+            "type": "string",
+            "title": "Number"
+          },
+          "isin": {
+            "type": "string",
+            "title": "Isin"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "settlement_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Settlement Date"
+          },
+          "maturity_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Maturity Date"
+          },
+          "bucket": {
+            "type": "string",
+            "title": "Bucket"
+          },
+          "yield_cutoff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yield Cutoff"
+          },
+          "yield_avg": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yield Avg"
+          },
+          "yield_min": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yield Min"
+          },
+          "yield_max": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yield Max"
+          },
+          "bid": {
+            "type": "string",
+            "title": "Bid"
+          },
+          "sold": {
+            "type": "string",
+            "title": "Sold"
+          },
+          "raised": {
+            "type": "string",
+            "title": "Raised"
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "day",
+          "number",
+          "isin",
+          "currency",
+          "settlement_date",
+          "maturity_date",
+          "bucket",
+          "yield_cutoff",
+          "yield_avg",
+          "yield_min",
+          "yield_max",
+          "bid",
+          "sold",
+          "raised",
+          "limit"
+        ],
+        "title": "AuctionOut"
+      },
       "BenchmarkReport": {
         "properties": {
           "start": {
@@ -2015,6 +2274,223 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "HolderGroupOut": {
+        "properties": {
+          "group": {
+            "type": "string",
+            "enum": [
+              "all",
+              "UAH",
+              "USD",
+              "EUR"
+            ],
+            "title": "Group"
+          },
+          "total": {
+            "type": "string",
+            "title": "Total"
+          },
+          "change_month": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change Month"
+          },
+          "change_year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change Year"
+          },
+          "holders": {
+            "items": {
+              "$ref": "#/components/schemas/HolderSlice"
+            },
+            "type": "array",
+            "title": "Holders"
+          }
+        },
+        "type": "object",
+        "required": [
+          "group",
+          "total",
+          "change_month",
+          "change_year",
+          "holders"
+        ],
+        "title": "HolderGroupOut"
+      },
+      "HolderPoint": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "group": {
+            "type": "string",
+            "enum": [
+              "all",
+              "UAH",
+              "USD",
+              "EUR"
+            ],
+            "title": "Group"
+          },
+          "total": {
+            "type": "string",
+            "title": "Total"
+          },
+          "by_holder": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "enum": [
+                "nbu",
+                "banks",
+                "companies",
+                "communities",
+                "individuals",
+                "non_residents",
+                "nominees"
+              ]
+            },
+            "type": "object",
+            "title": "By Holder"
+          }
+        },
+        "type": "object",
+        "required": [
+          "day",
+          "group",
+          "total",
+          "by_holder"
+        ],
+        "title": "HolderPoint"
+      },
+      "HolderSlice": {
+        "properties": {
+          "holder": {
+            "type": "string",
+            "enum": [
+              "nbu",
+              "banks",
+              "companies",
+              "communities",
+              "individuals",
+              "non_residents",
+              "nominees"
+            ],
+            "title": "Holder"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
+          "share": {
+            "type": "string",
+            "title": "Share"
+          },
+          "change_month": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change Month"
+          },
+          "change_year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change Year"
+          }
+        },
+        "type": "object",
+        "required": [
+          "holder",
+          "amount",
+          "share",
+          "change_month",
+          "change_year"
+        ],
+        "title": "HolderSlice"
+      },
+      "HoldersReport": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "month_base_day": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Month Base Day"
+          },
+          "year_base_day": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year Base Day"
+          },
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/HolderGroupOut"
+            },
+            "type": "array",
+            "title": "Groups"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/HolderPoint"
+            },
+            "type": "array",
+            "title": "History"
+          }
+        },
+        "type": "object",
+        "required": [
+          "day",
+          "month_base_day",
+          "year_base_day",
+          "groups",
+          "history"
+        ],
+        "title": "HoldersReport"
       },
       "InstrumentCreate": {
         "properties": {
@@ -2590,6 +3066,324 @@
         ],
         "title": "LotSummary"
       },
+      "MarketBond": {
+        "properties": {
+          "isin": {
+            "type": "string",
+            "title": "Isin"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "UAH",
+              "USD",
+              "EUR"
+            ],
+            "title": "Currency"
+          },
+          "face_value": {
+            "type": "string",
+            "title": "Face Value"
+          },
+          "coupon_rate": {
+            "type": "string",
+            "title": "Coupon Rate"
+          },
+          "coupon_frequency": {
+            "type": "integer",
+            "title": "Coupon Frequency"
+          },
+          "variable_rate": {
+            "type": "boolean",
+            "title": "Variable Rate"
+          },
+          "issue_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Issue Date"
+          },
+          "maturity_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Maturity Date"
+          },
+          "outstanding_bonds": {
+            "type": "integer",
+            "title": "Outstanding Bonds"
+          },
+          "outstanding": {
+            "type": "string",
+            "title": "Outstanding"
+          },
+          "outstanding_uah": {
+            "type": "string",
+            "title": "Outstanding Uah"
+          },
+          "market_share": {
+            "type": "string",
+            "title": "Market Share"
+          },
+          "next_payment_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Payment Date"
+          },
+          "last_trade": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MarketQuote"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "volume_30d_uah": {
+            "type": "string",
+            "title": "Volume 30D Uah"
+          },
+          "last_auction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AuctionOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "instrument_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instrument Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "isin",
+          "name",
+          "currency",
+          "face_value",
+          "coupon_rate",
+          "coupon_frequency",
+          "variable_rate",
+          "issue_date",
+          "maturity_date",
+          "outstanding_bonds",
+          "outstanding",
+          "outstanding_uah",
+          "market_share",
+          "next_payment_date",
+          "last_trade",
+          "volume_30d_uah",
+          "last_auction",
+          "instrument_id"
+        ],
+        "title": "MarketBond"
+      },
+      "MarketBondDetail": {
+        "properties": {
+          "bond": {
+            "$ref": "#/components/schemas/MarketBond"
+          },
+          "schedule": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityPayment"
+            },
+            "type": "array",
+            "title": "Schedule"
+          },
+          "trades": {
+            "items": {
+              "$ref": "#/components/schemas/MarketQuote"
+            },
+            "type": "array",
+            "title": "Trades"
+          },
+          "auctions": {
+            "items": {
+              "$ref": "#/components/schemas/AuctionOut"
+            },
+            "type": "array",
+            "title": "Auctions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "bond",
+          "schedule",
+          "trades",
+          "auctions"
+        ],
+        "title": "MarketBondDetail"
+      },
+      "MarketBonds": {
+        "properties": {
+          "trades_as_of": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trades As Of"
+          },
+          "outstanding_uah": {
+            "type": "string",
+            "title": "Outstanding Uah"
+          },
+          "bonds": {
+            "items": {
+              "$ref": "#/components/schemas/MarketBond"
+            },
+            "type": "array",
+            "title": "Bonds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "trades_as_of",
+          "outstanding_uah",
+          "bonds"
+        ],
+        "title": "MarketBonds"
+      },
+      "MarketQuote": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "deals": {
+            "type": "integer",
+            "title": "Deals"
+          },
+          "volume_uah": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Volume Uah"
+          },
+          "volume_free_uah": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Volume Free Uah"
+          },
+          "price_uah": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Uah"
+          },
+          "dirty_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dirty Price"
+          },
+          "clean_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clean Price"
+          },
+          "yield_avg": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yield Avg"
+          },
+          "yield_min": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yield Min"
+          },
+          "yield_max": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yield Max"
+          }
+        },
+        "type": "object",
+        "required": [
+          "day",
+          "deals",
+          "volume_uah",
+          "volume_free_uah",
+          "price_uah",
+          "dirty_price",
+          "clean_price",
+          "yield_avg",
+          "yield_min",
+          "yield_max"
+        ],
+        "title": "MarketQuote",
+        "description": "One day of secondary-market deals in a bond, delivery versus payment."
+      },
       "MissedPayment": {
         "properties": {
           "pay_date": {
@@ -3125,6 +3919,60 @@
           "allocations"
         ],
         "title": "ReceivedPayment"
+      },
+      "Repayment": {
+        "properties": {
+          "pay_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay Date"
+          },
+          "isin": {
+            "type": "string",
+            "title": "Isin"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "UAH",
+              "USD",
+              "EUR"
+            ],
+            "title": "Currency"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "coupon",
+              "redemption"
+            ],
+            "title": "Kind"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
+          "amount_uah": {
+            "type": "string",
+            "title": "Amount Uah"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pay_date",
+          "isin",
+          "name",
+          "currency",
+          "kind",
+          "amount",
+          "amount_uah"
+        ],
+        "title": "Repayment",
+        "description": "A scheduled payment on all bonds of one ISIN outstanding today."
       },
       "SaleIn": {
         "properties": {

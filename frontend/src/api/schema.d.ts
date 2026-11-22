@@ -264,6 +264,103 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/market/bonds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Bonds
+         * @description Domestic government bonds outstanding, with the latest NBU trading and auction data.
+         */
+        get: operations["bonds_api_v1_market_bonds_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/market/bonds/{isin}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Bond */
+        get: operations["bond_api_v1_market_bonds__isin__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/market/holders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Holders
+         * @description Principal outstanding by holder group, from the NBU depositary.
+         */
+        get: operations["holders_api_v1_market_holders_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/market/auctions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Auctions
+         * @description Primary auctions of the last year, newest first.
+         */
+        get: operations["auctions_api_v1_market_auctions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/market/repayments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Repayments
+         * @description Remaining coupons and redemptions of every domestic bond on today's amount outstanding.
+         */
+        get: operations["repayments_api_v1_market_repayments_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/portfolio": {
         parameters: {
             query?: never;
@@ -478,6 +575,48 @@ export interface components {
             /** Usd */
             usd: string;
         };
+        /** AuctionOut */
+        AuctionOut: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Number */
+            number: string;
+            /** Isin */
+            isin: string;
+            /** Currency */
+            currency: string;
+            /**
+             * Settlement Date
+             * Format: date
+             */
+            settlement_date: string;
+            /**
+             * Maturity Date
+             * Format: date
+             */
+            maturity_date: string;
+            /** Bucket */
+            bucket: string;
+            /** Yield Cutoff */
+            yield_cutoff: string | null;
+            /** Yield Avg */
+            yield_avg: string | null;
+            /** Yield Min */
+            yield_min: string | null;
+            /** Yield Max */
+            yield_max: string | null;
+            /** Bid */
+            bid: string;
+            /** Sold */
+            sold: string;
+            /** Raised */
+            raised: string;
+            /** Limit */
+            limit: string | null;
+        };
         /**
          * BenchmarkReport
          * @description The portfolio's P&L for the period next to what the same money would have made elsewhere.
@@ -542,6 +681,73 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** HolderGroupOut */
+        HolderGroupOut: {
+            /**
+             * Group
+             * @enum {string}
+             */
+            group: "all" | "UAH" | "USD" | "EUR";
+            /** Total */
+            total: string;
+            /** Change Month */
+            change_month: string | null;
+            /** Change Year */
+            change_year: string | null;
+            /** Holders */
+            holders: components["schemas"]["HolderSlice"][];
+        };
+        /** HolderPoint */
+        HolderPoint: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /**
+             * Group
+             * @enum {string}
+             */
+            group: "all" | "UAH" | "USD" | "EUR";
+            /** Total */
+            total: string;
+            /** By Holder */
+            by_holder: {
+                [key: string]: string;
+            };
+        };
+        /** HolderSlice */
+        HolderSlice: {
+            /**
+             * Holder
+             * @enum {string}
+             */
+            holder: "nbu" | "banks" | "companies" | "communities" | "individuals" | "non_residents" | "nominees";
+            /** Amount */
+            amount: string;
+            /** Share */
+            share: string;
+            /** Change Month */
+            change_month: string | null;
+            /** Change Year */
+            change_year: string | null;
+        };
+        /** HoldersReport */
+        HoldersReport: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Month Base Day */
+            month_base_day: string | null;
+            /** Year Base Day */
+            year_base_day: string | null;
+            /** Groups */
+            groups: components["schemas"]["HolderGroupOut"][];
+            /** History */
+            history: components["schemas"]["HolderPoint"][];
         };
         /** InstrumentCreate */
         InstrumentCreate: {
@@ -762,6 +968,100 @@ export interface components {
             /** Xirr Usd */
             xirr_usd: string | null;
         };
+        /** MarketBond */
+        MarketBond: {
+            /** Isin */
+            isin: string;
+            /** Name */
+            name: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "UAH" | "USD" | "EUR";
+            /** Face Value */
+            face_value: string;
+            /** Coupon Rate */
+            coupon_rate: string;
+            /** Coupon Frequency */
+            coupon_frequency: number;
+            /** Variable Rate */
+            variable_rate: boolean;
+            /**
+             * Issue Date
+             * Format: date
+             */
+            issue_date: string;
+            /**
+             * Maturity Date
+             * Format: date
+             */
+            maturity_date: string;
+            /** Outstanding Bonds */
+            outstanding_bonds: number;
+            /** Outstanding */
+            outstanding: string;
+            /** Outstanding Uah */
+            outstanding_uah: string;
+            /** Market Share */
+            market_share: string;
+            /** Next Payment Date */
+            next_payment_date: string | null;
+            last_trade: components["schemas"]["MarketQuote"] | null;
+            /** Volume 30D Uah */
+            volume_30d_uah: string;
+            last_auction: components["schemas"]["AuctionOut"] | null;
+            /** Instrument Id */
+            instrument_id: number | null;
+        };
+        /** MarketBondDetail */
+        MarketBondDetail: {
+            bond: components["schemas"]["MarketBond"];
+            /** Schedule */
+            schedule: components["schemas"]["SecurityPayment"][];
+            /** Trades */
+            trades: components["schemas"]["MarketQuote"][];
+            /** Auctions */
+            auctions: components["schemas"]["AuctionOut"][];
+        };
+        /** MarketBonds */
+        MarketBonds: {
+            /** Trades As Of */
+            trades_as_of: string | null;
+            /** Outstanding Uah */
+            outstanding_uah: string;
+            /** Bonds */
+            bonds: components["schemas"]["MarketBond"][];
+        };
+        /**
+         * MarketQuote
+         * @description One day of secondary-market deals in a bond, delivery versus payment.
+         */
+        MarketQuote: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Deals */
+            deals: number;
+            /** Volume Uah */
+            volume_uah: string | null;
+            /** Volume Free Uah */
+            volume_free_uah: string | null;
+            /** Price Uah */
+            price_uah: string | null;
+            /** Dirty Price */
+            dirty_price: string | null;
+            /** Clean Price */
+            clean_price: string | null;
+            /** Yield Avg */
+            yield_avg: string | null;
+            /** Yield Min */
+            yield_min: string | null;
+            /** Yield Max */
+            yield_max: string | null;
+        };
         /** MissedPayment */
         MissedPayment: {
             /**
@@ -967,6 +1267,35 @@ export interface components {
             net_income_usd: string;
             /** Allocations */
             allocations: components["schemas"]["PaymentAllocation"][];
+        };
+        /**
+         * Repayment
+         * @description A scheduled payment on all bonds of one ISIN outstanding today.
+         */
+        Repayment: {
+            /**
+             * Pay Date
+             * Format: date
+             */
+            pay_date: string;
+            /** Isin */
+            isin: string;
+            /** Name */
+            name: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "UAH" | "USD" | "EUR";
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "coupon" | "redemption";
+            /** Amount */
+            amount: string;
+            /** Amount Uah */
+            amount_uah: string;
         };
         /** SaleIn */
         SaleIn: {
@@ -2024,6 +2353,117 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    bonds_api_v1_market_bonds_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketBonds"];
+                };
+            };
+        };
+    };
+    bond_api_v1_market_bonds__isin__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                isin: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketBondDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    holders_api_v1_market_holders_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HoldersReport"];
+                };
+            };
+        };
+    };
+    auctions_api_v1_market_auctions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuctionOut"][];
+                };
+            };
+        };
+    };
+    repayments_api_v1_market_repayments_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Repayment"][];
                 };
             };
         };

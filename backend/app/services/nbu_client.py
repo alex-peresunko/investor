@@ -49,3 +49,54 @@ def fetch_securities(url: str) -> list[dict[str, Any]]:
     if not isinstance(rows, list):
         raise NbuUnavailableError("unexpected securities payload")
     return rows
+
+
+# The depositary spreadsheets are several megabytes.
+FILE_TIMEOUT_SECONDS = 60.0
+
+
+def fetch_file(url: str) -> bytes:
+    try:
+        response = httpx.get(url, timeout=FILE_TIMEOUT_SECONDS, follow_redirects=True)
+        response.raise_for_status()
+    except httpx.HTTPError as exc:
+        logger.warning("NBU file fetch failed", extra={"url": url})
+        raise NbuUnavailableError(str(exc)) from exc
+    return response.content
+
+
+def fetch_auctions(url: str, day: date) -> list[dict[str, Any]]:
+    """Primary auctions held on `day`; empty when there were none."""
+    params = {"json": "", "date": day.strftime("%d.%m.%Y")}
+    try:
+        response = httpx.get(url, params=params, timeout=TIMEOUT_SECONDS)
+        response.raise_for_status()
+        rows = json.loads(response.text, parse_float=Decimal)
+    except (httpx.HTTPError, ValueError) as exc:
+        raise NbuUnavailableError(str(exc)) from exc
+    if not isinstance(rows, list):
+        raise NbuUnavailableError("unexpected auctions payload")
+    return rows
+
+
+def fetch_rate_history(url: str, currency: str, start: date, end: date) -> dict[date, Decimal]:
+    """Official UAH per 1 unit of `currency` for every published day in [start, end]."""
+    params = {
+        "start": start.strftime("%Y%m%d"),
+        "end": end.strftime("%Y%m%d"),
+        "valcode": currency.lower(),
+        "sort": "exchangedate",
+        "order": "asc",
+        "json": "",
+    }
+    try:
+        response = httpx.get(url, params=params, timeout=SECURITIES_TIMEOUT_SECONDS)
+        response.raise_for_status()
+        rows = json.loads(response.text, parse_float=Decimal)
+        return {
+            date(*map(int, reversed(row["exchangedate"].split(".")))): Decimal(row["rate_per_unit"])
+            for row in rows
+        }
+    except (httpx.HTTPError, ValueError, KeyError, TypeError) as exc:
+        logger.warning("NBU rate history fetch failed", extra={"currency": currency})
+        raise NbuUnavailableError(str(exc)) from exc

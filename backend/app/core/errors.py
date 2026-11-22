@@ -11,6 +11,7 @@ MESSAGES: dict[str, str] = {
     "security_not_found": "NBU lists no bond {isin}",
     "security_unsupported": "Bond {isin} is in {currency}, which the app does not support",
     "securities_unavailable": "The NBU bond list is unavailable; enter the terms manually",
+    "market_unavailable": "NBU market data is unavailable; try again later",
     "schedule_duplicate_date": "Each date can have only one coupon and one redemption",
     "schedule_multiple_redemptions": "A bond can have only one redemption",
     "bond_missing": "Bond {id} does not exist",

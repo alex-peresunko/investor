@@ -16,7 +16,8 @@
     "upcoming": "Upcoming payments",
     "pastPayments": "Past payments",
     "bonds": "Bonds",
-    "help": "Help"
+    "help": "Help",
+    "market": "Market"
   },
   "common": {
     "cancel": "Cancel",
@@ -151,6 +152,7 @@
     "security_not_found": "NBU lists no bond {{isin}}",
     "security_unsupported": "Bond {{isin}} is in {{currency}}, which the app does not support",
     "securities_unavailable": "The NBU bond list is unavailable; enter the terms manually",
+    "market_unavailable": "NBU market data is unavailable; try again later",
     "deposit_rate_out_of_range": "The deposit rate must be between 0 % and 100 %"
   },
   "dashboard": {
@@ -367,6 +369,10 @@
         "title": "Past payments",
         "body": "Coupons and redemptions recorded in the period, and how each was split across packages.\n\n**Net income** subtracts what you paid for that money:\n- for a **redemption**, the purchase cost of the redeemed bonds without accrued coupon, plus the purchase fee;\n- for the **first coupon** after a purchase, the accrued coupon you paid the seller, which this coupon returns;\n- other coupons are income in full.\nPayment fees are subtracted as well. In USD, the payment converts at its own rate and the cost at the purchase rate, so currency moves show up here."
       },
+      "market": {
+        "title": "Market",
+        "body": "The whole domestic government bond market from NBU open data, refreshed every few hours. It does not touch your own records; **Add to my bonds** on a bond's page opens the bond form filled in from NBU.\n\n**Bonds.** Every OVDP that has not matured, with its amount outstanding (bonds in circulation × face value) and its share of all OVDP by UAH value at today's NBU rates. Click a row for the bond's page. Prices come from the NBU depositary's daily secondary-market summary, the day's average deal price per bond in UAH:\n= dirty price = price in UAH ÷ NBU rate of the bond's currency that day ÷ face value × 100\n= clean price = dirty price − accrued coupon per 100 of face value\nYields are NBU's averages for the day's deals. A bond that did not trade has no price that day. The yield curve plots each bond's last yield within 30 days against its years to maturity.\n\n**Holders.** Principal outstanding by holder group, from the NBU depositary, with changes since the last published day of the previous month and year. Nominee holders and local communities hold almost nothing and are hidden when empty.\n\n**Repayments.** Every remaining coupon and redemption of every bond, multiplied by the bonds outstanding today. Amounts of dollar and euro bonds are shown in UAH at today's NBU rate when all currencies are selected. New placements and buybacks change the real amounts.\n\n**Auctions.** Ministry of Finance primary auctions of the last year from NBU: average and cut-off yields, bids, amount sold and money raised, all in the bond's currency. Bid/cover above 1 means demand exceeded the amount sold.\n\nUkrainian Eurobonds (ISINs starting with XS) are not part of this market and are left out."
+      },
       "calculations": {
         "title": "How everything is calculated",
         "body": "All reports use the same few rules, explained below."
@@ -408,5 +414,155 @@
     "UAH": "UAH",
     "USD": "USD",
     "EUR": "EUR"
+  },
+  "market": {
+    "title": "Market",
+    "subtitle": "All domestic government bonds (OVDP) outstanding: who holds them, how they trade and what falls due, from NBU open data",
+    "loading": "Loading NBU data. The first load after a restart can take about 10 seconds.",
+    "sourceOn": "{{source}}, {{date}}",
+    "source": {
+      "trades": "NBU depositary, secondary market",
+      "securities": "NBU securities list",
+      "holders": "NBU depositary, holders",
+      "auctions": "NBU auction results"
+    },
+    "tabs": {
+      "bonds": "Bonds",
+      "holders": "Holders",
+      "repayments": "Repayments",
+      "auctions": "Auctions"
+    },
+    "headline": {
+      "outstanding": "Outstanding",
+      "bonds_one": "{{count}} bond",
+      "bonds_other": "{{count}} bonds",
+      "nbu": "Held by NBU",
+      "individuals": "Held by individuals",
+      "amountYtd": "{{amount}}, {{change}} this year",
+      "traded": "Last trading day"
+    },
+    "curve": {
+      "title": "Yield curve",
+      "hint": "Average yield of each bond's last trading day within {{days}} days, by years to maturity",
+      "years": "Years to maturity",
+      "yield": "Yield, %"
+    },
+    "col": {
+      "isin": "Bond",
+      "currency": "Currency",
+      "maturity": "Maturity",
+      "coupon": "Coupon",
+      "outstanding": "Outstanding",
+      "share": "Share",
+      "price": "Clean price",
+      "yield": "Yield",
+      "traded": "Last trade",
+      "volume": "Volume 30 d",
+      "auction": "Auction yield"
+    },
+    "search": "Search ISIN or name",
+    "onlyMine": "Only my bonds",
+    "mine": "mine",
+    "bondsShown_one": "{{count}} bond",
+    "bondsShown_other": "{{count}} bonds",
+    "discount": "discount",
+    "variableHint": "Variable rate: future coupons may change",
+    "priceNote": "Prices are per 100 of face value in the bond's currency, from the day's average deal price; clean price excludes accrued coupon.",
+    "billions": "{{value}} bn",
+    "range": {
+      "3m": "3 months",
+      "1y": "1 year",
+      "5y": "5 years",
+      "all": "All"
+    },
+    "holder": {
+      "nbu": "NBU",
+      "banks": "Banks",
+      "companies": "Companies",
+      "individuals": "Individuals",
+      "non_residents": "Non-residents",
+      "communities": "Local communities",
+      "nominees": "Nominee holders"
+    },
+    "holders": {
+      "denomination": "Principal outstanding, in UAH",
+      "structure": "Structure",
+      "holder": "Holder",
+      "amount": "Amount",
+      "share": "Share",
+      "changeMonth": "This month",
+      "changeYear": "This year",
+      "total": "Total",
+      "changeHint": "Changes since {{month}} and {{year}}, the last published days before this month and this year.",
+      "history": "Holders over time",
+      "modeShare": "Share",
+      "modeAmount": "Amount",
+      "historyHint": "One point per month: its last published day."
+    },
+    "repayments": {
+      "next12": "12 months",
+      "next36": "3 years",
+      "byYear": "By year",
+      "inUah": "UAH equivalent at today's NBU rates",
+      "inCurrency": "In {{currency}}",
+      "due30": "Due in 30 days",
+      "redemptions12": "Redemptions, 12 months",
+      "coupons12": "Coupons, 12 months",
+      "title": "Coupons and redemptions due",
+      "clickHint": "Click a bar to see its bonds below",
+      "assumption": "Assumes today's amount outstanding of each bond; new placements and buybacks will change it.",
+      "detail": "Bonds due in",
+      "period": "Period",
+      "uahToday": "UAH today"
+    },
+    "auctions": {
+      "count_one": "{{count}} auction in the last year",
+      "count_other": "{{count}} auctions in the last year",
+      "coverHint": "Bids divided by amount sold",
+      "col": {
+        "date": "Date",
+        "isin": "Bond",
+        "currency": "Currency",
+        "maturity": "Maturity",
+        "bucket": "Term",
+        "yield": "Avg yield",
+        "cutoff": "Cut-off",
+        "bid": "Bids",
+        "sold": "Sold",
+        "cover": "Bid/cover",
+        "raised": "Raised"
+      }
+    },
+    "bond": {
+      "subtitle": "{{isin}} · issued {{issued}} · matures {{maturity}} · face value {{face}}",
+      "variable": "variable rate",
+      "inMyBonds": "In my bonds",
+      "add": "Add to my bonds",
+      "outstanding": "Outstanding",
+      "shareLine": "{{share}} of the market · {{bonds}} bonds",
+      "coupon": "Coupon",
+      "lastPrice": "Clean price",
+      "dirtyOn": "dirty {{dirty}} on {{date}}",
+      "noTrades": "No secondary-market trades with a price.",
+      "yield": "Yield",
+      "yieldRange": "range {{min}} – {{max}}",
+      "auctionYield": "auction {{value}} on {{date}}",
+      "nextPayment": "Next payment",
+      "volume30": "{{value}} traded in 30 days",
+      "priceTitle": "Price and yield",
+      "cleanPrice": "Clean price",
+      "cleanPriceAxis": "Price",
+      "yieldAxis": "Yield, %",
+      "volumeTitle": "Trading volume",
+      "volumeDvp": "Against payment",
+      "volumeFree": "Free of payment",
+      "volumeHint": "Free-of-payment transfers move bonds without a settled price; NBU publishes them separately from August 2022.",
+      "auctions": "Primary auctions in the last year",
+      "noAuctions": "Not offered at auction in the last year.",
+      "schedule": "Remaining payments",
+      "scheduleHint": "Totals on the {{bonds}} bonds outstanding today",
+      "perBond": "Per bond",
+      "onOutstanding": "On all outstanding"
+    }
   }
 }

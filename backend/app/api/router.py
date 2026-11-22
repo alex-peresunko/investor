@@ -5,6 +5,7 @@ from app.api import (
     health,
     instruments,
     lots,
+    market,
     payments,
     preferences,
     reports,
@@ -20,5 +21,6 @@ api_router.include_router(lots.router)
 api_router.include_router(sales.router)
 api_router.include_router(payments.router)
 api_router.include_router(fx.router)
+api_router.include_router(market.router)
 api_router.include_router(reports.router)
 api_router.include_router(preferences.router)

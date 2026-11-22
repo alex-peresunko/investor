@@ -24,7 +24,8 @@ def reset_cache() -> None:
     _cache = None
 
 
-def _securities() -> dict[str, dict[str, Any]]:
+def raw_securities() -> dict[str, dict[str, Any]]:
+    """NBU depository records by ISIN, as published."""
     global _cache
     if _cache is not None and time.monotonic() - _cache[0] < CACHE_SECONDS:
         return _cache[1]
@@ -38,7 +39,7 @@ def _securities() -> dict[str, dict[str, Any]]:
 
 
 def lookup(isin: str) -> SecurityOut:
-    row = _securities().get(isin.upper())
+    row = raw_securities().get(isin.upper())
     if row is None:
         raise NotFoundError("security_not_found", isin=isin)
     return parse_security(row)
@@ -47,7 +48,7 @@ def lookup(isin: str) -> SecurityOut:
 def available(today: date) -> list[SecuritySummary]:
     """Bonds in a supported currency that have not matured, soonest maturity first."""
     found: list[SecuritySummary] = []
-    for row in _securities().values():
+    for row in raw_securities().values():
         try:
             security = parse_security(row)
         except (ValidationError, KeyError, TypeError, ValueError, ArithmeticError):

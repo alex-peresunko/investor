@@ -12,6 +12,7 @@ export const HELP_SECTIONS = [
   'dashboard',
   'upcoming',
   'pastPayments',
+  'market',
   'calculations',
   'data',
 ] as const;

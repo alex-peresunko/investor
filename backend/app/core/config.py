@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     nbu_base_url: str = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange"
     nbu_securities_url: str = "https://bank.gov.ua/depo_securities?json"
+    nbu_holders_url: str = "https://bank.gov.ua/files/Depositary/T-bills_debt.xlsx"
+    nbu_trades_url: str = "https://bank.gov.ua/files/Depositary/vtor_rin.xlsx"
+    nbu_auctions_url: str = "https://bank.gov.ua/NBU_ovdp"
+    nbu_rate_history_url: str = "https://bank.gov.ua/NBU_Exchange/exchange_site"
 
     def sqlalchemy_url(self) -> str:
         if self.database_url:

@@ -34,3 +34,20 @@ export function formatDate(value: string | null | undefined): string {
 export function toIsoDate(value: Date | string): string {
   return dayjs(value).format('YYYY-MM-DD');
 }
+
+const compactFormats = new Map<string, Intl.NumberFormat>();
+
+/** Short form for large amounts, e.g. "1,98 трлн ₴" or "1.98T ₴", in the UI language. */
+export function formatCompact(value: number | string, currency: string, locale: string): string {
+  let fmt = compactFormats.get(locale);
+  if (!fmt) {
+    fmt = new Intl.NumberFormat(locale, {
+      notation: 'compact',
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+    });
+    compactFormats.set(locale, fmt);
+  }
+  const text = fmt.format(Number(value)).replace(/[\u00a0\u202f]/g, ' ');
+  return `${text} ${CURRENCY_SIGNS[currency] ?? currency}`;
+}
