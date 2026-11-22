@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { api, unwrap } from './client';
 import type {
+  InstrumentCreate,
   InstrumentInput,
   LotInput,
   PaymentInput,
@@ -83,15 +84,33 @@ function useWrite<TArgs, TResult>(
 }
 
 export function useSaveInstrument() {
-  return useWrite(async ({ id, body }: { id?: number; body: InstrumentInput }) => {
-    if (id === undefined) return unwrap(await api.POST('/api/v1/instruments', { body }));
-    return unwrap(
-      await api.PUT('/api/v1/instruments/{instrument_id}', {
-        params: { path: { instrument_id: id } },
-        body,
-      }),
-    );
-  }, 'notify.bondSaved');
+  return useWrite(
+    async ({
+      id,
+      body,
+      schedule,
+    }: {
+      id?: number;
+      body: InstrumentInput;
+      /** For a new bond only: saved instead of a schedule generated from the terms. */
+      schedule?: InstrumentCreate['schedule'];
+    }) => {
+      if (id === undefined)
+        return unwrap(await api.POST('/api/v1/instruments', { body: { ...body, schedule } }));
+      return unwrap(
+        await api.PUT('/api/v1/instruments/{instrument_id}', {
+          params: { path: { instrument_id: id } },
+          body,
+        }),
+      );
+    },
+    'notify.bondSaved',
+  );
+}
+
+/** Bond terms and payment schedule from the NBU depository list; throws a translated error. */
+export async function lookupSecurity(isin: string) {
+  return unwrap(await api.GET('/api/v1/securities/{isin}', { params: { path: { isin } } }));
 }
 
 export function useDeleteInstrument() {

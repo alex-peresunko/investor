@@ -43,3 +43,8 @@ class ScheduledPaymentOut(ScheduledPaymentIn):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+
+
+class InstrumentCreate(InstrumentIn):
+    # Used as the payment schedule instead of generating one from the terms.
+    schedule: list[ScheduledPaymentIn] | None = None

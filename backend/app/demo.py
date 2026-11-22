@@ -14,7 +14,7 @@ from app.engine.schedule import add_months, generate_schedule
 from app.models import Instrument, Lot
 from app.repositories import operations as operations_repo
 from app.repositories import preferences as preferences_repo
-from app.schemas.instruments import InstrumentIn
+from app.schemas.instruments import InstrumentCreate
 from app.schemas.operations import LotIn, PaymentIn, SaleIn
 from app.services import fx, instruments, operations
 
@@ -137,7 +137,7 @@ def seed(session: Session, today: date) -> None:
         )
         instrument = instruments.create_instrument(
             session,
-            InstrumentIn(
+            InstrumentCreate(
                 isin=isin(bond.serial),
                 name=name,
                 currency=bond.currency,

@@ -6,7 +6,7 @@ from app.core.errors import ConflictError, NotFoundError, ValidationError
 from app.engine.schedule import generate_schedule
 from app.models import Instrument, ScheduledPayment
 from app.repositories import instruments as repo
-from app.schemas.instruments import InstrumentIn, ScheduledPaymentIn
+from app.schemas.instruments import InstrumentCreate, InstrumentIn, ScheduledPaymentIn
 
 
 def list_instruments(session: Session) -> Sequence[Instrument]:
@@ -20,13 +20,16 @@ def get_instrument(session: Session, instrument_id: int) -> Instrument:
     return instrument
 
 
-def create_instrument(session: Session, data: InstrumentIn) -> Instrument:
+def create_instrument(session: Session, data: InstrumentCreate) -> Instrument:
     if repo.get_by_isin(session, data.isin) is not None:
         raise ConflictError("bond_exists", isin=data.isin)
-    instrument = Instrument(kind="bond", **data.model_dump())
+    instrument = Instrument(kind="bond", **data.model_dump(exclude={"schedule"}))
     session.add(instrument)
     session.flush()
-    regenerate_schedule(session, instrument.id)
+    if data.schedule:
+        replace_schedule(session, instrument.id, data.schedule)
+    else:
+        regenerate_schedule(session, instrument.id)
     session.refresh(instrument)
     return instrument
 

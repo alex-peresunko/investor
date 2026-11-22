@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     database_url: str | None = None
     log_level: str = "INFO"
     nbu_base_url: str = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange"
+    nbu_securities_url: str = "https://bank.gov.ua/depo_securities?json"
 
     def sqlalchemy_url(self) -> str:
         if self.database_url:

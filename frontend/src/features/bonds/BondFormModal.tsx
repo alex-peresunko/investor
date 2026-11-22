@@ -1,10 +1,22 @@
-import { Button, Group, Modal, Select, SimpleGrid, TextInput } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Group,
+  Modal,
+  Select,
+  SimpleGrid,
+  Text,
+  TextInput,
+  Tooltip,
+} from '@mantine/core';
 import { schemaResolver, useForm } from '@mantine/form';
+import { IconCloudDownload } from '@tabler/icons-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
-import { useSaveInstrument } from '@/api/hooks';
-import type { Currency, Instrument } from '@/api/types';
+import { lookupSecurity, useSaveInstrument } from '@/api/hooks';
+import type { Currency, Instrument, Security } from '@/api/types';
 import { DateField } from '@/components/DateField';
 import { MoneyInput } from '@/components/MoneyInput';
 import { positive, required, toDecimal, translateErrors } from '@/lib/validation';
@@ -40,6 +52,27 @@ type Values = {
   maturity_date: string | null;
 };
 
+const ISIN = /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/;
+const TERMS = [
+  'currency',
+  'face_value',
+  'coupon_rate_percent',
+  'coupon_frequency',
+  'issue_date',
+  'maturity_date',
+] as const;
+
+const valuesOf = (s: Security): Values => ({
+  isin: s.isin,
+  name: s.name,
+  currency: s.currency,
+  face_value: Number(s.face_value),
+  coupon_rate_percent: Math.round(Number(s.coupon_rate) * 1e6) / 1e4,
+  coupon_frequency: String(s.coupon_frequency),
+  issue_date: s.issue_date,
+  maturity_date: s.maturity_date,
+});
+
 interface Props {
   opened: boolean;
   onClose: () => void;
@@ -73,6 +106,40 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
         },
     validate: translateErrors(schemaResolver(schema, { sync: true })),
   });
+  const [nbu, setNbu] = useState<{
+    terms: Values;
+    schedule: Security['schedule'];
+    variableRate: boolean;
+  } | null>(null);
+  const [lookingUp, setLookingUp] = useState(false);
+  // NBU's published schedule is kept only while the terms it came with are unchanged.
+  const nbuSchedule =
+    nbu && TERMS.every((k) => String(form.values[k]) === String(nbu.terms[k]))
+      ? nbu.schedule
+      : null;
+
+  const fillFromNbu = async () => {
+    const isin = form.values.isin.trim().toUpperCase();
+    if (!ISIN.test(isin)) {
+      form.setFieldError('isin', t('validation.isin'));
+      return;
+    }
+    setLookingUp(true);
+    try {
+      const security = await lookupSecurity(isin);
+      const values = valuesOf(security);
+      form.setValues(values);
+      setNbu({
+        terms: values,
+        schedule: security.schedule,
+        variableRate: security.variable_rate,
+      });
+    } catch (error) {
+      form.setFieldError('isin', (error as Error).message);
+    } finally {
+      setLookingUp(false);
+    }
+  };
 
   const submit = form.onSubmit(async (values) => {
     await save.mutateAsync({
@@ -88,6 +155,7 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
         issue_date: values.issue_date ?? '',
         maturity_date: values.maturity_date ?? '',
       },
+      schedule: nbuSchedule,
     });
     onClose();
   });
@@ -105,6 +173,20 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
             label={t('bonds.isin')}
             placeholder="UA4000227045"
             {...form.getInputProps('isin')}
+            rightSection={
+              instrument ? null : (
+                <Tooltip label={t('bonds.fillFromNbu')}>
+                  <ActionIcon
+                    variant="subtle"
+                    loading={lookingUp}
+                    onClick={() => void fillFromNbu()}
+                    aria-label={t('bonds.fillFromNbu')}
+                  >
+                    <IconCloudDownload size={16} />
+                  </ActionIcon>
+                </Tooltip>
+              )
+            }
           />
           <TextInput
             label={t('bonds.name')}
@@ -142,6 +224,14 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
           <DateField label={t('bonds.issueDate')} {...form.getInputProps('issue_date')} />
           <DateField label={t('bonds.maturityDate')} {...form.getInputProps('maturity_date')} />
         </SimpleGrid>
+        {nbu && (
+          <Text size="sm" c="dimmed" mt="sm">
+            {nbuSchedule
+              ? t('bonds.fromNbu', { count: nbuSchedule.length })
+              : t('bonds.fromNbuChanged')}
+            {nbu.variableRate && ` ${t('bonds.variableRate')}`}
+          </Text>
+        )}
         <Group justify="flex-end" mt="xl">
           <Button variant="default" onClick={onClose}>
             {t('common.cancel')}

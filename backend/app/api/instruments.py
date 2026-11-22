@@ -2,6 +2,7 @@ from fastapi import APIRouter, status
 
 from app.api.deps import SessionDep
 from app.schemas.instruments import (
+    InstrumentCreate,
     InstrumentIn,
     InstrumentOut,
     ScheduledPaymentIn,
@@ -18,7 +19,7 @@ def list_instruments(session: SessionDep) -> list[InstrumentOut]:
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-def create_instrument(data: InstrumentIn, session: SessionDep) -> InstrumentOut:
+def create_instrument(data: InstrumentCreate, session: SessionDep) -> InstrumentOut:
     return InstrumentOut.model_validate(service.create_instrument(session, data))
 
 

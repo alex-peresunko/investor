@@ -93,6 +93,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/securities/{isin}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Security
+         * @description Terms and payment schedule of a government bond from the NBU depository list.
+         */
+        get: operations["get_security_api_v1_securities__isin__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/lots": {
         parameters: {
             query?: never;
@@ -450,6 +470,40 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** InstrumentCreate */
+        InstrumentCreate: {
+            /** Isin */
+            isin: string;
+            /** Name */
+            name: string;
+            /**
+             * Currency
+             * @default UAH
+             * @enum {string}
+             */
+            currency: "UAH" | "USD" | "EUR";
+            /** Face Value */
+            face_value: number | string;
+            /** Coupon Rate */
+            coupon_rate: number | string;
+            /**
+             * Coupon Frequency
+             * @enum {integer}
+             */
+            coupon_frequency: 0 | 1 | 2 | 4 | 12;
+            /**
+             * Issue Date
+             * Format: date
+             */
+            issue_date: string;
+            /**
+             * Maturity Date
+             * Format: date
+             */
+            maturity_date: string;
+            /** Schedule */
+            schedule?: components["schemas"]["ScheduledPaymentIn"][] | null;
         };
         /** InstrumentIn */
         InstrumentIn: {
@@ -929,6 +983,60 @@ export interface components {
             /** Id */
             id: number;
         };
+        /**
+         * SecurityOut
+         * @description Bond terms and payment schedule as NBU publishes them; valid as an InstrumentCreate body.
+         */
+        SecurityOut: {
+            /** Isin */
+            isin: string;
+            /** Name */
+            name: string;
+            /**
+             * Currency
+             * @default UAH
+             * @enum {string}
+             */
+            currency: "UAH" | "USD" | "EUR";
+            /** Face Value */
+            face_value: string;
+            /** Coupon Rate */
+            coupon_rate: string;
+            /**
+             * Coupon Frequency
+             * @enum {integer}
+             */
+            coupon_frequency: 0 | 1 | 2 | 4 | 12;
+            /**
+             * Issue Date
+             * Format: date
+             */
+            issue_date: string;
+            /**
+             * Maturity Date
+             * Format: date
+             */
+            maturity_date: string;
+            /** Schedule */
+            schedule: components["schemas"]["SecurityPayment"][];
+            /** Variable Rate */
+            variable_rate: boolean;
+        };
+        /** SecurityPayment */
+        SecurityPayment: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "coupon" | "redemption";
+            /**
+             * Pay Date
+             * Format: date
+             */
+            pay_date: string;
+            /** Amount Per Unit */
+            amount_per_unit: string;
+        };
         /** TimeseriesPoint */
         TimeseriesPoint: {
             /**
@@ -1046,7 +1154,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["InstrumentIn"];
+                "application/json": components["schemas"]["InstrumentCreate"];
             };
         };
         responses: {
@@ -1249,6 +1357,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ScheduledPaymentOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_security_api_v1_securities__isin__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                isin: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SecurityOut"];
                 };
             };
             /** @description Validation Error */

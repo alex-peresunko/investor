@@ -147,7 +147,10 @@
     "months_out_of_range": "months must be between 1 and 120",
     "bond_currency_locked": "Cannot change the currency of a bond that has operations",
     "currency_rate_required": "Enter the UAH rate for {{currency}}",
-    "currency_rate_not_applicable": "A {{currency}} bond takes no separate currency rate"
+    "currency_rate_not_applicable": "A {{currency}} bond takes no separate currency rate",
+    "security_not_found": "NBU lists no bond {{isin}}",
+    "security_unsupported": "Bond {{isin}} is in {{currency}}, which the app does not support",
+    "securities_unavailable": "The NBU bond list is unavailable; enter the terms manually"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -260,7 +263,12 @@
       "12": "Monthly"
     },
     "faceValueIn": "Face value, {{currency}}",
-    "currencyDescription": "Hryvnia OVDP, or dollar and euro OVDP: their face value, coupons and every amount you enter are in that currency"
+    "currencyDescription": "Hryvnia OVDP, or dollar and euro OVDP: their face value, coupons and every amount you enter are in that currency",
+    "fillFromNbu": "Fill in from the NBU bond list",
+    "fromNbu_one": "Filled in from NBU, including its schedule of {{count}} payment, which will be saved as published.",
+    "fromNbu_other": "Filled in from NBU, including its schedule of {{count}} payments, which will be saved as published.",
+    "fromNbuChanged": "You changed the terms NBU gave, so the schedule will be generated from your terms instead.",
+    "variableRate": "This is a variable-rate bond: NBU's future coupons may change, so check the schedule when each coupon is announced."
   },
   "schedule": {
     "title": "Payment schedule · {{isin}}",
@@ -322,7 +330,7 @@
       },
       "bonds": {
         "title": "Bonds",
-        "body": "A bond must be added here before you can buy it. Enter its ISIN, face value, coupon rate (% per year), coupon frequency, issue date and maturity date; they are in the Ministry of Finance auction results and in your broker's statement.\n\n**Payment schedule.** Generate it from the bond terms: coupons every 12 ÷ frequency months, counted back from maturity to the issue date, plus redemption of face value at maturity. Each coupon per bond is:\n= coupon = face value × annual rate ÷ frequency, rounded to kopiyky\nIf the real payment calendar differs (holidays, an irregular first coupon), edit dates or amounts and save. The schedule drives the accrued coupon, valuation and upcoming payments.\n\nA bond that has operations cannot be deleted; delete its operations first.\n\n**Currency.** Dollar and euro OVDP are added with their currency. Their face value, schedule and every amount you enter for them (price, cost, fees, coupons) are in that currency. The currency cannot be changed once the bond has operations."
+        "body": "A bond must be added here before you can buy it. Enter its ISIN, face value, coupon rate (% per year), coupon frequency, issue date and maturity date; they are in the Ministry of Finance auction results and in your broker's statement.\n\n**Payment schedule.** Generate it from the bond terms: coupons every 12 ÷ frequency months, counted back from maturity to the issue date, plus redemption of face value at maturity. Each coupon per bond is:\n= coupon = face value × annual rate ÷ frequency, rounded to kopiyky\nIf the real payment calendar differs (holidays, an irregular first coupon), edit dates or amounts and save. The schedule drives the accrued coupon, valuation and upcoming payments.\n\nA bond that has operations cannot be deleted; delete its operations first.\n\n**Currency.** Dollar and euro OVDP are added with their currency. Their face value, schedule and every amount you enter for them (price, cost, fees, coupons) are in that currency. The currency cannot be changed once the bond has operations.\n\n**Fill in from NBU.** For a new bond, type the ISIN and press the cloud button next to it. The app fills in the terms from the NBU list of government bonds and keeps NBU's own payment schedule, with the real dates. If you then change the terms, the schedule is generated from your terms instead."
       },
       "operations": {
         "title": "Operations",

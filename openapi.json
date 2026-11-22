@@ -64,7 +64,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/InstrumentIn"
+                "$ref": "#/components/schemas/InstrumentCreate"
               }
             }
           },
@@ -352,6 +352,49 @@
                     "$ref": "#/components/schemas/ScheduledPaymentOut"
                   },
                   "title": "Response Regenerate Schedule Api V1 Instruments  Instrument Id  Schedule Generate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/securities/{isin}": {
+      "get": {
+        "tags": [
+          "securities"
+        ],
+        "summary": "Get Security",
+        "description": "Terms and payment schedule of a government bond from the NBU depository list.",
+        "operationId": "get_security_api_v1_securities__isin__get",
+        "parameters": [
+          {
+            "name": "isin",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Isin"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecurityOut"
                 }
               }
             }
@@ -1785,6 +1828,102 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "InstrumentCreate": {
+        "properties": {
+          "isin": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+            "title": "Isin"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "UAH",
+              "USD",
+              "EUR"
+            ],
+            "title": "Currency",
+            "default": "UAH"
+          },
+          "face_value": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Face Value"
+          },
+          "coupon_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMaximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Coupon Rate"
+          },
+          "coupon_frequency": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2,
+              4,
+              12
+            ],
+            "title": "Coupon Frequency"
+          },
+          "issue_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Issue Date"
+          },
+          "maturity_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Maturity Date"
+          },
+          "schedule": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ScheduledPaymentIn"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schedule"
+          }
+        },
+        "type": "object",
+        "required": [
+          "isin",
+          "name",
+          "face_value",
+          "coupon_rate",
+          "coupon_frequency",
+          "issue_date",
+          "maturity_date"
+        ],
+        "title": "InstrumentCreate"
+      },
       "InstrumentIn": {
         "properties": {
           "isin": {
@@ -3029,6 +3168,113 @@
           "id"
         ],
         "title": "ScheduledPaymentOut"
+      },
+      "SecurityOut": {
+        "properties": {
+          "isin": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+            "title": "Isin"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "UAH",
+              "USD",
+              "EUR"
+            ],
+            "title": "Currency",
+            "default": "UAH"
+          },
+          "face_value": {
+            "type": "string",
+            "title": "Face Value"
+          },
+          "coupon_rate": {
+            "type": "string",
+            "title": "Coupon Rate"
+          },
+          "coupon_frequency": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2,
+              4,
+              12
+            ],
+            "title": "Coupon Frequency"
+          },
+          "issue_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Issue Date"
+          },
+          "maturity_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Maturity Date"
+          },
+          "schedule": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityPayment"
+            },
+            "type": "array",
+            "title": "Schedule"
+          },
+          "variable_rate": {
+            "type": "boolean",
+            "title": "Variable Rate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "isin",
+          "name",
+          "face_value",
+          "coupon_rate",
+          "coupon_frequency",
+          "issue_date",
+          "maturity_date",
+          "schedule",
+          "variable_rate"
+        ],
+        "title": "SecurityOut",
+        "description": "Bond terms and payment schedule as NBU publishes them; valid as an InstrumentCreate body."
+      },
+      "SecurityPayment": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "coupon",
+              "redemption"
+            ],
+            "title": "Kind"
+          },
+          "pay_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay Date"
+          },
+          "amount_per_unit": {
+            "type": "string",
+            "title": "Amount Per Unit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "pay_date",
+          "amount_per_unit"
+        ],
+        "title": "SecurityPayment"
       },
       "TimeseriesPoint": {
         "properties": {

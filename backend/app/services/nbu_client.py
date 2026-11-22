@@ -2,6 +2,7 @@ import json
 import logging
 from datetime import date
 from decimal import Decimal
+from typing import Any
 
 import httpx
 
@@ -9,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 ATTEMPTS = 3
 TIMEOUT_SECONDS = 5.0
+# The securities list is several hundred kilobytes.
+SECURITIES_TIMEOUT_SECONDS = 30.0
 
 
 class NbuUnavailableError(Exception):
@@ -32,3 +35,17 @@ def fetch_rate(base_url: str, currency: str, day: date) -> Decimal | None:
             last_error = exc
             logger.warning("NBU rate fetch failed", extra={"attempt": attempt, "day": str(day)})
     raise NbuUnavailableError(str(last_error))
+
+
+def fetch_securities(url: str) -> list[dict[str, Any]]:
+    """Every government security NBU keeps in its depository, as published (JSON objects)."""
+    try:
+        response = httpx.get(url, timeout=SECURITIES_TIMEOUT_SECONDS)
+        response.raise_for_status()
+        rows = json.loads(response.text, parse_float=Decimal)
+    except (httpx.HTTPError, ValueError) as exc:
+        logger.warning("NBU securities fetch failed")
+        raise NbuUnavailableError(str(exc)) from exc
+    if not isinstance(rows, list):
+        raise NbuUnavailableError("unexpected securities payload")
+    return rows
