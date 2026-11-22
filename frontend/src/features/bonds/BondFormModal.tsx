@@ -121,7 +121,7 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
   const fillFromNbu = async () => {
     const isin = form.values.isin.trim().toUpperCase();
     if (!ISIN.test(isin)) {
-      form.setFieldError('isin', t('validation.isin'));
+      form.setFieldError('isin', t(isin ? 'validation.isin' : 'bonds.isinFirst'));
       return;
     }
     setLookingUp(true);

@@ -86,3 +86,13 @@ it('shows why the lookup failed on the ISIN field', async () => {
 
   expect(await screen.findByText('NBU lists no bond UA4000000000')).toBeTruthy();
 });
+
+it('asks for the ISIN when the lookup is clicked on an empty field', async () => {
+  const get = vi.spyOn(api, 'GET');
+  renderForm();
+
+  fireEvent.click(screen.getByRole('button', { name: 'Fill in from the NBU bond list' }));
+
+  expect(await screen.findByText('Type the ISIN first, then fill in from NBU')).toBeTruthy();
+  expect(get).not.toHaveBeenCalled();
+});

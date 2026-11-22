@@ -265,6 +265,7 @@
     "faceValueIn": "Face value, {{currency}}",
     "currencyDescription": "Hryvnia OVDP, or dollar and euro OVDP: their face value, coupons and every amount you enter are in that currency",
     "fillFromNbu": "Fill in from the NBU bond list",
+    "isinFirst": "Type the ISIN first, then fill in from NBU",
     "fromNbu_one": "Filled in from NBU, including its schedule of {{count}} payment, which will be saved as published.",
     "fromNbu_other": "Filled in from NBU, including its schedule of {{count}} payments, which will be saved as published.",
     "fromNbuChanged": "You changed the terms NBU gave, so the schedule will be generated from your terms instead.",
