@@ -93,6 +93,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/securities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Securities
+         * @description Government bonds from the NBU depository list that have not matured yet.
+         */
+        get: operations["list_securities_api_v1_securities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/securities/{isin}": {
         parameters: {
             query?: never;
@@ -1037,6 +1057,25 @@ export interface components {
             /** Amount Per Unit */
             amount_per_unit: string;
         };
+        /** SecuritySummary */
+        SecuritySummary: {
+            /** Isin */
+            isin: string;
+            /** Name */
+            name: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "UAH" | "USD" | "EUR";
+            /**
+             * Maturity Date
+             * Format: date
+             */
+            maturity_date: string;
+            /** Variable Rate */
+            variable_rate: boolean;
+        };
         /** TimeseriesPoint */
         TimeseriesPoint: {
             /**
@@ -1366,6 +1405,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_securities_api_v1_securities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SecuritySummary"][];
                 };
             };
         };

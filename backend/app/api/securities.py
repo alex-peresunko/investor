@@ -1,9 +1,17 @@
+from datetime import date
+
 from fastapi import APIRouter
 
-from app.schemas.securities import SecurityOut
+from app.schemas.securities import SecurityOut, SecuritySummary
 from app.services import securities as service
 
 router = APIRouter(prefix="/securities", tags=["securities"])
+
+
+@router.get("")
+def list_securities() -> list[SecuritySummary]:
+    """Government bonds from the NBU depository list that have not matured yet."""
+    return service.available(date.today())  # noqa: DTZ011
 
 
 @router.get("/{isin}")

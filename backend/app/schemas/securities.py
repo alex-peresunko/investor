@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel
 
-from app.schemas.common import PaymentKind
+from app.schemas.common import Currency, PaymentKind
 from app.schemas.instruments import InstrumentIn
 
 
@@ -18,4 +18,12 @@ class SecurityOut(InstrumentIn):
 
     schedule: list[SecurityPayment]
     # Coupon set per period (CFI attribute "V"), e.g. CPI-linked; future coupons may change.
+    variable_rate: bool
+
+
+class SecuritySummary(BaseModel):
+    isin: str
+    name: str
+    currency: Currency
+    maturity_date: date
     variable_rate: bool

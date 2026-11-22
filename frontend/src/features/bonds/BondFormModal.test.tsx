@@ -25,10 +25,31 @@ const SECURITY = {
   variable_rate: false,
 };
 
+const SUMMARY = {
+  isin: SECURITY.isin,
+  name: SECURITY.name,
+  currency: 'USD',
+  maturity_date: SECURITY.maturity_date,
+  variable_rate: false,
+};
+const OTHER = { ...SUMMARY, isin: 'UA4000234567', name: 'OVDP 15.20% 05/2028', currency: 'UAH' };
+
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
+
+const isinField = () => screen.getByPlaceholderText('Search by ISIN or name');
+
+function mockNbu() {
+  return vi.spyOn(api, 'GET').mockImplementation(
+    async (path: string) =>
+      ({
+        data: path === '/api/v1/securities' ? [SUMMARY, OTHER] : SECURITY,
+        response: new Response(),
+      }) as never,
+  );
+}
 
 function renderForm() {
   render(
@@ -42,15 +63,13 @@ function renderForm() {
 }
 
 it('fills a new bond from NBU and saves it with the NBU schedule', async () => {
-  const get = vi
-    .spyOn(api, 'GET')
-    .mockImplementation(async () => ({ data: SECURITY, response: new Response() }) as never);
+  const get = mockNbu();
   const post = vi
     .spyOn(api, 'POST')
     .mockImplementation(async () => ({ data: {}, response: new Response() }) as never);
   renderForm();
 
-  fireEvent.change(screen.getByLabelText('ISIN'), { target: { value: 'ua4000236541' } });
+  fireEvent.change(isinField(), { target: { value: 'ua4000236541' } });
   fireEvent.click(screen.getByRole('button', { name: 'Fill in from the NBU bond list' }));
 
   expect(await screen.findByDisplayValue('OVDP USD 4.17% 02/2027')).toBeTruthy();
@@ -72,27 +91,45 @@ it('fills a new bond from NBU and saves it with the NBU schedule', async () => {
 });
 
 it('shows why the lookup failed on the ISIN field', async () => {
-  vi.spyOn(api, 'GET').mockImplementation(
-    async () =>
-      ({
-        error: { code: 'security_not_found', params: { isin: 'UA4000000000' } },
-        response: new Response(null, { status: 404 }),
-      }) as never,
+  vi.spyOn(api, 'GET').mockImplementation(async (path: string) =>
+    path === '/api/v1/securities'
+      ? ({ data: [], response: new Response() } as never)
+      : ({
+          error: { code: 'security_not_found', params: { isin: 'UA4000000000' } },
+          response: new Response(null, { status: 404 }),
+        } as never),
   );
   renderForm();
 
-  fireEvent.change(screen.getByLabelText('ISIN'), { target: { value: 'UA4000000000' } });
+  fireEvent.change(isinField(), { target: { value: 'UA4000000000' } });
   fireEvent.click(screen.getByRole('button', { name: 'Fill in from the NBU bond list' }));
 
   expect(await screen.findByText('NBU lists no bond UA4000000000')).toBeTruthy();
 });
 
 it('asks for the ISIN when the lookup is clicked on an empty field', async () => {
-  const get = vi.spyOn(api, 'GET');
+  const get = mockNbu();
   renderForm();
 
   fireEvent.click(screen.getByRole('button', { name: 'Fill in from the NBU bond list' }));
 
   expect(await screen.findByText('Type the ISIN first, then fill in from NBU')).toBeTruthy();
-  expect(get).not.toHaveBeenCalled();
+  expect(get).not.toHaveBeenCalledWith('/api/v1/securities/{isin}', expect.anything());
+});
+
+it('suggests NBU bonds by name and fills the picked one', async () => {
+  const get = mockNbu();
+  renderForm();
+  await waitFor(() => expect(get).toHaveBeenCalledWith('/api/v1/securities'));
+
+  fireEvent.focus(isinField());
+  fireEvent.change(isinField(), { target: { value: 'usd 4.17' } });
+  const option = await screen.findByText('UA4000236541');
+  expect(screen.queryByText('UA4000234567')).toBeNull();
+  fireEvent.click(option);
+
+  expect(await screen.findByDisplayValue('OVDP USD 4.17% 02/2027')).toBeTruthy();
+  expect(get).toHaveBeenCalledWith('/api/v1/securities/{isin}', {
+    params: { path: { isin: 'UA4000236541' } },
+  });
 });

@@ -1,5 +1,6 @@
 import {
   ActionIcon,
+  Autocomplete,
   Button,
   Group,
   Modal,
@@ -11,13 +12,14 @@ import {
 } from '@mantine/core';
 import { schemaResolver, useForm } from '@mantine/form';
 import { IconCloudDownload } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
-import { lookupSecurity, useSaveInstrument } from '@/api/hooks';
+import { lookupSecurity, useSaveInstrument, useSecurities } from '@/api/hooks';
 import type { Currency, Instrument, Security } from '@/api/types';
 import { DateField } from '@/components/DateField';
+import { formatDate } from '@/lib/format';
 import { MoneyInput } from '@/components/MoneyInput';
 import { positive, required, toDecimal, translateErrors } from '@/lib/validation';
 
@@ -112,14 +114,19 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
     variableRate: boolean;
   } | null>(null);
   const [lookingUp, setLookingUp] = useState(false);
+  const securities = useSecurities(opened && !instrument);
+  const byIsin = useMemo(
+    () => new Map((securities.data ?? []).map((s) => [s.isin, s])),
+    [securities.data],
+  );
   // NBU's published schedule is kept only while the terms it came with are unchanged.
   const nbuSchedule =
     nbu && TERMS.every((k) => String(form.values[k]) === String(nbu.terms[k]))
       ? nbu.schedule
       : null;
 
-  const fillFromNbu = async () => {
-    const isin = form.values.isin.trim().toUpperCase();
+  const fillFromNbu = async (picked?: string) => {
+    const isin = (picked ?? form.values.isin).trim().toUpperCase();
     if (!ISIN.test(isin)) {
       form.setFieldError('isin', t(isin ? 'validation.isin' : 'bonds.isinFirst'));
       return;
@@ -169,12 +176,43 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
     >
       <form onSubmit={submit}>
         <SimpleGrid cols={{ base: 1, sm: 2 }}>
-          <TextInput
-            label={t('bonds.isin')}
-            placeholder="UA4000227045"
-            {...form.getInputProps('isin')}
-            rightSection={
-              instrument ? null : (
+          {instrument ? (
+            <TextInput label={t('bonds.isin')} {...form.getInputProps('isin')} />
+          ) : (
+            <Autocomplete
+              label={t('bonds.isin')}
+              placeholder={t('bonds.isinSearch')}
+              data={securities.data?.map((s) => s.isin) ?? []}
+              filter={({ options, search }) => {
+                const query = search.trim().toLowerCase();
+                return options.filter((option) => {
+                  if (!('value' in option)) return false;
+                  const name = byIsin.get(option.value)?.name ?? '';
+                  return `${option.value} ${name}`.toLowerCase().includes(query);
+                });
+              }}
+              limit={50}
+              maxDropdownHeight={280}
+              renderOption={({ option }) => {
+                const security = byIsin.get(option.value);
+                return (
+                  <div>
+                    <Text size="sm">{option.value}</Text>
+                    {security && (
+                      <Text size="xs" c="dimmed">
+                        {security.name} ·{' '}
+                        {t('bonds.maturesOn', {
+                          date: formatDate(security.maturity_date),
+                        })}
+                      </Text>
+                    )}
+                  </div>
+                );
+              }}
+              {...form.getInputProps('isin')}
+              onOptionSubmit={(isin) => void fillFromNbu(isin)}
+              rightSectionPointerEvents="all"
+              rightSection={
                 <Tooltip label={t('bonds.fillFromNbu')}>
                   <ActionIcon
                     variant="subtle"
@@ -185,9 +223,9 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
                     <IconCloudDownload size={16} />
                   </ActionIcon>
                 </Tooltip>
-              )
-            }
-          />
+              }
+            />
+          )}
           <TextInput
             label={t('bonds.name')}
             placeholder={t('bonds.namePlaceholder')}

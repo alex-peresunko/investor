@@ -7,6 +7,7 @@ export type Currency = Instrument['currency'];
 export type InstrumentInput = Schemas['InstrumentIn'];
 export type InstrumentCreate = Schemas['InstrumentCreate'];
 export type Security = Schemas['SecurityOut'];
+export type SecuritySummary = Schemas['SecuritySummary'];
 export type ScheduledPayment = Schemas['ScheduledPaymentOut'];
 export type ScheduledPaymentInput = Schemas['ScheduledPaymentIn'];
 export type Lot = Schemas['LotOut'];

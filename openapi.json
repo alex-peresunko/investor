@@ -369,6 +369,32 @@
         }
       }
     },
+    "/api/v1/securities": {
+      "get": {
+        "tags": [
+          "securities"
+        ],
+        "summary": "List Securities",
+        "description": "Government bonds from the NBU depository list that have not matured yet.",
+        "operationId": "list_securities_api_v1_securities_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SecuritySummary"
+                  },
+                  "type": "array",
+                  "title": "Response List Securities Api V1 Securities Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/securities/{isin}": {
       "get": {
         "tags": [
@@ -3275,6 +3301,45 @@
           "amount_per_unit"
         ],
         "title": "SecurityPayment"
+      },
+      "SecuritySummary": {
+        "properties": {
+          "isin": {
+            "type": "string",
+            "title": "Isin"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "UAH",
+              "USD",
+              "EUR"
+            ],
+            "title": "Currency"
+          },
+          "maturity_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Maturity Date"
+          },
+          "variable_rate": {
+            "type": "boolean",
+            "title": "Variable Rate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "isin",
+          "name",
+          "currency",
+          "maturity_date",
+          "variable_rate"
+        ],
+        "title": "SecuritySummary"
       },
       "TimeseriesPoint": {
         "properties": {

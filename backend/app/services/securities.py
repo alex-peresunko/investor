@@ -8,7 +8,7 @@ from typing import Any, get_args
 from app.core.config import get_settings
 from app.core.errors import NotFoundError, UpstreamError, ValidationError
 from app.schemas.common import Currency
-from app.schemas.securities import SecurityOut, SecurityPayment
+from app.schemas.securities import SecurityOut, SecurityPayment, SecuritySummary
 from app.services.nbu_client import NbuUnavailableError, fetch_securities
 
 CACHE_SECONDS = 6 * 3600
@@ -42,6 +42,19 @@ def lookup(isin: str) -> SecurityOut:
     if row is None:
         raise NotFoundError("security_not_found", isin=isin)
     return parse_security(row)
+
+
+def available(today: date) -> list[SecuritySummary]:
+    """Bonds in a supported currency that have not matured, soonest maturity first."""
+    found: list[SecuritySummary] = []
+    for row in _securities().values():
+        try:
+            security = parse_security(row)
+        except (ValidationError, KeyError, TypeError, ValueError, ArithmeticError):
+            continue
+        if security.maturity_date >= today:
+            found.append(SecuritySummary.model_validate(security, from_attributes=True))
+    return sorted(found, key=lambda s: (s.maturity_date, s.isin))
 
 
 def _frequency(row: dict[str, Any], coupon_dates: list[date]) -> int:

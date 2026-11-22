@@ -129,3 +129,29 @@ def test_bond_created_with_the_nbu_schedule(client: TestClient) -> None:
         "2026-08-06",
         "2027-02-04",
     ]
+
+
+@respx.mock
+def test_list_skips_matured_and_unsupported_bonds(client: TestClient) -> None:
+    matured = {**USD_BOND, "cpcode": "UA4000211111", "pgs_date": "2020-01-15"}
+    _serve(ANNUAL_UAH_BOND, matured, GBP_BOND, USD_BOND)
+
+    response = client.get("/api/v1/securities")
+
+    assert response.status_code == 200, response.text
+    assert response.json() == [
+        {
+            "isin": "UA4000236541",
+            "name": "OVDP USD 4.17% 02/2027",
+            "currency": "USD",
+            "maturity_date": "2027-02-04",
+            "variable_rate": False,
+        },
+        {
+            "isin": "UA4000234567",
+            "name": "OVDP 15.20% 05/2028",
+            "currency": "UAH",
+            "maturity_date": "2028-05-10",
+            "variable_rate": True,
+        },
+    ]

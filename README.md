@@ -9,8 +9,9 @@ moves show up in the result.
   edited or deleted, and all figures are recalculated on the fly.
 - The official NBU USD/UAH rate is filled in automatically and can be overridden with your bank's
   rate.
-- Type a bond's ISIN to fill in its terms and payment schedule from the NBU list of government
-  bonds; otherwise the schedule is generated from the terms. Either way it can be edited by hand.
+- Pick a bond by ISIN or name from the NBU list of government bonds that have not matured, and
+  its terms and payment schedule are filled in; otherwise the schedule is generated from the
+  terms. Either way it can be edited by hand.
 - Dashboard for any period: P&L, current value, invested, received, XIRR, and a value chart. The
   same is available per package.
 - Calendar of upcoming coupons and redemptions, with a warning for scheduled payments that are

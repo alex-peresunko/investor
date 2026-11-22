@@ -109,6 +109,16 @@ export function useSaveInstrument() {
 }
 
 /** Bond terms and payment schedule from the NBU depository list; throws a translated error. */
+export function useSecurities(enabled: boolean) {
+  return useQuery({
+    queryKey: ['securities'],
+    enabled,
+    staleTime: 60 * 60 * 1000,
+    retry: false,
+    queryFn: async () => unwrap(await api.GET('/api/v1/securities')),
+  });
+}
+
 export async function lookupSecurity(isin: string) {
   return unwrap(await api.GET('/api/v1/securities/{isin}', { params: { path: { isin } } }));
 }
