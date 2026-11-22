@@ -289,6 +289,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports/missed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Missed
+         * @description Scheduled payments already due on bonds held at the time, with no payment recorded.
+         */
+        get: operations["missed_api_v1_reports_missed_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/received": {
         parameters: {
             query?: never;
@@ -601,6 +621,31 @@ export interface components {
             xirr_uah: string | null;
             /** Xirr Usd */
             xirr_usd: string | null;
+        };
+        /** MissedPayment */
+        MissedPayment: {
+            /**
+             * Pay Date
+             * Format: date
+             */
+            pay_date: string;
+            /** Instrument Id */
+            instrument_id: number;
+            /** Isin */
+            isin: string;
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "coupon" | "redemption";
+            /** Amount Per Unit */
+            amount_per_unit: string;
+            /** Quantity */
+            quantity: string;
+            /** Expected Uah */
+            expected_uah: string;
         };
         /** PaymentAllocation */
         PaymentAllocation: {
@@ -1810,6 +1855,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    missed_api_v1_reports_missed_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissedPayment"][];
                 };
             };
         };

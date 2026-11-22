@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 from openpyxl import load_workbook
 
 from app.services import portfolio_loader
+from tests.factories import make_instrument, make_lot
 
 BOND = {
     "isin": "UA4000200000",
@@ -239,3 +240,30 @@ def test_exports_in_ukrainian(client: TestClient) -> None:
     assert pnl.cell(row=pnl.max_row, column=1).value == "РАЗОМ"
 
     assert client.get("/api/v1/export/operations.csv?lang=xx").status_code == 422
+
+
+def test_missed_lists_due_coupons_without_a_record(client: TestClient) -> None:
+    instrument = make_instrument(client)
+    make_lot(client, instrument["id"], trade_date="2025-03-10", quantity="10")
+    recorded = client.post(
+        "/api/v1/payments",
+        json={
+            "instrument_id": instrument["id"],
+            "kind": "coupon",
+            "pay_date": "2025-09-02",
+            "total_amount_uah": "825",
+            "fx_rate": "41.3",
+        },
+    )
+    assert recorded.status_code == 201
+
+    response = client.get("/api/v1/reports/missed")
+
+    assert response.status_code == 200, response.text
+    first = response.json()[0]
+    assert (first["pay_date"], first["kind"], first["quantity"]) == (
+        "2026-03-01",
+        "coupon",
+        "10.000000",
+    )
+    assert first["expected_uah"] == "825.00"

@@ -9,6 +9,7 @@ import {
   Textarea,
 } from '@mantine/core';
 import { schemaResolver, useForm } from '@mantine/form';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
@@ -43,12 +44,21 @@ type Values = {
   note: string;
 };
 
+/** Prefill for a new payment, e.g. a scheduled payment that was never recorded. */
+export interface PaymentDraft {
+  instrument_id: number;
+  kind: Kind;
+  pay_date: string;
+  total_amount_uah: string;
+}
+
 interface Props {
   payment: Payment | null;
+  draft?: PaymentDraft;
   onClose: () => void;
 }
 
-export function PaymentFormModal({ payment, onClose }: Props) {
+export function PaymentFormModal({ payment, draft, onClose }: Props) {
   const { t } = useTranslation();
   const instruments = useInstruments();
   const lots = useLots();
@@ -66,10 +76,10 @@ export function PaymentFormModal({ payment, onClose }: Props) {
           note: payment.note ?? '',
         }
       : {
-          instrument_id: null,
-          kind: 'coupon',
-          pay_date: null,
-          total_amount_uah: '',
+          instrument_id: draft ? String(draft.instrument_id) : null,
+          kind: draft?.kind ?? 'coupon',
+          pay_date: draft?.pay_date ?? null,
+          total_amount_uah: draft ? Number(draft.total_amount_uah) : '',
           fee_uah: 0,
           fx_rate: '',
           note: '',
@@ -79,6 +89,12 @@ export function PaymentFormModal({ payment, onClose }: Props) {
   const instrumentId = form.values.instrument_id ? Number(form.values.instrument_id) : null;
   const schedule = useSchedule(instrumentId);
   const nbu = useNbuRate((rate) => form.setFieldValue('fx_rate', rate));
+  const draftDate = draft?.pay_date;
+  useEffect(() => {
+    if (draftDate) void nbu.load(draftDate);
+    // Once on open: later date changes load the rate from the date field's onChange.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftDate]);
   const held =
     instrumentId !== null && form.values.pay_date
       ? heldBefore(instrumentId, form.values.pay_date, lots.data ?? [], sales.data ?? [])

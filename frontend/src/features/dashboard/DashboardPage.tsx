@@ -25,6 +25,7 @@ import { usePortfolioReport } from '@/api/reportHooks';
 import { PeriodPicker, usePeriod } from '@/components/PeriodPicker';
 import { PnlSplit, Stat } from '@/components/Stat';
 import { LotsTable } from '@/features/reports/LotsTable';
+import { MissedPaymentsAlert } from '@/features/upcoming/MissedPayments';
 import { ValueChart } from '@/features/reports/ValueChart';
 import { formatDate, formatPercent } from '@/lib/format';
 
@@ -63,6 +64,7 @@ export function DashboardPage() {
           </Tooltip>
         </Group>
       </Group>
+      <MissedPaymentsAlert />
       {report.isPending ? (
         <Loader />
       ) : report.isError ? (

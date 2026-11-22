@@ -261,6 +261,50 @@ class Portfolio:
         return xirr(dated)
 
 
+# A recorded payment counts for a scheduled one this many days either side of its date.
+MISSED_MATCH_DAYS = 10
+
+
+@dataclass(frozen=True)
+class MissedPayment:
+    instrument_id: int
+    item: ScheduleItem
+    quantity: Decimal
+
+
+def missed_payments(portfolio: Portfolio, today: date) -> list[MissedPayment]:
+    """Scheduled payments due by `today` for bonds held the day before, with no recorded payment
+    of the same kind near that date. Each recorded payment matches at most one scheduled one."""
+    window = timedelta(days=MISSED_MATCH_DAYS)
+    result = []
+    for instrument_id, terms in portfolio.terms.items():
+        lot_ids = [lot.id for lot in portfolio.lots.values() if lot.instrument_id == instrument_id]
+        if not lot_ids:
+            continue
+        unmatched = [p for p in portfolio.payments if p.instrument_id == instrument_id]
+        for item in terms.schedule:
+            if item.pay_date > today:
+                break
+            match = min(
+                (
+                    p
+                    for p in unmatched
+                    if p.kind == item.kind and abs(p.pay_date - item.pay_date) <= window
+                ),
+                key=lambda p: abs(p.pay_date - item.pay_date),
+                default=None,
+            )
+            if match is not None:
+                unmatched.remove(match)
+                continue
+            held = sum(
+                (portfolio.open_quantity(i, item.pay_date - ONE_DAY) for i in lot_ids), Decimal(0)
+            )
+            if held > 0:
+                result.append(MissedPayment(instrument_id, item, held))
+    return sorted(result, key=lambda m: (m.item.pay_date, m.instrument_id, m.item.kind))
+
+
 def accrued_coupon(terms: BondTerms, day: date) -> Decimal:
     """Coupon accrued per unit at the end of `day`, linear between coupon dates."""
     coupons = [item for item in terms.schedule if item.kind == "coupon"]

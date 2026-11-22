@@ -101,3 +101,5 @@ Dependency versions are pinned exactly (`==` in `backend/pyproject.toml`, exact 
   (`services/fx.py`, cached in `fx_rate`); flows convert at their own operation's rate.
 - Valuation assumes every scheduled coupon was recorded. If a coupon date has passed without a
   `payment` record, the accrued coupon drops to zero on that date and P&L understates.
+  `engine.portfolio.missed_payments` (`/reports/missed`) lists such dates; a recorded payment of
+  the same kind within `MISSED_MATCH_DAYS` of a scheduled date counts as that payment.

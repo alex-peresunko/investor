@@ -96,6 +96,17 @@ class UpcomingPayment(BaseModel):
     expected_usd_estimate: Decimal
 
 
+class MissedPayment(BaseModel):
+    pay_date: date
+    instrument_id: int
+    isin: str
+    name: str
+    kind: Literal["coupon", "redemption"]
+    amount_per_unit: Decimal
+    quantity: Decimal
+    expected_uah: Decimal
+
+
 class PaymentAllocation(BaseModel):
     lot_id: int
     amount_uah: Decimal

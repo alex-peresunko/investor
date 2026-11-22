@@ -5,13 +5,14 @@ from decimal import ROUND_HALF_UP, Decimal
 from sqlalchemy.orm import Session
 
 from app.core.errors import NotFoundError, ValidationError
-from app.engine.portfolio import FxAt, PaymentData, Portfolio
+from app.engine.portfolio import FxAt, PaymentData, Portfolio, missed_payments
 from app.models import Instrument
 from app.schemas.reports import (
     AmountOut,
     FlowOut,
     LotReport,
     LotSummary,
+    MissedPayment,
     PaymentAllocation,
     PnlOut,
     PortfolioReport,
@@ -192,6 +193,23 @@ def upcoming(session: Session, months: int) -> list[UpcomingPayment]:
                     )
                 )
     return sorted(result, key=lambda p: (p.pay_date, p.isin, p.kind))
+
+
+def missed(session: Session) -> list[MissedPayment]:
+    portfolio, instruments = load_portfolio(session)
+    return [
+        MissedPayment(
+            pay_date=m.item.pay_date,
+            instrument_id=m.instrument_id,
+            isin=instruments[m.instrument_id].isin,
+            name=instruments[m.instrument_id].name,
+            kind=m.item.kind,
+            amount_per_unit=m.item.amount_per_unit,
+            quantity=m.quantity,
+            expected_uah=(m.item.amount_per_unit * m.quantity).quantize(CENT, ROUND_HALF_UP),
+        )
+        for m in missed_payments(portfolio, date.today())  # noqa: DTZ011
+    ]
 
 
 def _attributed_cost(

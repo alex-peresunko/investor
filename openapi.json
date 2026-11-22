@@ -1340,6 +1340,32 @@
         }
       }
     },
+    "/api/v1/reports/missed": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Missed",
+        "description": "Scheduled payments already due on bonds held at the time, with no payment recorded.",
+        "operationId": "missed_api_v1_reports_missed_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MissedPayment"
+                  },
+                  "type": "array",
+                  "title": "Response Missed Api V1 Reports Missed Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/reports/received": {
       "get": {
         "tags": [
@@ -2173,6 +2199,59 @@
           "xirr_usd"
         ],
         "title": "LotSummary"
+      },
+      "MissedPayment": {
+        "properties": {
+          "pay_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay Date"
+          },
+          "instrument_id": {
+            "type": "integer",
+            "title": "Instrument Id"
+          },
+          "isin": {
+            "type": "string",
+            "title": "Isin"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "coupon",
+              "redemption"
+            ],
+            "title": "Kind"
+          },
+          "amount_per_unit": {
+            "type": "string",
+            "title": "Amount Per Unit"
+          },
+          "quantity": {
+            "type": "string",
+            "title": "Quantity"
+          },
+          "expected_uah": {
+            "type": "string",
+            "title": "Expected Uah"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pay_date",
+          "instrument_id",
+          "isin",
+          "name",
+          "kind",
+          "amount_per_unit",
+          "quantity",
+          "expected_uah"
+        ],
+        "title": "MissedPayment"
       },
       "PaymentAllocation": {
         "properties": {

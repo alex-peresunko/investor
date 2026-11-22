@@ -12,6 +12,8 @@ import { type SortColumns, SortTh, useSortedRows } from '@/components/SortableTa
 import { type SeriesDef, SeriesLegend, useSeriesToggle } from '@/components/SeriesLegend';
 import { formatDate, formatMoney, formatNumber } from '@/lib/format';
 
+import { MissedPaymentsTable } from './MissedPayments';
+
 const COLUMNS = {
   date: (i) => i.pay_date,
   type: (i) => i.kind,
@@ -64,6 +66,7 @@ export function UpcomingPage() {
           w={180}
         />
       </Group>
+      <MissedPaymentsTable />
       {upcoming.isPending ? (
         <Loader />
       ) : upcoming.isError ? (

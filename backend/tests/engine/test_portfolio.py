@@ -10,6 +10,7 @@ from app.engine.portfolio import (
     Portfolio,
     SaleData,
     accrued_coupon,
+    missed_payments,
     xirr,
 )
 from app.engine.schedule import PaymentKind, generate_schedule
@@ -167,3 +168,62 @@ def test_xirr_simple_year() -> None:
 
 def test_xirr_none_without_sign_change() -> None:
     assert xirr([(date(2025, 1, 1), D("-1000")), (date(2026, 1, 1), D("-5"))]) is None
+
+
+def test_missed_payments_lists_unrecorded_coupons_while_held() -> None:
+    portfolio = Portfolio(
+        {1: OVDP},
+        [lot(trade_date=date(2026, 1, 10))],
+        [],
+        [payment(1, "coupon", date(2026, 3, 3), "8250", "41.5")],
+    )
+
+    missed = missed_payments(portfolio, date(2026, 12, 31))
+
+    assert [(m.item.kind, m.item.pay_date, m.quantity) for m in missed] == [
+        ("coupon", date(2026, 9, 1), D("100"))
+    ]
+
+
+def test_missed_payments_ignores_coupons_before_purchase_and_after_sale() -> None:
+    portfolio = Portfolio(
+        {1: OVDP},
+        [lot(trade_date=date(2026, 3, 1))],
+        [SaleData(1, 1, date(2026, 8, 31), D("100"), D("100000"), D("0"), D("41"))],
+        [],
+    )
+
+    assert missed_payments(portfolio, date(2027, 12, 31)) == []
+
+
+def test_missed_payments_includes_unrecorded_redemption() -> None:
+    portfolio = Portfolio({1: OVDP}, [lot(trade_date=date(2027, 3, 10))], [], [])
+
+    missed = missed_payments(portfolio, date(2027, 9, 1))
+
+    assert [(m.item.kind, m.item.pay_date) for m in missed] == [
+        ("coupon", date(2027, 9, 1)),
+        ("redemption", date(2027, 9, 1)),
+    ]
+
+
+def test_one_recorded_payment_matches_one_scheduled_payment() -> None:
+    monthly = BondTerms(
+        instrument_id=1,
+        face_value=D("1000"),
+        issue_date=date(2025, 1, 1),
+        maturity_date=date(2027, 1, 1),
+        schedule=tuple(
+            generate_schedule(D("1000"), D("0.12"), 12, date(2025, 1, 1), date(2027, 1, 1))
+        ),
+    )
+    portfolio = Portfolio(
+        {1: monthly},
+        [lot(trade_date=date(2026, 1, 10))],
+        [],
+        [payment(1, "coupon", date(2026, 2, 1), "1000", "41")],
+    )
+
+    missed = missed_payments(portfolio, date(2026, 3, 1))
+
+    assert [m.item.pay_date for m in missed] == [date(2026, 3, 1)]

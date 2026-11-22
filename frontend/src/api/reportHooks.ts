@@ -56,6 +56,15 @@ export function useUpcoming(months: number) {
   });
 }
 
+export type MissedPayment = components['schemas']['MissedPayment'];
+
+export function useMissed() {
+  return useQuery({
+    queryKey: ['report', 'missed'],
+    queryFn: async () => unwrap(await api.GET('/api/v1/reports/missed')),
+  });
+}
+
 export type ReceivedPayment = components['schemas']['ReceivedPayment'];
 
 export function useReceived(period: Period) {

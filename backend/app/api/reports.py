@@ -7,6 +7,7 @@ from app.api.deps import SessionDep
 from app.core.i18n import DEFAULT_LANGUAGE, Language
 from app.schemas.reports import (
     LotReport,
+    MissedPayment,
     PortfolioReport,
     ReceivedPayment,
     TimeseriesPoint,
@@ -47,6 +48,12 @@ def timeseries(
 @router.get("/reports/upcoming")
 def upcoming(session: SessionDep, months: int = 12) -> list[UpcomingPayment]:
     return service.upcoming(session, months)
+
+
+@router.get("/reports/missed")
+def missed(session: SessionDep) -> list[MissedPayment]:
+    """Scheduled payments already due on bonds held at the time, with no payment recorded."""
+    return service.missed(session)
 
 
 @router.get("/reports/received")

@@ -279,6 +279,15 @@
     "expectedUah": "Expected, UAH",
     "approxUsd": "≈ USD"
   },
+  "missed": {
+    "title": "Due but not recorded",
+    "subtitle": "Scheduled payments on bonds you held at the time, with no coupon or redemption recorded within 10 days of the date. Until you record them, the accrued coupon drops to zero on that date and P&L is understated.",
+    "record": "Record",
+    "alertTitle": "Payments not recorded",
+    "alertBody_one": "{{count}} scheduled payment is past due with no record, so P&L is understated.",
+    "alertBody_other": "{{count}} scheduled payments are past due with no record, so P&L is understated.",
+    "review": "Review and record"
+  },
   "pastPayments": {
     "title": "Past payments",
     "subtitle": "Cash received; net income deducts what you paid for the bonds.",
@@ -321,7 +330,7 @@
       },
       "upcoming": {
         "title": "Upcoming payments",
-        "body": "Coupons and redemptions expected from the bonds you hold today, taken from the payment schedules:\n= expected = amount per bond in the schedule × bonds held today\nThe USD amount is only an estimate at today's NBU rate; the real rate is known on the payment day. Buying or selling changes the list."
+        "body": "Coupons and redemptions expected from the bonds you hold today, taken from the payment schedules:\n= expected = amount per bond in the schedule × bonds held today\nThe USD amount is only an estimate at today's NBU rate; the real rate is known on the payment day. Buying or selling changes the list.\n\n**Due but not recorded** appears at the top when a scheduled coupon or redemption has passed on bonds you held the day before, and no payment of that kind is recorded within 10 days of its date. **Record** opens the payment form filled with the expected amount and that day's NBU rate; check it against what you actually received. The dashboard shows a warning while any are left."
       },
       "pastPayments": {
         "title": "Past payments",
@@ -339,7 +348,7 @@
     "topics": {
       "value": {
         "title": "Value of a package",
-        "body": "Open packages are valued at amortized cost plus accrued coupon, not at a market price, which the app does not know. Amortized cost starts at the clean price you paid and moves in a straight line to face value at maturity, so a bond bought below face value gains value gradually and one bought above it loses value:\n= clean cost = (total cost − accrued paid) ÷ quantity\n= amortized price = clean cost + (face value − clean cost) × days held ÷ days from purchase to maturity\n= accrued coupon = next coupon × days since the previous coupon ÷ days between the two coupons\n= value = bonds held × (amortized price + accrued coupon)\nExample: clean cost 950 UAH, 400 days to maturity. After 100 days, the amortized price is 950 + 50 × 100 ÷ 400 = 962.50 UAH.\n\n> Valuation assumes every scheduled coupon was recorded. If a coupon date passes without a payment record, the accrued coupon drops to zero on that date and P&L is understated until you record it."
+        "body": "Open packages are valued at amortized cost plus accrued coupon, not at a market price, which the app does not know. Amortized cost starts at the clean price you paid and moves in a straight line to face value at maturity, so a bond bought below face value gains value gradually and one bought above it loses value:\n= clean cost = (total cost − accrued paid) ÷ quantity\n= amortized price = clean cost + (face value − clean cost) × days held ÷ days from purchase to maturity\n= accrued coupon = next coupon × days since the previous coupon ÷ days between the two coupons\n= value = bonds held × (amortized price + accrued coupon)\nExample: clean cost 950 UAH, 400 days to maturity. After 100 days, the amortized price is 950 + 50 × 100 ÷ 400 = 962.50 UAH.\n\n> Valuation assumes every scheduled coupon was recorded. If a coupon date passes without a payment record, the accrued coupon drops to zero on that date and P&L is understated until you record it. The Upcoming payments page and the dashboard warn about such payments."
       },
       "pnl": {
         "title": "Profit / loss for a period",

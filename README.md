@@ -11,7 +11,8 @@ the USD/UAH rate of each operation's own date, so currency moves show up in the 
 - A bond's coupon schedule is generated from its terms and can be edited by hand.
 - Dashboard for any period: P&L, current value, invested, received, XIRR, and a value chart. The
   same is available per package.
-- Calendar of upcoming coupons and redemptions; Excel and CSV export.
+- Calendar of upcoming coupons and redemptions, with a warning for scheduled payments that are
+  past due but not recorded and one click to record them; Excel and CSV export.
 - A built-in help page (in English and Ukrainian) explaining every page and calculation; the ? next
   to a figure opens its explanation.
 - A one-command demo with 24 months of sample data (`make demo`), separate from your own data.
