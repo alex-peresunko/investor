@@ -270,3 +270,62 @@ def test_eur_bond_values_at_eur_rate_and_reports_usd_through_uah() -> None:
     result = p.period_pnl([1], date(2025, 1, 1), date(2026, 1, 1), rates)
     assert result.invested == Amount(D("44000.00"), D("1100.00"))
     assert result.closing_value == Amount(D("46000.00"), D("1150.00"))
+
+
+def _interview_portfolio() -> Portfolio:
+    terms = BondTerms(
+        1,
+        D("1000"),
+        date(2025, 1, 1),
+        date(2026, 1, 1),
+        schedule=tuple(
+            generate_schedule(D("1000"), D("0.1"), 2, date(2025, 1, 1), date(2026, 1, 1))
+        ),
+    )
+    return Portfolio(
+        {1: terms},
+        [lot(trade_date=date(2025, 1, 2), total_cost="100000", accrued_paid="0", fx="41")],
+        [],
+        [
+            payment(1, "coupon", date(2025, 7, 1), "5000", "41.5"),
+            payment(2, "redemption", date(2026, 1, 1), "100000", "42"),
+        ],
+    )
+
+
+def test_usd_cash_alternative_earns_nothing_in_usd_and_the_rate_move_in_uah() -> None:
+    p = _interview_portfolio()
+    result = p.usd_cash_alternative([1], date(2025, 1, 1), date(2026, 1, 31), fx_const("43"))
+    dollars = D(100000) / D(41) - D(5000) / D("41.5") - D(100000) / D(42)
+    assert result.closing_value.usd == dollars.quantize(D("0.01"))
+    assert result.pnl.usd == D("0.00")
+    assert str(result.pnl.usd) == "0.00"
+    assert str(result.xirr_usd) == "0.0"
+    assert result.pnl.uah == (dollars * 43 + 5000).quantize(D("0.01"))
+
+
+def test_uah_deposit_alternative_compounds_at_the_rate() -> None:
+    p = Portfolio({1: OVDP}, [lot(trade_date=date(2026, 1, 10), total_cost="100000")], [], [])
+    start, end = date(2026, 1, 10), date(2027, 1, 10)
+    result = p.uah_deposit_alternative([1], start, end, fx_const("40"), D("0.1"))
+    assert result.closing_value.uah == D("110000.00")
+    assert result.closing_value.usd == D("2750.00")
+    assert result.pnl.uah == D("10000.00")
+    assert result.xirr_uah == D("0.1")
+
+
+def test_uah_deposit_alternative_starts_from_the_opening_value() -> None:
+    p = Portfolio({1: OVDP}, [lot(trade_date=date(2026, 1, 10))], [], [])
+    start, end = date(2026, 3, 1), date(2026, 3, 1)
+    opening = p.period_pnl([1], start, end, fx_const("40")).opening_value.uah
+    result = p.uah_deposit_alternative([1], start, end, fx_const("40"), D("0.2"))
+    assert result.closing_value.uah == (opening * D("1.2") ** (D(1) / 365)).quantize(D("0.01"))
+
+
+def test_alternatives_of_no_packages_are_zero() -> None:
+    p = Portfolio({1: OVDP}, [], [], [])
+    result = p.uah_deposit_alternative(
+        [], date(2026, 1, 1), date(2026, 6, 1), fx_const("40"), D("0.1")
+    )
+    assert result.pnl == Amount(D("0.00"), D("0.00"))
+    assert result.xirr_uah is None

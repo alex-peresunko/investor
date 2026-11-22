@@ -41,6 +41,7 @@ MESSAGES: dict[str, str] = {
     "fx_no_rate": "NBU has no rate for this date; enter the rate manually",
     "period_end_before_start": "The end date must not be before the start date",
     "months_out_of_range": "months must be between 1 and 120",
+    "deposit_rate_out_of_range": "The deposit rate must be between 0 % and 100 %",
 }
 
 

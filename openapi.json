@@ -1213,6 +1213,90 @@
         }
       }
     },
+    "/api/v1/reports/benchmark": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Benchmark",
+        "description": "deposit_rate is a fraction a year, e.g. 0.12 for 12 %.",
+        "operationId": "benchmark_api_v1_reports_benchmark_get",
+        "parameters": [
+          {
+            "name": "deposit_rate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "title": "Deposit Rate"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BenchmarkReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/reports/lots/{lot_id}": {
       "get": {
         "tags": [
@@ -1752,6 +1836,46 @@
   },
   "components": {
     "schemas": {
+      "AlternativeOut": {
+        "properties": {
+          "closing_value": {
+            "$ref": "#/components/schemas/AmountOut"
+          },
+          "pnl": {
+            "$ref": "#/components/schemas/AmountOut"
+          },
+          "xirr_uah": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Xirr Uah"
+          },
+          "xirr_usd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Xirr Usd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "closing_value",
+          "pnl",
+          "xirr_uah",
+          "xirr_usd"
+        ],
+        "title": "AlternativeOut"
+      },
       "AmountOut": {
         "properties": {
           "uah": {
@@ -1769,6 +1893,44 @@
           "usd"
         ],
         "title": "AmountOut"
+      },
+      "BenchmarkReport": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "title": "End"
+          },
+          "deposit_rate": {
+            "type": "string",
+            "title": "Deposit Rate"
+          },
+          "bonds": {
+            "$ref": "#/components/schemas/AlternativeOut"
+          },
+          "usd_cash": {
+            "$ref": "#/components/schemas/AlternativeOut"
+          },
+          "uah_deposit": {
+            "$ref": "#/components/schemas/AlternativeOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "end",
+          "deposit_rate",
+          "bonds",
+          "usd_cash",
+          "uah_deposit"
+        ],
+        "title": "BenchmarkReport",
+        "description": "The portfolio's P&L for the period next to what the same money would have made elsewhere.\n\nEvery alternative has the same opening value, invested and received as `bonds`."
       },
       "FlowOut": {
         "properties": {
@@ -2811,6 +2973,11 @@
             "title": "Language",
             "default": "en"
           },
+          "deposit_rate": {
+            "type": "string",
+            "title": "Deposit Rate",
+            "default": "0.12"
+          },
           "demo": {
             "type": "boolean",
             "title": "Demo",
@@ -2836,6 +3003,22 @@
               }
             ],
             "title": "Language"
+          },
+          "deposit_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deposit Rate"
           }
         },
         "type": "object",

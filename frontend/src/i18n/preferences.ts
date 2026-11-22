@@ -35,3 +35,15 @@ export function useSetLanguage() {
       notifications.show({ color: 'red', title: i18n.t('notify.error'), message: error.message }),
   });
 }
+
+/** Saves the annual deposit rate, a fraction such as "0.12". */
+export function useSetDepositRate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (depositRate: string) =>
+      unwrap(await api.PATCH('/api/v1/preferences', { body: { deposit_rate: depositRate } })),
+    onSuccess: (preferences) => queryClient.setQueryData(preferencesKey, preferences),
+    onError: (error: Error) =>
+      notifications.show({ color: 'red', title: i18n.t('notify.error'), message: error.message }),
+  });
+}

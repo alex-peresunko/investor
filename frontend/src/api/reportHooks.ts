@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { api, unwrap } from './client';
 import type { components } from './schema';
@@ -21,6 +21,23 @@ export function usePortfolioReport(period: Period) {
     queryKey: ['report', 'portfolio', period],
     queryFn: async () =>
       unwrap(await api.GET('/api/v1/reports/portfolio', { params: { query: period } })),
+  });
+}
+
+export type BenchmarkReport = components['schemas']['BenchmarkReport'];
+
+/** `depositRate` is a fraction a year ("0.12"); no request is made while it is null. */
+export function useBenchmark(period: Period, depositRate: string | null) {
+  return useQuery({
+    queryKey: ['report', 'benchmark', period, depositRate],
+    queryFn: async () =>
+      unwrap(
+        await api.GET('/api/v1/reports/benchmark', {
+          params: { query: { ...period, deposit_rate: depositRate ?? '' } },
+        }),
+      ),
+    enabled: depositRate !== null,
+    placeholderData: keepPreviousData,
   });
 }
 

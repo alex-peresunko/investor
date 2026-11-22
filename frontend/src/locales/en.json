@@ -150,13 +150,25 @@
     "currency_rate_not_applicable": "A {{currency}} bond takes no separate currency rate",
     "security_not_found": "NBU lists no bond {{isin}}",
     "security_unsupported": "Bond {{isin}} is in {{currency}}, which the app does not support",
-    "securities_unavailable": "The NBU bond list is unavailable; enter the terms manually"
+    "securities_unavailable": "The NBU bond list is unavailable; enter the terms manually",
+    "deposit_rate_out_of_range": "The deposit rate must be between 0 % and 100 %"
   },
   "dashboard": {
     "title": "Dashboard",
     "export": "Download P&L for this period as Excel",
     "exportAria": "Export P&L",
     "packages": "Packages"
+  },
+  "benchmark": {
+    "title": "Compared with alternatives",
+    "depositRate": "UAH deposit rate",
+    "option": "Same money in",
+    "pnl": "Profit / loss",
+    "xirr": "Annual return (XIRR)",
+    "bondsAhead": "Bonds ahead by",
+    "bonds": "Your bonds",
+    "usdCash": "US dollars in cash",
+    "uahDeposit": "UAH deposit at {{rate}}"
   },
   "chart": {
     "valueTitle": "Value and cumulative P&L"
@@ -345,7 +357,7 @@
       },
       "dashboard": {
         "title": "Dashboard",
-        "body": "The whole portfolio for the period chosen at the top right: all time, year to date, the last 1 or 3 years, or your own dates. The period is kept in the page address, so a reload or a bookmark keeps it.\n\n- **Profit / loss**: see “How everything is calculated” below. It is split into **realized**, for packages closed by the end of the period, and **unrealized**, for packages still held. A partly sold package counts as unrealized.\n- **Current value**: what the bonds held at the end of the period are worth.\n- **Invested**: money paid in the period: purchases and all fees.\n- **Received**: money received in the period: sales, coupons and redemptions.\n- **Annual return (XIRR)**: the result as a yearly rate.\n- **Value and cumulative P&L**: value and P&L at each month end of the period.\n- **Packages**: P&L of each package for the period. The download button exports it to Excel."
+        "body": "The whole portfolio for the period chosen at the top right: all time, year to date, the last 1 or 3 years, or your own dates. The period is kept in the page address, so a reload or a bookmark keeps it.\n\n- **Profit / loss**: see “How everything is calculated” below. It is split into **realized**, for packages closed by the end of the period, and **unrealized**, for packages still held. A partly sold package counts as unrealized.\n- **Current value**: what the bonds held at the end of the period are worth.\n- **Invested**: money paid in the period: purchases and all fees.\n- **Received**: money received in the period: sales, coupons and redemptions.\n- **Annual return (XIRR)**: the result as a yearly rate.\n- **Compared with alternatives**: what the same money would have made held in US dollars or in a UAH deposit at a rate you enter.\n- **Value and cumulative P&L**: value and P&L at each month end of the period.\n- **Packages**: P&L of each package for the period. The download button exports it to Excel."
       },
       "upcoming": {
         "title": "Upcoming payments",
@@ -384,6 +396,10 @@
       "xirr": {
         "title": "Annual return (XIRR)",
         "body": "**XIRR** is the yearly rate r at which all cash flows of the period sum to zero once discounted. The start value counts as money paid in and the end value as money received:\n= Σ flow ÷ (1 + r) ^ (days since the first flow ÷ 365) = 0\nIt takes into account when each payment happened, so it compares directly with a deposit rate. It is blank when it cannot be determined, e.g. when money only went in or only came out, or everything happened on one day. Over short periods it swings strongly."
+      },
+      "benchmark": {
+        "title": "Compared with alternatives",
+        "body": "The dashboard compares your bonds with two things you could have done with the same money in the same period. Each alternative gets exactly the bonds' money: their value at the start of the period, every payment into them (purchases and fees) on its date, and every amount they paid out (sales, coupons, redemptions) taken out on its date. Opening value, invested and received are therefore the same, and only the end value, P&L and XIRR differ.\n\n- **US dollars in cash**: each payment buys dollars at its operation's USD/UAH rate and each payout sells them at its own rate; the start value buys dollars at the NBU rate of the day before the period. What is left is valued at the NBU rate at the end. Dollars earn nothing, so the USD P&L is zero and the UAH P&L is the hryvnia's move against the dollar.\n- **UAH deposit**: the money earns the rate you enter, compounded so that a full year at 12 % adds exactly 12 %:\n= balance at the end = Σ amount × (1 + rate) ^ (days to the end ÷ 365)\nIts UAH XIRR therefore equals the rate. USD figures convert the end balance at the NBU rate of the end date. The rate is saved for next time.\n\n= bonds ahead by = P&L of the bonds − P&L of the alternative\nPositive means the bonds did better.\n\n> Deposit interest is taxed, while OVDP income is not, so enter the deposit rate after tax to compare like with like. If the bonds paid out more than the alternative would have held, its end value is negative: you would have had to add money to take out as much."
       }
     },
     "explain": "How is this calculated?"

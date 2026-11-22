@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from fastapi import APIRouter
 from fastapi.responses import Response
@@ -6,6 +7,7 @@ from fastapi.responses import Response
 from app.api.deps import SessionDep
 from app.core.i18n import DEFAULT_LANGUAGE, Language
 from app.schemas.reports import (
+    BenchmarkReport,
     LotReport,
     MissedPayment,
     PortfolioReport,
@@ -26,6 +28,17 @@ def portfolio(
     session: SessionDep, start: date | None = None, end: date | None = None
 ) -> PortfolioReport:
     return service.portfolio_report(session, start, end)
+
+
+@router.get("/reports/benchmark")
+def benchmark(
+    session: SessionDep,
+    deposit_rate: Decimal,
+    start: date | None = None,
+    end: date | None = None,
+) -> BenchmarkReport:
+    """deposit_rate is a fraction a year, e.g. 0.12 for 12 %."""
+    return service.benchmark(session, start, end, deposit_rate)
 
 
 @router.get("/reports/lots/{lot_id}")

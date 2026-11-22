@@ -119,7 +119,9 @@ class PeriodPnl:
 
 
 def _cents(value: Decimal) -> Decimal:
-    return value.quantize(CENT, ROUND_HALF_UP)
+    rounded = value.quantize(CENT, ROUND_HALF_UP)
+    # A tiny negative remainder would otherwise reach the UI as "-0.00".
+    return rounded if rounded else abs(rounded)
 
 
 class Portfolio:
@@ -267,8 +269,12 @@ class Portfolio:
         end: date,
         fx_at: FxAt,
         currency: Literal["UAH", "USD"],
+        closing: Amount | None = None,
     ) -> Decimal | None:
-        """Annualized return over the period; None when it cannot be determined."""
+        """Annualized return over the period; None when it cannot be determined.
+
+        `closing` replaces the bonds' value at `end`.
+        """
         ids = list(lot_ids)
         usd = currency == "USD"
         dated: list[tuple[date, Decimal]] = []
@@ -277,10 +283,68 @@ class Portfolio:
             dated.append((start - ONE_DAY, -(opening.usd if usd else opening.uah)))
         for flow in self.flows(ids, start, end):
             dated.append((flow.day, flow.amount_usd if usd else flow.amount_uah))
-        closing = self._value(ids, end, fx_at)
+        if closing is None:
+            closing = self._value(ids, end, fx_at)
         if closing.uah:
             dated.append((end, closing.usd if usd else closing.uah))
         return xirr(dated)
+
+    # --- alternatives ---
+
+    def usd_cash_alternative(
+        self, lot_ids: Iterable[int], start: date, end: date, fx_at: FxAt
+    ) -> "Alternative":
+        """Dollars bought instead of the bonds: the opening value at the NBU rate of the day
+        before `start`, each payment at its operation's USD/UAH rate; withdrawals sell dollars
+        at their operation's rate. Valued at the NBU USD rate of `end`."""
+        ids = list(lot_ids)
+        opening = self._value(ids, start - ONE_DAY, fx_at)
+        dollars = opening.usd - sum((f.amount_usd for f in self.flows(ids, start, end)), Decimal(0))
+        return self._alternative(
+            ids, start, end, fx_at, Amount(dollars * fx_at("USD", end), dollars)
+        )
+
+    def uah_deposit_alternative(
+        self, lot_ids: Iterable[int], start: date, end: date, fx_at: FxAt, rate: Decimal
+    ) -> "Alternative":
+        """A UAH deposit at `rate` a year, compounded so that its UAH XIRR equals `rate`; every
+        payment into the bonds goes onto it and every receipt is withdrawn from it."""
+        ids = list(lot_ids)
+
+        def grown(amount: Decimal, day: date) -> Decimal:
+            return amount * (1 + rate) ** (Decimal((end - day).days) / 365)
+
+        opening = self._value(ids, start - ONE_DAY, fx_at)
+        balance = grown(opening.uah, start - ONE_DAY) - sum(
+            (grown(f.amount_uah, f.day) for f in self.flows(ids, start, end)), Decimal(0)
+        )
+        return self._alternative(
+            ids, start, end, fx_at, Amount(balance, balance / fx_at("USD", end))
+        )
+
+    def _alternative(
+        self, ids: list[int], start: date, end: date, fx_at: FxAt, closing: Amount
+    ) -> "Alternative":
+        actual = self.period_pnl(ids, start, end, fx_at)
+        pnl = closing - actual.opening_value + actual.received - actual.invested
+        return Alternative(
+            closing_value=closing.rounded(),
+            pnl=pnl.rounded(),
+            xirr_uah=self.xirr(ids, start, end, fx_at, "UAH", closing),
+            xirr_usd=self.xirr(ids, start, end, fx_at, "USD", closing),
+        )
+
+
+@dataclass(frozen=True)
+class Alternative:
+    """The bonds' money of a period put elsewhere: the same opening value, invested and received,
+    so only the closing value, P&L and XIRR differ. The closing value goes negative when the
+    bonds paid out more than the alternative would have held."""
+
+    closing_value: Amount
+    pnl: Amount
+    xirr_uah: Decimal | None
+    xirr_usd: Decimal | None
 
 
 # A recorded payment counts for a scheduled one this many days either side of its date.
@@ -374,4 +438,5 @@ def xirr(flows: list[tuple[date, Decimal]]) -> Decimal | None:
             high = mid
         else:
             low, f_low = mid, f_mid
-    return Decimal(str(round((low + high) / 2, 6)))
+    # + 0.0 turns -0.0 into 0.0.
+    return Decimal(str(round((low + high) / 2, 6) + 0.0))

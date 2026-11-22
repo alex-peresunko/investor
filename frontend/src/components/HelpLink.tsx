@@ -15,7 +15,7 @@ export const HELP_SECTIONS = [
   'calculations',
   'data',
 ] as const;
-export const HELP_TOPICS = ['value', 'pnl', 'realized', 'usd', 'xirr'] as const;
+export const HELP_TOPICS = ['value', 'pnl', 'realized', 'usd', 'xirr', 'benchmark'] as const;
 
 export type HelpSection = (typeof HELP_SECTIONS)[number];
 export type HelpTopic = (typeof HELP_TOPICS)[number];

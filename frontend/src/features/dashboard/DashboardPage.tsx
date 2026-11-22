@@ -24,6 +24,7 @@ import { PageTitle } from '@/components/PageTitle';
 import { usePortfolioReport } from '@/api/reportHooks';
 import { PeriodPicker, usePeriod } from '@/components/PeriodPicker';
 import { PnlSplit, Stat } from '@/components/Stat';
+import { BenchmarkCard } from '@/features/reports/BenchmarkCard';
 import { LotsTable } from '@/features/reports/LotsTable';
 import { MissedPaymentsAlert } from '@/features/upcoming/MissedPayments';
 import { ValueChart } from '@/features/reports/ValueChart';
@@ -127,6 +128,7 @@ export function DashboardPage() {
             </Grid.Col>
           </Grid>
           <ValueChart period={period} />
+          <BenchmarkCard period={period} />
           <Paper withBorder>
             <Text fw={600} p="md" pb={0}>
               {t('dashboard.packages')}

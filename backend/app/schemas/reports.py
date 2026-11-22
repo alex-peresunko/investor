@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from app.engine.portfolio import Amount, PeriodPnl
+from app.engine.portfolio import Alternative, Amount, PeriodPnl
 from app.schemas.common import Currency
 
 
@@ -63,6 +63,36 @@ class PortfolioReport(BaseModel):
     xirr_uah: Decimal | None
     xirr_usd: Decimal | None
     lots: list[LotSummary]
+
+
+class AlternativeOut(BaseModel):
+    closing_value: AmountOut
+    pnl: AmountOut
+    xirr_uah: Decimal | None
+    xirr_usd: Decimal | None
+
+    @classmethod
+    def of(cls, alternative: Alternative) -> "AlternativeOut":
+        return cls(
+            closing_value=AmountOut.of(alternative.closing_value),
+            pnl=AmountOut.of(alternative.pnl),
+            xirr_uah=alternative.xirr_uah,
+            xirr_usd=alternative.xirr_usd,
+        )
+
+
+class BenchmarkReport(BaseModel):
+    """The portfolio's P&L for the period next to what the same money would have made elsewhere.
+
+    Every alternative has the same opening value, invested and received as `bonds`.
+    """
+
+    start: date
+    end: date
+    deposit_rate: Decimal
+    bonds: AlternativeOut
+    usd_cash: AlternativeOut
+    uah_deposit: AlternativeOut
 
 
 class FlowOut(BaseModel):

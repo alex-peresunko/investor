@@ -91,6 +91,25 @@ def test_portfolio_report_interview_example(client: TestClient) -> None:
     assert body["realized_xirr_usd"] == body["xirr_usd"]
 
 
+def test_benchmark_interview_example(client: TestClient) -> None:
+    _interview_example(client)
+    response = client.get(
+        "/api/v1/reports/benchmark?start=2025-01-01&end=2026-01-31&deposit_rate=0.15"
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["deposit_rate"] == "0.15"
+    assert body["bonds"]["pnl"] == {"uah": "5000.00", "usd": "62.41"}
+    assert body["usd_cash"]["pnl"]["usd"] == "0.00"
+    assert Decimal(body["uah_deposit"]["pnl"]["uah"]) > Decimal(body["bonds"]["pnl"]["uah"])
+
+
+def test_benchmark_rejects_rate_out_of_range(client: TestClient) -> None:
+    response = client.get("/api/v1/reports/benchmark?deposit_rate=2")
+    assert response.status_code == 422
+    assert response.json()["code"] == "deposit_rate_out_of_range"
+
+
 def test_lot_report_lists_flows(client: TestClient) -> None:
     lot_id = _interview_example(client)
     response = client.get(f"/api/v1/reports/lots/{lot_id}?end=2026-01-31")

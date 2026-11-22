@@ -281,6 +281,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports/benchmark": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Benchmark
+         * @description deposit_rate is a fraction a year, e.g. 0.12 for 12 %.
+         */
+        get: operations["benchmark_api_v1_reports_benchmark_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/lots/{lot_id}": {
         parameters: {
             query?: never;
@@ -442,12 +462,44 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AlternativeOut */
+        AlternativeOut: {
+            closing_value: components["schemas"]["AmountOut"];
+            pnl: components["schemas"]["AmountOut"];
+            /** Xirr Uah */
+            xirr_uah: string | null;
+            /** Xirr Usd */
+            xirr_usd: string | null;
+        };
         /** AmountOut */
         AmountOut: {
             /** Uah */
             uah: string;
             /** Usd */
             usd: string;
+        };
+        /**
+         * BenchmarkReport
+         * @description The portfolio's P&L for the period next to what the same money would have made elsewhere.
+         *
+         *     Every alternative has the same opening value, invested and received as `bonds`.
+         */
+        BenchmarkReport: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Deposit Rate */
+            deposit_rate: string;
+            bonds: components["schemas"]["AlternativeOut"];
+            usd_cash: components["schemas"]["AlternativeOut"];
+            uah_deposit: components["schemas"]["AlternativeOut"];
         };
         /** FlowOut */
         FlowOut: {
@@ -852,6 +904,11 @@ export interface components {
              */
             language: "en" | "uk";
             /**
+             * Deposit Rate
+             * @default 0.12
+             */
+            deposit_rate: string;
+            /**
              * Demo
              * @default false
              */
@@ -864,6 +921,8 @@ export interface components {
         PreferencesUpdate: {
             /** Language */
             language?: ("en" | "uk") | null;
+            /** Deposit Rate */
+            deposit_rate?: number | string | null;
         };
         /** ReceivedPayment */
         ReceivedPayment: {
@@ -1988,6 +2047,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PortfolioReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    benchmark_api_v1_reports_benchmark_get: {
+        parameters: {
+            query: {
+                deposit_rate: number | string;
+                start?: string | null;
+                end?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BenchmarkReport"];
                 };
             };
             /** @description Validation Error */

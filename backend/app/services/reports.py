@@ -5,10 +5,12 @@ from decimal import ROUND_HALF_UP, Decimal
 from sqlalchemy.orm import Session
 
 from app.core.errors import NotFoundError, ValidationError
-from app.engine.portfolio import FxAt, PaymentData, Portfolio, missed_payments
+from app.engine.portfolio import Alternative, FxAt, PaymentData, Portfolio, missed_payments
 from app.models import Instrument
 from app.schemas.reports import (
+    AlternativeOut,
     AmountOut,
+    BenchmarkReport,
     FlowOut,
     LotReport,
     LotSummary,
@@ -95,6 +97,34 @@ def portfolio_report(session: Session, start: date | None, end: date | None) -> 
         xirr_uah=portfolio.xirr(ids, start, end, fx_at, "UAH"),
         xirr_usd=portfolio.xirr(ids, start, end, fx_at, "USD"),
         lots=[_summary(portfolio, instruments, i, start, end, fx_at) for i in ids],
+    )
+
+
+def benchmark(
+    session: Session, start: date | None, end: date | None, deposit_rate: Decimal
+) -> BenchmarkReport:
+    if not 0 <= deposit_rate <= 1:
+        raise ValidationError("deposit_rate_out_of_range")
+    portfolio, _ = load_portfolio(session)
+    start, end = _period(portfolio, start, end)
+    fx_at = fx_lookup(session)
+    ids = _active_lot_ids(portfolio, start, end)
+    totals = portfolio.period_pnl(ids, start, end, fx_at)
+    bonds = Alternative(
+        closing_value=totals.closing_value,
+        pnl=totals.pnl,
+        xirr_uah=portfolio.xirr(ids, start, end, fx_at, "UAH"),
+        xirr_usd=portfolio.xirr(ids, start, end, fx_at, "USD"),
+    )
+    return BenchmarkReport(
+        start=start,
+        end=end,
+        deposit_rate=deposit_rate,
+        bonds=AlternativeOut.of(bonds),
+        usd_cash=AlternativeOut.of(portfolio.usd_cash_alternative(ids, start, end, fx_at)),
+        uah_deposit=AlternativeOut.of(
+            portfolio.uah_deposit_alternative(ids, start, end, fx_at, deposit_rate)
+        ),
     )
 
 
