@@ -36,6 +36,8 @@ def update_instrument(session: Session, instrument_id: int, data: InstrumentIn) 
     other = repo.get_by_isin(session, data.isin)
     if other is not None and other.id != instrument_id:
         raise ConflictError("bond_exists", isin=data.isin)
+    if data.currency != instrument.currency and repo.has_operations(session, instrument_id):
+        raise ConflictError("bond_currency_locked")
     for field, value in data.model_dump().items():
         setattr(instrument, field, value)
     session.flush()

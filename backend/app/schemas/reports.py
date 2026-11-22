@@ -5,6 +5,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 from app.engine.portfolio import Amount, PeriodPnl
+from app.schemas.common import Currency
 
 
 class AmountOut(BaseModel):
@@ -39,6 +40,7 @@ class LotSummary(BaseModel):
     instrument_id: int
     isin: str
     name: str
+    currency: Currency
     trade_date: date
     maturity_date: date
     quantity: Decimal
@@ -66,6 +68,8 @@ class PortfolioReport(BaseModel):
 class FlowOut(BaseModel):
     day: date
     kind: Literal["buy", "sell", "coupon", "redemption", "fee"]
+    # In the bond's currency (LotSummary.currency).
+    amount: Decimal
     amount_uah: Decimal
     fx_rate: Decimal
     amount_usd: Decimal
@@ -90,8 +94,11 @@ class UpcomingPayment(BaseModel):
     isin: str
     name: str
     kind: Literal["coupon", "redemption"]
+    currency: Currency
     amount_per_unit: Decimal
     quantity: Decimal
+    # In `currency`; the UAH and USD figures use today's NBU rates.
+    expected: Decimal
     expected_uah: Decimal
     expected_usd_estimate: Decimal
 
@@ -102,14 +109,16 @@ class MissedPayment(BaseModel):
     isin: str
     name: str
     kind: Literal["coupon", "redemption"]
+    currency: Currency
     amount_per_unit: Decimal
     quantity: Decimal
-    expected_uah: Decimal
+    expected: Decimal
 
 
 class PaymentAllocation(BaseModel):
     lot_id: int
-    amount_uah: Decimal
+    # In the bond's currency.
+    amount: Decimal
     net_income_uah: Decimal
     net_income_usd: Decimal
 
@@ -121,11 +130,15 @@ class ReceivedPayment(BaseModel):
     isin: str
     name: str
     kind: Literal["coupon", "redemption"]
+    currency: Currency
     # Units held at the end of the previous day, which the amount was split over.
     quantity: Decimal
-    total_amount_uah: Decimal
-    fee_uah: Decimal
+    # total_amount and fee are in `currency`; amount_uah and amount_usd convert total_amount at
+    # the payment's own rates.
+    total_amount: Decimal
+    fee: Decimal
     fx_rate: Decimal
+    amount_uah: Decimal
     amount_usd: Decimal
     # Cash minus what was paid for it: for the first coupon after a purchase, the accrued coupon
     # bought with the bonds; for a redemption, the purchase cost of the redeemed bonds excluding

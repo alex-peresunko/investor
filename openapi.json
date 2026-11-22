@@ -1020,14 +1020,28 @@
         }
       }
     },
-    "/api/v1/fx/usd/{day}": {
+    "/api/v1/fx/{currency}/{day}": {
       "get": {
         "tags": [
           "fx"
         ],
-        "summary": "Get Usd Rate",
-        "operationId": "get_usd_rate_api_v1_fx_usd__day__get",
+        "summary": "Get Rate",
+        "description": "Official NBU rate: UAH per 1 unit of `currency`.",
+        "operationId": "get_rate_api_v1_fx__currency___day__get",
         "parameters": [
+          {
+            "name": "currency",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "usd",
+                "eur"
+              ],
+              "type": "string",
+              "title": "Currency"
+            }
+          },
           {
             "name": "day",
             "in": "path",
@@ -1705,6 +1719,10 @@
             ],
             "title": "Kind"
           },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
           "amount_uah": {
             "type": "string",
             "title": "Amount Uah"
@@ -1722,6 +1740,7 @@
         "required": [
           "day",
           "kind",
+          "amount",
           "amount_uah",
           "fx_rate",
           "amount_usd"
@@ -1781,7 +1800,11 @@
           },
           "currency": {
             "type": "string",
-            "const": "UAH",
+            "enum": [
+              "UAH",
+              "USD",
+              "EUR"
+            ],
             "title": "Currency",
             "default": "UAH"
           },
@@ -1859,7 +1882,11 @@
           },
           "currency": {
             "type": "string",
-            "const": "UAH",
+            "enum": [
+              "UAH",
+              "USD",
+              "EUR"
+            ],
             "title": "Currency",
             "default": "UAH"
           },
@@ -1950,7 +1977,7 @@
             ],
             "title": "Price Per Unit"
           },
-          "total_cost_uah": {
+          "total_cost": {
             "anyOf": [
               {
                 "type": "number",
@@ -1960,9 +1987,9 @@
                 "type": "string"
               }
             ],
-            "title": "Total Cost Uah"
+            "title": "Total Cost"
           },
-          "accrued_paid_uah": {
+          "accrued_paid": {
             "anyOf": [
               {
                 "type": "number",
@@ -1972,10 +1999,10 @@
                 "type": "string"
               }
             ],
-            "title": "Accrued Paid Uah",
+            "title": "Accrued Paid",
             "default": "0"
           },
-          "fee_uah": {
+          "fee": {
             "anyOf": [
               {
                 "type": "number",
@@ -1985,7 +2012,7 @@
                 "type": "string"
               }
             ],
-            "title": "Fee Uah",
+            "title": "Fee",
             "default": "0"
           },
           "fx_rate": {
@@ -1999,6 +2026,21 @@
               }
             ],
             "title": "Fx Rate"
+          },
+          "currency_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency Rate"
           },
           "note": {
             "anyOf": [
@@ -2019,7 +2061,7 @@
           "trade_date",
           "quantity",
           "price_per_unit",
-          "total_cost_uah",
+          "total_cost",
           "fx_rate"
         ],
         "title": "LotIn"
@@ -2043,23 +2085,34 @@
             "type": "string",
             "title": "Price Per Unit"
           },
-          "total_cost_uah": {
+          "total_cost": {
             "type": "string",
-            "title": "Total Cost Uah"
+            "title": "Total Cost"
           },
-          "accrued_paid_uah": {
+          "accrued_paid": {
             "type": "string",
-            "title": "Accrued Paid Uah",
+            "title": "Accrued Paid",
             "default": "0"
           },
-          "fee_uah": {
+          "fee": {
             "type": "string",
-            "title": "Fee Uah",
+            "title": "Fee",
             "default": "0"
           },
           "fx_rate": {
             "type": "string",
             "title": "Fx Rate"
+          },
+          "currency_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency Rate"
           },
           "note": {
             "anyOf": [
@@ -2084,7 +2137,7 @@
           "trade_date",
           "quantity",
           "price_per_unit",
-          "total_cost_uah",
+          "total_cost",
           "fx_rate",
           "id"
         ],
@@ -2140,6 +2193,15 @@
             "type": "string",
             "title": "Name"
           },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "UAH",
+              "USD",
+              "EUR"
+            ],
+            "title": "Currency"
+          },
           "trade_date": {
             "type": "string",
             "format": "date",
@@ -2190,6 +2252,7 @@
           "instrument_id",
           "isin",
           "name",
+          "currency",
           "trade_date",
           "maturity_date",
           "quantity",
@@ -2227,6 +2290,15 @@
             ],
             "title": "Kind"
           },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "UAH",
+              "USD",
+              "EUR"
+            ],
+            "title": "Currency"
+          },
           "amount_per_unit": {
             "type": "string",
             "title": "Amount Per Unit"
@@ -2235,9 +2307,9 @@
             "type": "string",
             "title": "Quantity"
           },
-          "expected_uah": {
+          "expected": {
             "type": "string",
-            "title": "Expected Uah"
+            "title": "Expected"
           }
         },
         "type": "object",
@@ -2247,9 +2319,10 @@
           "isin",
           "name",
           "kind",
+          "currency",
           "amount_per_unit",
           "quantity",
-          "expected_uah"
+          "expected"
         ],
         "title": "MissedPayment"
       },
@@ -2259,9 +2332,9 @@
             "type": "integer",
             "title": "Lot Id"
           },
-          "amount_uah": {
+          "amount": {
             "type": "string",
-            "title": "Amount Uah"
+            "title": "Amount"
           },
           "net_income_uah": {
             "type": "string",
@@ -2275,7 +2348,7 @@
         "type": "object",
         "required": [
           "lot_id",
-          "amount_uah",
+          "amount",
           "net_income_uah",
           "net_income_usd"
         ],
@@ -2300,7 +2373,7 @@
             "format": "date",
             "title": "Pay Date"
           },
-          "total_amount_uah": {
+          "total_amount": {
             "anyOf": [
               {
                 "type": "number",
@@ -2310,9 +2383,9 @@
                 "type": "string"
               }
             ],
-            "title": "Total Amount Uah"
+            "title": "Total Amount"
           },
-          "fee_uah": {
+          "fee": {
             "anyOf": [
               {
                 "type": "number",
@@ -2322,7 +2395,7 @@
                 "type": "string"
               }
             ],
-            "title": "Fee Uah",
+            "title": "Fee",
             "default": "0"
           },
           "fx_rate": {
@@ -2336,6 +2409,21 @@
               }
             ],
             "title": "Fx Rate"
+          },
+          "currency_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency Rate"
           },
           "note": {
             "anyOf": [
@@ -2355,7 +2443,7 @@
           "instrument_id",
           "kind",
           "pay_date",
-          "total_amount_uah",
+          "total_amount",
           "fx_rate"
         ],
         "title": "PaymentIn"
@@ -2379,18 +2467,29 @@
             "format": "date",
             "title": "Pay Date"
           },
-          "total_amount_uah": {
+          "total_amount": {
             "type": "string",
-            "title": "Total Amount Uah"
+            "title": "Total Amount"
           },
-          "fee_uah": {
+          "fee": {
             "type": "string",
-            "title": "Fee Uah",
+            "title": "Fee",
             "default": "0"
           },
           "fx_rate": {
             "type": "string",
             "title": "Fx Rate"
+          },
+          "currency_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency Rate"
           },
           "note": {
             "anyOf": [
@@ -2414,7 +2513,7 @@
           "instrument_id",
           "kind",
           "pay_date",
-          "total_amount_uah",
+          "total_amount",
           "fx_rate",
           "id"
         ],
@@ -2609,21 +2708,34 @@
             ],
             "title": "Kind"
           },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "UAH",
+              "USD",
+              "EUR"
+            ],
+            "title": "Currency"
+          },
           "quantity": {
             "type": "string",
             "title": "Quantity"
           },
-          "total_amount_uah": {
+          "total_amount": {
             "type": "string",
-            "title": "Total Amount Uah"
+            "title": "Total Amount"
           },
-          "fee_uah": {
+          "fee": {
             "type": "string",
-            "title": "Fee Uah"
+            "title": "Fee"
           },
           "fx_rate": {
             "type": "string",
             "title": "Fx Rate"
+          },
+          "amount_uah": {
+            "type": "string",
+            "title": "Amount Uah"
           },
           "amount_usd": {
             "type": "string",
@@ -2653,10 +2765,12 @@
           "isin",
           "name",
           "kind",
+          "currency",
           "quantity",
-          "total_amount_uah",
-          "fee_uah",
+          "total_amount",
+          "fee",
           "fx_rate",
+          "amount_uah",
           "amount_usd",
           "net_income_uah",
           "net_income_usd",
@@ -2687,7 +2801,7 @@
             ],
             "title": "Quantity"
           },
-          "total_proceeds_uah": {
+          "total_proceeds": {
             "anyOf": [
               {
                 "type": "number",
@@ -2697,9 +2811,9 @@
                 "type": "string"
               }
             ],
-            "title": "Total Proceeds Uah"
+            "title": "Total Proceeds"
           },
-          "accrued_received_uah": {
+          "accrued_received": {
             "anyOf": [
               {
                 "type": "number",
@@ -2709,10 +2823,10 @@
                 "type": "string"
               }
             ],
-            "title": "Accrued Received Uah",
+            "title": "Accrued Received",
             "default": "0"
           },
-          "fee_uah": {
+          "fee": {
             "anyOf": [
               {
                 "type": "number",
@@ -2722,7 +2836,7 @@
                 "type": "string"
               }
             ],
-            "title": "Fee Uah",
+            "title": "Fee",
             "default": "0"
           },
           "fx_rate": {
@@ -2736,6 +2850,21 @@
               }
             ],
             "title": "Fx Rate"
+          },
+          "currency_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency Rate"
           },
           "note": {
             "anyOf": [
@@ -2755,7 +2884,7 @@
           "lot_id",
           "trade_date",
           "quantity",
-          "total_proceeds_uah",
+          "total_proceeds",
           "fx_rate"
         ],
         "title": "SaleIn"
@@ -2775,23 +2904,34 @@
             "type": "string",
             "title": "Quantity"
           },
-          "total_proceeds_uah": {
+          "total_proceeds": {
             "type": "string",
-            "title": "Total Proceeds Uah"
+            "title": "Total Proceeds"
           },
-          "accrued_received_uah": {
+          "accrued_received": {
             "type": "string",
-            "title": "Accrued Received Uah",
+            "title": "Accrued Received",
             "default": "0"
           },
-          "fee_uah": {
+          "fee": {
             "type": "string",
-            "title": "Fee Uah",
+            "title": "Fee",
             "default": "0"
           },
           "fx_rate": {
             "type": "string",
             "title": "Fx Rate"
+          },
+          "currency_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency Rate"
           },
           "note": {
             "anyOf": [
@@ -2815,7 +2955,7 @@
           "lot_id",
           "trade_date",
           "quantity",
-          "total_proceeds_uah",
+          "total_proceeds",
           "fx_rate",
           "id"
         ],
@@ -2939,6 +3079,15 @@
             ],
             "title": "Kind"
           },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "UAH",
+              "USD",
+              "EUR"
+            ],
+            "title": "Currency"
+          },
           "amount_per_unit": {
             "type": "string",
             "title": "Amount Per Unit"
@@ -2946,6 +3095,10 @@
           "quantity": {
             "type": "string",
             "title": "Quantity"
+          },
+          "expected": {
+            "type": "string",
+            "title": "Expected"
           },
           "expected_uah": {
             "type": "string",
@@ -2963,8 +3116,10 @@
           "isin",
           "name",
           "kind",
+          "currency",
           "amount_per_unit",
           "quantity",
+          "expected",
           "expected_uah",
           "expected_usd_estimate"
         ],

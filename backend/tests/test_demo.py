@@ -29,7 +29,7 @@ def test_seed_builds_a_consistent_portfolio(session: Session) -> None:
     assert has_data(session)
     assert get_preferences(session).demo
 
-    assert session.scalar(select(func.count()).select_from(Lot)) == 12
+    assert session.scalar(select(func.count()).select_from(Lot)) == 13
     assert session.scalar(select(func.count()).select_from(Sale)) == 3
     kinds = dict(session.execute(select(Payment.kind, func.count()).group_by(Payment.kind)).all())
     assert kinds["redemption"] == 2

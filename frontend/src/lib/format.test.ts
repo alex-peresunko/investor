@@ -8,6 +8,7 @@ describe('format', () => {
   });
   it('formats money with currency sign', () => {
     expect(formatMoney('1000', 'USD')).toBe('1 000,00 $');
+    expect(formatMoney('5', 'EUR')).toBe('5,00 €');
   });
   it('formats percent from a fraction', () => {
     expect(formatPercent(0.1534)).toBe('15,34 %');

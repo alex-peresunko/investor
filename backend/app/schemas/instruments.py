@@ -4,7 +4,7 @@ from typing import Annotated, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from app.schemas.common import PaymentKind, PositiveMoney
+from app.schemas.common import Currency, PaymentKind, PositiveMoney
 
 Isin = Annotated[str, Field(pattern=r"^[A-Z]{2}[A-Z0-9]{9}[0-9]$")]
 
@@ -12,7 +12,7 @@ Isin = Annotated[str, Field(pattern=r"^[A-Z]{2}[A-Z0-9]{9}[0-9]$")]
 class InstrumentIn(BaseModel):
     isin: Isin
     name: str = Field(min_length=1, max_length=200)
-    currency: Literal["UAH"] = "UAH"
+    currency: Currency = "UAH"
     face_value: PositiveMoney
     coupon_rate: Annotated[Decimal, Field(ge=0, lt=1, max_digits=9, decimal_places=6)]
     coupon_frequency: Literal[0, 1, 2, 4, 12]

@@ -17,7 +17,8 @@ const MISSED = {
   kind: 'coupon',
   amount_per_unit: '82.500000',
   quantity: '100.000000',
-  expected_uah: '8250.00',
+  currency: 'UAH',
+  expected: '8250.00',
 };
 
 const INSTRUMENT = {

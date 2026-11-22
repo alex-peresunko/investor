@@ -15,9 +15,9 @@ class NbuUnavailableError(Exception):
     pass
 
 
-def fetch_usd_rate(base_url: str, day: date) -> Decimal | None:
-    """Official UAH per 1 USD for `day`, or None when NBU has not published it."""
-    params = {"valcode": "USD", "date": day.strftime("%Y%m%d"), "json": ""}
+def fetch_rate(base_url: str, currency: str, day: date) -> Decimal | None:
+    """Official UAH per 1 unit of `currency` for `day`, or None when NBU has not published it."""
+    params = {"valcode": currency, "date": day.strftime("%Y%m%d"), "json": ""}
     last_error: Exception | None = None
     for attempt in range(1, ATTEMPTS + 1):
         try:

@@ -204,15 +204,18 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/fx/usd/{day}": {
+    "/api/v1/fx/{currency}/{day}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get Usd Rate */
-        get: operations["get_usd_rate_api_v1_fx_usd__day__get"];
+        /**
+         * Get Rate
+         * @description Official NBU rate: UAH per 1 unit of `currency`.
+         */
+        get: operations["get_rate_api_v1_fx__currency___day__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -418,6 +421,8 @@ export interface components {
              * @enum {string}
              */
             kind: "buy" | "sell" | "coupon" | "redemption" | "fee";
+            /** Amount */
+            amount: string;
             /** Amount Uah */
             amount_uah: string;
             /** Fx Rate */
@@ -455,9 +460,9 @@ export interface components {
             /**
              * Currency
              * @default UAH
-             * @constant
+             * @enum {string}
              */
-            currency: "UAH";
+            currency: "UAH" | "USD" | "EUR";
             /** Face Value */
             face_value: number | string;
             /** Coupon Rate */
@@ -487,9 +492,9 @@ export interface components {
             /**
              * Currency
              * @default UAH
-             * @constant
+             * @enum {string}
              */
-            currency: "UAH";
+            currency: "UAH" | "USD" | "EUR";
             /** Face Value */
             face_value: string;
             /** Coupon Rate */
@@ -527,20 +532,22 @@ export interface components {
             quantity: number | string;
             /** Price Per Unit */
             price_per_unit: number | string;
-            /** Total Cost Uah */
-            total_cost_uah: number | string;
+            /** Total Cost */
+            total_cost: number | string;
             /**
-             * Accrued Paid Uah
+             * Accrued Paid
              * @default 0
              */
-            accrued_paid_uah: number | string;
+            accrued_paid: number | string;
             /**
-             * Fee Uah
+             * Fee
              * @default 0
              */
-            fee_uah: number | string;
+            fee: number | string;
             /** Fx Rate */
             fx_rate: number | string;
+            /** Currency Rate */
+            currency_rate?: number | string | null;
             /** Note */
             note?: string | null;
         };
@@ -557,20 +564,22 @@ export interface components {
             quantity: string;
             /** Price Per Unit */
             price_per_unit: string;
-            /** Total Cost Uah */
-            total_cost_uah: string;
+            /** Total Cost */
+            total_cost: string;
             /**
-             * Accrued Paid Uah
+             * Accrued Paid
              * @default 0
              */
-            accrued_paid_uah: string;
+            accrued_paid: string;
             /**
-             * Fee Uah
+             * Fee
              * @default 0
              */
-            fee_uah: string;
+            fee: string;
             /** Fx Rate */
             fx_rate: string;
+            /** Currency Rate */
+            currency_rate?: string | null;
             /** Note */
             note?: string | null;
             /** Id */
@@ -602,6 +611,11 @@ export interface components {
             isin: string;
             /** Name */
             name: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "UAH" | "USD" | "EUR";
             /**
              * Trade Date
              * Format: date
@@ -640,19 +654,24 @@ export interface components {
              * @enum {string}
              */
             kind: "coupon" | "redemption";
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "UAH" | "USD" | "EUR";
             /** Amount Per Unit */
             amount_per_unit: string;
             /** Quantity */
             quantity: string;
-            /** Expected Uah */
-            expected_uah: string;
+            /** Expected */
+            expected: string;
         };
         /** PaymentAllocation */
         PaymentAllocation: {
             /** Lot Id */
             lot_id: number;
-            /** Amount Uah */
-            amount_uah: string;
+            /** Amount */
+            amount: string;
             /** Net Income Uah */
             net_income_uah: string;
             /** Net Income Usd */
@@ -672,15 +691,17 @@ export interface components {
              * Format: date
              */
             pay_date: string;
-            /** Total Amount Uah */
-            total_amount_uah: number | string;
+            /** Total Amount */
+            total_amount: number | string;
             /**
-             * Fee Uah
+             * Fee
              * @default 0
              */
-            fee_uah: number | string;
+            fee: number | string;
             /** Fx Rate */
             fx_rate: number | string;
+            /** Currency Rate */
+            currency_rate?: number | string | null;
             /** Note */
             note?: string | null;
         };
@@ -698,15 +719,17 @@ export interface components {
              * Format: date
              */
             pay_date: string;
-            /** Total Amount Uah */
-            total_amount_uah: string;
+            /** Total Amount */
+            total_amount: string;
             /**
-             * Fee Uah
+             * Fee
              * @default 0
              */
-            fee_uah: string;
+            fee: string;
             /** Fx Rate */
             fx_rate: string;
+            /** Currency Rate */
+            currency_rate?: string | null;
             /** Note */
             note?: string | null;
             /** Id */
@@ -788,14 +811,21 @@ export interface components {
              * @enum {string}
              */
             kind: "coupon" | "redemption";
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "UAH" | "USD" | "EUR";
             /** Quantity */
             quantity: string;
-            /** Total Amount Uah */
-            total_amount_uah: string;
-            /** Fee Uah */
-            fee_uah: string;
+            /** Total Amount */
+            total_amount: string;
+            /** Fee */
+            fee: string;
             /** Fx Rate */
             fx_rate: string;
+            /** Amount Uah */
+            amount_uah: string;
             /** Amount Usd */
             amount_usd: string;
             /** Net Income Uah */
@@ -816,20 +846,22 @@ export interface components {
             trade_date: string;
             /** Quantity */
             quantity: number | string;
-            /** Total Proceeds Uah */
-            total_proceeds_uah: number | string;
+            /** Total Proceeds */
+            total_proceeds: number | string;
             /**
-             * Accrued Received Uah
+             * Accrued Received
              * @default 0
              */
-            accrued_received_uah: number | string;
+            accrued_received: number | string;
             /**
-             * Fee Uah
+             * Fee
              * @default 0
              */
-            fee_uah: number | string;
+            fee: number | string;
             /** Fx Rate */
             fx_rate: number | string;
+            /** Currency Rate */
+            currency_rate?: number | string | null;
             /** Note */
             note?: string | null;
         };
@@ -844,20 +876,22 @@ export interface components {
             trade_date: string;
             /** Quantity */
             quantity: string;
-            /** Total Proceeds Uah */
-            total_proceeds_uah: string;
+            /** Total Proceeds */
+            total_proceeds: string;
             /**
-             * Accrued Received Uah
+             * Accrued Received
              * @default 0
              */
-            accrued_received_uah: string;
+            accrued_received: string;
             /**
-             * Fee Uah
+             * Fee
              * @default 0
              */
-            fee_uah: string;
+            fee: string;
             /** Fx Rate */
             fx_rate: string;
+            /** Currency Rate */
+            currency_rate?: string | null;
             /** Note */
             note?: string | null;
             /** Id */
@@ -923,10 +957,17 @@ export interface components {
              * @enum {string}
              */
             kind: "coupon" | "redemption";
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "UAH" | "USD" | "EUR";
             /** Amount Per Unit */
             amount_per_unit: string;
             /** Quantity */
             quantity: string;
+            /** Expected */
+            expected: string;
             /** Expected Uah */
             expected_uah: string;
             /** Expected Usd Estimate */
@@ -1698,11 +1739,12 @@ export interface operations {
             };
         };
     };
-    get_usd_rate_api_v1_fx_usd__day__get: {
+    get_rate_api_v1_fx__currency___day__get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
+                currency: "usd" | "eur";
                 day: string;
             };
             cookie?: never;

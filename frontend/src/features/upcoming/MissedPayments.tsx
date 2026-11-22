@@ -27,9 +27,10 @@ export function MissedPaymentsAlert() {
 
 const draftOf = (item: MissedPayment): PaymentDraft => ({
   instrument_id: item.instrument_id,
+  currency: item.currency,
   kind: item.kind,
   pay_date: item.pay_date,
-  total_amount_uah: item.expected_uah,
+  total_amount: item.expected,
 });
 
 /** Table of due but unrecorded payments, each with a button that opens a prefilled payment form. */
@@ -58,7 +59,7 @@ export function MissedPaymentsTable() {
                 <Table.Th>{t('common.type')}</Table.Th>
                 <Table.Th>{t('common.bond')}</Table.Th>
                 <Table.Th ta="right">{t('common.bondsHeld')}</Table.Th>
-                <Table.Th ta="right">{t('upcoming.expectedUah')}</Table.Th>
+                <Table.Th ta="right">{t('upcoming.expected')}</Table.Th>
                 <Table.Th />
               </Table.Tr>
             </Table.Thead>
@@ -81,7 +82,7 @@ export function MissedPaymentsTable() {
                   </Table.Td>
                   <Table.Td ta="right">{formatNumber(item.quantity, 0)}</Table.Td>
                   <Table.Td ta="right" fw={600}>
-                    {formatMoney(item.expected_uah, 'UAH')}
+                    {formatMoney(item.expected, item.currency)}
                   </Table.Td>
                   <Table.Td ta="right">
                     <Button size="xs" variant="light" onClick={() => setDraft(draftOf(item))}>

@@ -89,3 +89,15 @@ def test_cached_nbu_rate_preferred_over_operation_rate(client: TestClient) -> No
     make_lot(client, make_instrument(client)["id"], fx_rate="40")
     first = client.get("/api/v1/reports/upcoming").json()[0]
     assert Decimal(first["expected_usd_estimate"]) == round(Decimal(first["expected_uah"]) / 44, 2)
+
+
+@respx.mock
+def test_eur_rate_is_fetched_and_cached_separately(client: TestClient) -> None:
+    route = respx.get(NBU).mock(return_value=httpx.Response(200, text=_nbu_row("48.9", "x")))
+
+    eur = client.get("/api/v1/fx/eur/2025-03-03")
+
+    assert eur.status_code == 200
+    assert eur.json()["rate"] == "48.900000"
+    assert route.calls[0].request.url.params["valcode"] == "EUR"
+    assert client.get("/api/v1/fx/gbp/2025-03-03").status_code == 422

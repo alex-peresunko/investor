@@ -18,10 +18,12 @@ class LotIn(BaseModel):
     trade_date: date
     quantity: Quantity
     price_per_unit: UnitPrice
-    total_cost_uah: PositiveMoney
-    accrued_paid_uah: NonNegativeMoney = NonNegativeMoney(0)
-    fee_uah: NonNegativeMoney = NonNegativeMoney(0)
+    total_cost: PositiveMoney
+    accrued_paid: NonNegativeMoney = NonNegativeMoney(0)
+    fee: NonNegativeMoney = NonNegativeMoney(0)
     fx_rate: FxRate
+    # UAH per 1 unit of the bond's currency; required for EUR bonds, absent otherwise.
+    currency_rate: FxRate | None = None
     note: Note
 
 
@@ -35,10 +37,12 @@ class SaleIn(BaseModel):
     lot_id: int
     trade_date: date
     quantity: Quantity
-    total_proceeds_uah: PositiveMoney
-    accrued_received_uah: NonNegativeMoney = NonNegativeMoney(0)
-    fee_uah: NonNegativeMoney = NonNegativeMoney(0)
+    total_proceeds: PositiveMoney
+    accrued_received: NonNegativeMoney = NonNegativeMoney(0)
+    fee: NonNegativeMoney = NonNegativeMoney(0)
     fx_rate: FxRate
+    # UAH per 1 unit of the bond's currency; required for EUR bonds, absent otherwise.
+    currency_rate: FxRate | None = None
     note: Note
 
 
@@ -52,9 +56,11 @@ class PaymentIn(BaseModel):
     instrument_id: int
     kind: PaymentKind
     pay_date: date
-    total_amount_uah: PositiveMoney
-    fee_uah: NonNegativeMoney = NonNegativeMoney(0)
+    total_amount: PositiveMoney
+    fee: NonNegativeMoney = NonNegativeMoney(0)
     fx_rate: FxRate
+    # UAH per 1 unit of the bond's currency; required for EUR bonds, absent otherwise.
+    currency_rate: FxRate | None = None
     note: Note
 
 

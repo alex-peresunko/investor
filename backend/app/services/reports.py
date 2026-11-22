@@ -50,6 +50,7 @@ def _summary(
         instrument_id=lot.instrument_id,
         isin=instrument.isin,
         name=instrument.name,
+        currency=instrument.currency,
         trade_date=lot.trade_date,
         maturity_date=instrument.maturity_date,
         quantity=lot.quantity,
@@ -113,7 +114,8 @@ def lot_report(session: Session, lot_id: int, start: date | None, end: date | No
             FlowOut(
                 day=f.day,
                 kind=f.kind,
-                amount_uah=f.amount_uah,
+                amount=f.amount,
+                amount_uah=f.amount_uah.quantize(CENT, ROUND_HALF_UP),
                 fx_rate=f.fx_rate,
                 amount_usd=f.amount_usd.quantize(CENT, ROUND_HALF_UP),
             )
@@ -163,7 +165,7 @@ def upcoming(session: Session, months: int) -> list[UpcomingPayment]:
     portfolio, instruments = load_portfolio(session)
     today = date.today()  # noqa: DTZ011
     horizon = today + timedelta(days=round(months * 30.44))
-    fx_today = fx_lookup(session)(today)
+    fx_at = fx_lookup(session)
     result = []
     for instrument in instruments.values():
         held = sum(
@@ -179,6 +181,7 @@ def upcoming(session: Session, months: int) -> list[UpcomingPayment]:
         for item in instrument.schedule:
             if today < item.pay_date <= horizon:
                 expected = (item.amount_per_unit * held).quantize(CENT, ROUND_HALF_UP)
+                expected_uah = expected * fx_at(instrument.currency, today)
                 result.append(
                     UpcomingPayment(
                         pay_date=item.pay_date,
@@ -186,10 +189,14 @@ def upcoming(session: Session, months: int) -> list[UpcomingPayment]:
                         isin=instrument.isin,
                         name=instrument.name,
                         kind="redemption" if item.kind == "redemption" else "coupon",
+                        currency=instrument.currency,
                         amount_per_unit=item.amount_per_unit,
                         quantity=held,
-                        expected_uah=expected,
-                        expected_usd_estimate=(expected / fx_today).quantize(CENT, ROUND_HALF_UP),
+                        expected=expected,
+                        expected_uah=expected_uah.quantize(CENT, ROUND_HALF_UP),
+                        expected_usd_estimate=(expected_uah / fx_at("USD", today)).quantize(
+                            CENT, ROUND_HALF_UP
+                        ),
                     )
                 )
     return sorted(result, key=lambda p: (p.pay_date, p.isin, p.kind))
@@ -204,9 +211,10 @@ def missed(session: Session) -> list[MissedPayment]:
             isin=instruments[m.instrument_id].isin,
             name=instruments[m.instrument_id].name,
             kind=m.item.kind,
+            currency=instruments[m.instrument_id].currency,
             amount_per_unit=m.item.amount_per_unit,
             quantity=m.quantity,
-            expected_uah=(m.item.amount_per_unit * m.quantity).quantize(CENT, ROUND_HALF_UP),
+            expected=(m.item.amount_per_unit * m.quantity).quantize(CENT, ROUND_HALF_UP),
         )
         for m in missed_payments(portfolio, date.today())  # noqa: DTZ011
     ]
@@ -215,10 +223,11 @@ def missed(session: Session) -> list[MissedPayment]:
 def _attributed_cost(
     portfolio: Portfolio, payment: PaymentData, lot_id: int, units: Decimal
 ) -> Decimal:
-    """Purchase cost that `payment` pays back for `units` of the lot; see ReceivedPayment."""
+    """Purchase cost, in the bond's currency, that `payment` pays back for `units` of the lot;
+    see ReceivedPayment."""
     lot = portfolio.lots[lot_id]
     if payment.kind == "redemption":
-        return (lot.total_cost_uah - lot.accrued_paid_uah + lot.fee_uah) / lot.quantity * units
+        return (lot.total_cost - lot.accrued_paid + lot.fee) / lot.quantity * units
     first_coupon = min(
         (
             p.pay_date
@@ -231,7 +240,7 @@ def _attributed_cost(
     )
     if payment.pay_date != first_coupon:
         return Decimal(0)
-    return lot.accrued_paid_uah / lot.quantity * units
+    return lot.accrued_paid / lot.quantity * units
 
 
 def received(session: Session, start: date | None, end: date | None) -> list[ReceivedPayment]:
@@ -247,15 +256,17 @@ def received(session: Session, start: date | None, end: date | None) -> list[Rec
         allocations = []
         for lot_id, (amount, fee) in sorted(shares.items()):
             units = portfolio.open_quantity(lot_id, record_day)
-            cost = _attributed_cost(portfolio, payment, lot_id, units)
+            lot = portfolio.lots[lot_id]
+            cash_uah = (amount - fee) * payment.uah_rate
+            cost_uah = _attributed_cost(portfolio, payment, lot_id, units) * lot.uah_rate
             allocations.append(
                 PaymentAllocation(
                     lot_id=lot_id,
-                    amount_uah=amount,
-                    net_income_uah=(amount - fee - cost).quantize(CENT, ROUND_HALF_UP),
-                    net_income_usd=(
-                        (amount - fee) / payment.fx_rate - cost / portfolio.lots[lot_id].fx_rate
-                    ).quantize(CENT, ROUND_HALF_UP),
+                    amount=amount,
+                    net_income_uah=(cash_uah - cost_uah).quantize(CENT, ROUND_HALF_UP),
+                    net_income_usd=(cash_uah / payment.fx_rate - cost_uah / lot.fx_rate).quantize(
+                        CENT, ROUND_HALF_UP
+                    ),
                 )
             )
         result.append(
@@ -266,13 +277,15 @@ def received(session: Session, start: date | None, end: date | None) -> list[Rec
                 isin=instrument.isin,
                 name=instrument.name,
                 kind=payment.kind,
+                currency=instrument.currency,
                 quantity=sum(
                     (portfolio.open_quantity(lot_id, record_day) for lot_id in shares), Decimal(0)
                 ),
-                total_amount_uah=payment.total_amount_uah,
-                fee_uah=payment.fee_uah,
+                total_amount=payment.total_amount,
+                fee=payment.fee,
                 fx_rate=payment.fx_rate,
-                amount_usd=(payment.total_amount_uah / payment.fx_rate).quantize(
+                amount_uah=(payment.total_amount * payment.uah_rate).quantize(CENT, ROUND_HALF_UP),
+                amount_usd=(payment.total_amount * payment.uah_rate / payment.fx_rate).quantize(
                     CENT, ROUND_HALF_UP
                 ),
                 net_income_uah=sum((a.net_income_uah for a in allocations), Decimal(0)),

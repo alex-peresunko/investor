@@ -3,6 +3,7 @@ import type { components } from './schema';
 type Schemas = components['schemas'];
 
 export type Instrument = Schemas['InstrumentOut'];
+export type Currency = Instrument['currency'];
 export type InstrumentInput = Schemas['InstrumentIn'];
 export type ScheduledPayment = Schemas['ScheduledPaymentOut'];
 export type ScheduledPaymentInput = Schemas['ScheduledPaymentIn'];

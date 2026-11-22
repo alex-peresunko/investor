@@ -26,9 +26,9 @@ def make_lot(client: TestClient, instrument_id: int, **overrides: Any) -> dict[s
         "trade_date": "2026-01-10",
         "quantity": "100",
         "price_per_unit": "1010",
-        "total_cost_uah": "101000",
-        "accrued_paid_uah": "1500",
-        "fee_uah": "0",
+        "total_cost": "101000",
+        "accrued_paid": "1500",
+        "fee": "0",
         "fx_rate": "42.1",
         **overrides,
     }
@@ -43,7 +43,7 @@ def make_sale(client: TestClient, lot_id: int, **overrides: Any) -> dict[str, An
         "lot_id": lot_id,
         "trade_date": "2026-04-10",
         "quantity": "40",
-        "total_proceeds_uah": "41000",
+        "total_proceeds": "41000",
         "fx_rate": "41.8",
         **overrides,
     }

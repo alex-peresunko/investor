@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from decimal import Decimal
 
 from sqlalchemy.orm import Session
 
@@ -14,6 +15,14 @@ def _instrument_for(session: Session, instrument_id: int) -> Instrument:
     if instrument is None:
         raise ValidationError("bond_missing", id=instrument_id)
     return instrument
+
+
+def _check_currency_rate(instrument: Instrument, currency_rate: Decimal | None) -> None:
+    needs_rate = instrument.currency not in ("UAH", "USD")
+    if needs_rate and currency_rate is None:
+        raise ValidationError("currency_rate_required", currency=instrument.currency)
+    if not needs_rate and currency_rate is not None:
+        raise ValidationError("currency_rate_not_applicable", currency=instrument.currency)
 
 
 def _ensure_payments_held(session: Session, *instrument_ids: int) -> None:
@@ -43,6 +52,7 @@ def get_lot(session: Session, lot_id: int) -> Lot:
 def _check_lot(instrument: Instrument, data: LotIn) -> None:
     if not instrument.issue_date <= data.trade_date < instrument.maturity_date:
         raise ValidationError("purchase_date_out_of_range")
+    _check_currency_rate(instrument, data.currency_rate)
 
 
 def create_lot(session: Session, data: LotIn) -> Lot:
@@ -102,6 +112,7 @@ def _check_sale(session: Session, data: SaleIn, sale_id: int | None) -> None:
     instrument = _instrument_for(session, lot.instrument_id)
     if not lot.trade_date <= data.trade_date < instrument.maturity_date:
         raise ValidationError("sale_date_out_of_range")
+    _check_currency_rate(instrument, data.currency_rate)
     available = lot.quantity - repo.sold_quantity(session, lot.id, exclude_sale_id=sale_id)
     if data.quantity > available:
         raise ValidationError("sale_exceeds_available", available=f"{available.normalize():f}")
@@ -153,7 +164,7 @@ def get_payment(session: Session, payment_id: int) -> Payment:
 
 
 def _check_payment(session: Session, data: PaymentIn) -> None:
-    _instrument_for(session, data.instrument_id)
+    _check_currency_rate(_instrument_for(session, data.instrument_id), data.currency_rate)
     if repo.held_quantity_before(session, data.instrument_id, data.pay_date) <= 0:
         raise ValidationError("payment_without_holdings")
 

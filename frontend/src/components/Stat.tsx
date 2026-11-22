@@ -26,7 +26,7 @@ export function MoneyText({
   signed = false,
 }: {
   value: number | string;
-  currency: 'UAH' | 'USD';
+  currency: string;
   signed?: boolean;
 }) {
   const n = Number(value);

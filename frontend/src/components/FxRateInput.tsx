@@ -8,14 +8,15 @@ import { MoneyInput } from './MoneyInput';
 interface Props extends NumberInputProps {
   onRefresh: () => void;
   loading: boolean;
+  currency?: 'USD' | 'EUR';
 }
 
-/** USD/UAH rate field; prefilled from NBU by the parent form, always editable. */
-export function FxRateInput({ onRefresh, loading, ...props }: Props) {
+/** Rate field (UAH per 1 unit of `currency`); prefilled from NBU by the parent form, editable. */
+export function FxRateInput({ onRefresh, loading, currency = 'USD', ...props }: Props) {
   const { t } = useTranslation();
   return (
     <MoneyInput
-      label={t('fx.label')}
+      label={t('fx.label', { currency })}
       description={t('fx.description')}
       decimalScale={6}
       rightSection={

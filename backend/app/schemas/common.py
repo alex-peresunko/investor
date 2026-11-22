@@ -4,6 +4,7 @@ from typing import Annotated, Literal
 from pydantic import Field
 
 PaymentKind = Literal["coupon", "redemption"]
+Currency = Literal["UAH", "USD", "EUR"]
 
 Money = Annotated[Decimal, Field(max_digits=18, decimal_places=2)]
 PositiveMoney = Annotated[Decimal, Field(gt=0, max_digits=18, decimal_places=2)]

@@ -7,6 +7,7 @@ MESSAGES: dict[str, str] = {
     "bond_not_found": "Bond {id} not found",
     "bond_exists": "Bond {isin} already exists",
     "bond_has_operations": "Delete this bond's packages and payments first",
+    "bond_currency_locked": "Cannot change the currency of a bond that has operations",
     "schedule_duplicate_date": "Each date can have only one coupon and one redemption",
     "schedule_multiple_redemptions": "A bond can have only one redemption",
     "bond_missing": "Bond {id} does not exist",
@@ -30,6 +31,8 @@ MESSAGES: dict[str, str] = {
         "The payment of {date} would have no packages held the day before it; "
         "change or delete that payment first"
     ),
+    "currency_rate_required": "Enter the UAH rate for {currency}",
+    "currency_rate_not_applicable": "A {currency} bond takes no separate currency rate",
     "fx_future_date": "No official rate for a future date",
     "fx_unavailable": "NBU rate service is unavailable; enter the rate manually",
     "fx_no_rate": "NBU has no rate for this date; enter the rate manually",

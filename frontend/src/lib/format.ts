@@ -15,8 +15,10 @@ export function formatNumber(value: number | string, fractionDigits = 2): string
   return fmt.format(Number(value)).replace(/[\u00a0\u202f]/g, ' ');
 }
 
-export function formatMoney(value: number | string, currency: 'UAH' | 'USD'): string {
-  return `${formatNumber(value)} ${currency === 'UAH' ? '₴' : '$'}`;
+const CURRENCY_SIGNS: Record<string, string> = { UAH: '₴', USD: '$', EUR: '€' };
+
+export function formatMoney(value: number | string, currency: string): string {
+  return `${formatNumber(value)} ${CURRENCY_SIGNS[currency] ?? currency}`;
 }
 
 export function formatPercent(value: number | string | null | undefined): string {

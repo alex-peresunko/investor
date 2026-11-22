@@ -2,6 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from app.engine.portfolio import (
+    Amount,
     BondTerms,
     FxAt,
     LotData,
@@ -56,7 +57,7 @@ def payment(
 
 
 def fx_const(rate: str) -> FxAt:
-    return lambda _day: D(rate)
+    return lambda currency, _day: D(1) if currency == "UAH" else D(rate)
 
 
 def test_interview_example_usd_includes_currency_loss() -> None:
@@ -130,7 +131,7 @@ def test_value_amortizes_clean_price_to_face_value() -> None:
     # Clean cost 995.00 per unit; at maturity the clean value reaches face value 1000.
     assert p.unit_value(1, date(2026, 1, 10)) == D("995") + D("82.50") * 131 / 181
     assert p.unit_value(1, date(2027, 9, 1)) == D("1000")
-    assert round(p.value_uah(1, date(2026, 1, 10)), 2) == D("105470.99")
+    assert round(p.value(1, date(2026, 1, 10)), 2) == D("105470.99")
 
 
 def test_period_pnl_starting_mid_holding() -> None:
@@ -227,3 +228,45 @@ def test_one_recorded_payment_matches_one_scheduled_payment() -> None:
     missed = missed_payments(portfolio, date(2026, 3, 1))
 
     assert [m.item.pay_date for m in missed] == [date(2026, 3, 1)]
+
+
+def test_usd_bond_converts_flows_at_their_own_rate_and_values_at_the_valuation_rate() -> None:
+    usd_bond = BondTerms(
+        instrument_id=1,
+        face_value=D("1000"),
+        issue_date=date(2025, 1, 1),
+        maturity_date=date(2027, 1, 1),
+        schedule=(),
+        currency="USD",
+    )
+    bought = LotData(1, 1, date(2025, 1, 1), D("10"), D("10000"), D("0"), D("0"), D("40"), D("40"))
+    redeemed = PaymentData(
+        1, 1, "redemption", date(2027, 1, 1), D("10000"), D("0"), D("42"), D("42")
+    )
+    p = Portfolio({1: usd_bond}, [bought], [], [redeemed])
+
+    closed = p.period_pnl([1], date(2025, 1, 1), date(2027, 1, 1), fx_const("42"))
+    assert (closed.pnl.uah, closed.pnl.usd) == (D("20000.00"), D("0.00"))
+
+    held = p.period_pnl([1], date(2025, 1, 1), date(2026, 1, 1), fx_const("41"))
+    assert held.closing_value == Amount(D("410000.00"), D("10000.00"))
+
+
+def test_eur_bond_values_at_eur_rate_and_reports_usd_through_uah() -> None:
+    eur_bond = BondTerms(
+        instrument_id=1,
+        face_value=D("1000"),
+        issue_date=date(2025, 1, 1),
+        maturity_date=date(2027, 1, 1),
+        schedule=(),
+        currency="EUR",
+    )
+    bought = LotData(1, 1, date(2025, 1, 1), D("1"), D("1000"), D("0"), D("0"), D("40"), D("44"))
+    p = Portfolio({1: eur_bond}, [bought], [], [])
+
+    def rates(currency: str, _day: date) -> Decimal:
+        return {"UAH": D("1"), "USD": D("40"), "EUR": D("46")}[currency]
+
+    result = p.period_pnl([1], date(2025, 1, 1), date(2026, 1, 1), rates)
+    assert result.invested == Amount(D("44000.00"), D("1100.00"))
+    assert result.closing_value == Amount(D("46000.00"), D("1150.00"))

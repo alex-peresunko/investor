@@ -11,6 +11,7 @@ class Instrument(TimestampMixin, Base):
     __tablename__ = "instrument"
     __table_args__ = (
         CheckConstraint("kind IN ('bond')", name="kind"),
+        CheckConstraint("currency IN ('UAH', 'USD', 'EUR')", name="currency"),
         CheckConstraint("face_value > 0", name="face_value_positive"),
         CheckConstraint("coupon_rate >= 0", name="coupon_rate_non_negative"),
         CheckConstraint("coupon_frequency IN (0, 1, 2, 4, 12)", name="coupon_frequency"),
@@ -21,6 +22,7 @@ class Instrument(TimestampMixin, Base):
     kind: Mapped[str] = mapped_column(String(16), default="bond")
     isin: Mapped[str] = mapped_column(String(12), unique=True)
     name: Mapped[str] = mapped_column(String(200))
+    # Face value, schedule and every operation amount of the bond are in this currency.
     currency: Mapped[str] = mapped_column(String(3), default="UAH")
     face_value: Mapped[Decimal] = mapped_column(Numeric(18, 2))
     # Annual rate as a fraction: 0.165 means 16.5 %.

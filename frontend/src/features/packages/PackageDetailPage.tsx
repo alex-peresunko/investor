@@ -49,6 +49,7 @@ const sortColumns = (t: TFunction) =>
   ({
     date: (f) => f.day,
     type: (f) => t(FLOW_LABEL[f.kind]),
+    native: (f) => Number(f.amount),
     uah: (f) => Number(f.amount_uah),
     fx: (f) => Number(f.fx_rate),
     usd: (f) => Number(f.amount_usd),
@@ -165,6 +166,11 @@ export function PackageDetailPage() {
               <Table.Tr>
                 <SortTh {...sort.th('date')}>{t('common.date')}</SortTh>
                 <SortTh {...sort.th('type')}>{t('common.type')}</SortTh>
+                {summary.currency === 'EUR' && (
+                  <SortTh ta="right" {...sort.th('native')}>
+                    {t('packageDetail.amountNative', { currency: summary.currency })}
+                  </SortTh>
+                )}
                 <SortTh ta="right" {...sort.th('uah')}>
                   {t('common.amountUah')}
                 </SortTh>
@@ -181,6 +187,11 @@ export function PackageDetailPage() {
                 <Table.Tr key={flow.key}>
                   <Table.Td>{formatDate(flow.day)}</Table.Td>
                   <Table.Td>{t(FLOW_LABEL[flow.kind])}</Table.Td>
+                  {summary.currency === 'EUR' && (
+                    <Table.Td ta="right">
+                      <MoneyText value={flow.amount} currency={summary.currency} signed />
+                    </Table.Td>
+                  )}
                   <Table.Td ta="right">
                     <MoneyText value={flow.amount_uah} currency="UAH" signed />
                   </Table.Td>

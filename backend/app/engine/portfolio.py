@@ -11,7 +11,8 @@ CENT = Decimal("0.01")
 ONE_DAY = timedelta(days=1)
 
 FlowKind = Literal["buy", "sell", "coupon", "redemption", "fee"]
-FxAt = Callable[[date], Decimal]
+# UAH per 1 unit of `currency` at the end of `day`; must return 1 for "UAH".
+FxAt = Callable[[str, date], Decimal]
 
 
 @dataclass(frozen=True)
@@ -21,6 +22,7 @@ class BondTerms:
     issue_date: date
     maturity_date: date
     schedule: tuple[ScheduleItem, ...]
+    currency: str = "UAH"
 
 
 @dataclass(frozen=True)
@@ -29,10 +31,11 @@ class LotData:
     instrument_id: int
     trade_date: date
     quantity: Decimal
-    total_cost_uah: Decimal
-    accrued_paid_uah: Decimal
-    fee_uah: Decimal
+    total_cost: Decimal
+    accrued_paid: Decimal
+    fee: Decimal
     fx_rate: Decimal
+    uah_rate: Decimal = Decimal(1)
 
 
 @dataclass(frozen=True)
@@ -41,9 +44,10 @@ class SaleData:
     lot_id: int
     trade_date: date
     quantity: Decimal
-    total_proceeds_uah: Decimal
-    fee_uah: Decimal
+    total_proceeds: Decimal
+    fee: Decimal
     fx_rate: Decimal
+    uah_rate: Decimal = Decimal(1)
 
 
 @dataclass(frozen=True)
@@ -52,20 +56,29 @@ class PaymentData:
     instrument_id: int
     kind: PaymentKind
     pay_date: date
-    total_amount_uah: Decimal
-    fee_uah: Decimal
+    total_amount: Decimal
+    fee: Decimal
     fx_rate: Decimal
+    uah_rate: Decimal = Decimal(1)
 
 
 @dataclass(frozen=True)
 class CashFlow:
-    """Signed from the investor's view: inflows positive, outflows negative."""
+    """Signed from the investor's view: inflows positive, outflows negative.
+
+    `amount` is in the bond's currency; `uah_rate` converts it to UAH, `fx_rate` UAH to USD.
+    """
 
     lot_id: int
     day: date
     kind: FlowKind
-    amount_uah: Decimal
+    amount: Decimal
+    uah_rate: Decimal
     fx_rate: Decimal
+
+    @property
+    def amount_uah(self) -> Decimal:
+        return self.amount * self.uah_rate
 
     @property
     def amount_usd(self) -> Decimal:
@@ -155,7 +168,7 @@ class Portfolio:
     def allocate(self, payment: PaymentData) -> dict[int, tuple[Decimal, Decimal]]:
         """Splits amount and fee pro rata to units held the day before the payment.
 
-        Returns {lot_id: (amount_uah, fee_uah)}; each column sums exactly to the payment's value,
+        Returns {lot_id: (amount_uah, fee)}; each column sums exactly to the payment's value,
         rounding leftovers going to the largest holding (lowest id on ties).
         """
         record_day = payment.pay_date - ONE_DAY
@@ -167,48 +180,57 @@ class Portfolio:
         }
         if not holdings:
             return {}
-        amounts = _split(payment.total_amount_uah, holdings)
-        fees = _split(payment.fee_uah, holdings)
+        amounts = _split(payment.total_amount, holdings)
+        fees = _split(payment.fee, holdings)
         return {lot_id: (amounts[lot_id], fees[lot_id]) for lot_id in holdings}
 
     def _add_trade_flows(self, lot: LotData) -> None:
         flows = self.flows_by_lot[lot.id]
-        flows.append(CashFlow(lot.id, lot.trade_date, "buy", -lot.total_cost_uah, lot.fx_rate))
-        if lot.fee_uah:
-            flows.append(CashFlow(lot.id, lot.trade_date, "fee", -lot.fee_uah, lot.fx_rate))
+        rates = (lot.uah_rate, lot.fx_rate)
+        flows.append(CashFlow(lot.id, lot.trade_date, "buy", -lot.total_cost, *rates))
+        if lot.fee:
+            flows.append(CashFlow(lot.id, lot.trade_date, "fee", -lot.fee, *rates))
         for sale in self.sales_by_lot[lot.id]:
-            flows.append(
-                CashFlow(lot.id, sale.trade_date, "sell", sale.total_proceeds_uah, sale.fx_rate)
-            )
-            if sale.fee_uah:
-                flows.append(CashFlow(lot.id, sale.trade_date, "fee", -sale.fee_uah, sale.fx_rate))
+            rates = (sale.uah_rate, sale.fx_rate)
+            flows.append(CashFlow(lot.id, sale.trade_date, "sell", sale.total_proceeds, *rates))
+            if sale.fee:
+                flows.append(CashFlow(lot.id, sale.trade_date, "fee", -sale.fee, *rates))
 
     def _add_payment_flows(self, payment: PaymentData) -> None:
         for lot_id, (amount, fee) in self.allocate(payment).items():
             flows = self.flows_by_lot[lot_id]
-            flows.append(CashFlow(lot_id, payment.pay_date, payment.kind, amount, payment.fx_rate))
+            rates = (payment.uah_rate, payment.fx_rate)
+            flows.append(CashFlow(lot_id, payment.pay_date, payment.kind, amount, *rates))
             if fee:
-                flows.append(CashFlow(lot_id, payment.pay_date, "fee", -fee, payment.fx_rate))
+                flows.append(CashFlow(lot_id, payment.pay_date, "fee", -fee, *rates))
 
     # --- valuation ---
 
     def unit_value(self, lot_id: int, day: date) -> Decimal:
-        """Amortized clean price plus accrued coupon, per unit, at the end of `day`."""
+        """Amortized clean price plus accrued coupon, per unit, in the bond's currency."""
         lot = self.lots[lot_id]
         terms = self.terms[lot.instrument_id]
-        clean_cost = (lot.total_cost_uah - lot.accrued_paid_uah) / lot.quantity
+        clean_cost = (lot.total_cost - lot.accrued_paid) / lot.quantity
         life = (terms.maturity_date - lot.trade_date).days
         elapsed = min((day - lot.trade_date).days, life)
         clean = clean_cost + (terms.face_value - clean_cost) * Decimal(elapsed) / Decimal(life)
         return clean + accrued_coupon(terms, day)
 
-    def value_uah(self, lot_id: int, day: date) -> Decimal:
+    def value(self, lot_id: int, day: date) -> Decimal:
+        """Value in the bond's currency at the end of `day`."""
         qty = self.open_quantity(lot_id, day)
         return qty * self.unit_value(lot_id, day) if qty > 0 else Decimal(0)
 
+    def currency(self, lot_id: int) -> str:
+        return self.terms[self.lots[lot_id].instrument_id].currency
+
     def _value(self, lot_ids: Iterable[int], day: date, fx_at: FxAt) -> Amount:
-        uah = sum((self.value_uah(lot_id, day) for lot_id in lot_ids), Decimal(0))
-        return Amount(uah, uah / fx_at(day)) if uah else Amount.zero()
+        uah = Decimal(0)
+        for lot_id in lot_ids:
+            native = self.value(lot_id, day)
+            if native:
+                uah += native * fx_at(self.currency(lot_id), day)
+        return Amount(uah, uah / fx_at("USD", day)) if uah else Amount.zero()
 
     # --- reporting ---
 

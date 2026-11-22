@@ -13,15 +13,15 @@ import { formatDate, formatNumber } from '@/lib/format';
 import { soldQuantity } from '@/lib/holdings';
 import { nonNegative, positive, required, toDecimal, translateErrors } from '@/lib/validation';
 
-import { useNbuRate } from './useNbuRate';
+import { needsCurrencyRate, useOperationRates } from './useOperationRates';
 
 const schema = z.object({
   lot_id: required,
   trade_date: required,
   quantity: positive,
-  total_proceeds_uah: positive,
-  accrued_received_uah: nonNegative,
-  fee_uah: nonNegative,
+  total_proceeds: positive,
+  accrued_received: nonNegative,
+  fee: nonNegative,
   fx_rate: positive,
 });
 
@@ -29,10 +29,11 @@ type Values = {
   lot_id: string | null;
   trade_date: string | null;
   quantity: number | string;
-  total_proceeds_uah: number | string;
-  accrued_received_uah: number | string;
-  fee_uah: number | string;
+  total_proceeds: number | string;
+  accrued_received: number | string;
+  fee: number | string;
   fx_rate: number | string;
+  currency_rate: number | string;
   note: string;
 };
 
@@ -55,26 +56,37 @@ export function SaleFormModal({ sale, lotId, onClose }: Props) {
           lot_id: String(sale.lot_id),
           trade_date: sale.trade_date,
           quantity: Number(sale.quantity),
-          total_proceeds_uah: Number(sale.total_proceeds_uah),
-          accrued_received_uah: Number(sale.accrued_received_uah),
-          fee_uah: Number(sale.fee_uah),
+          total_proceeds: Number(sale.total_proceeds),
+          accrued_received: Number(sale.accrued_received),
+          fee: Number(sale.fee),
           fx_rate: Number(sale.fx_rate),
+          currency_rate: sale.currency_rate ? Number(sale.currency_rate) : '',
           note: sale.note ?? '',
         }
       : {
           lot_id: lotId === undefined ? null : String(lotId),
           trade_date: null,
           quantity: '',
-          total_proceeds_uah: '',
-          accrued_received_uah: 0,
-          fee_uah: 0,
+          total_proceeds: '',
+          accrued_received: 0,
+          fee: 0,
           fx_rate: '',
+          currency_rate: '',
           note: '',
         },
     validate: translateErrors(schemaResolver(schema, { sync: true })),
   });
-  const nbu = useNbuRate((rate) => form.setFieldValue('fx_rate', rate));
   const selectedLot = lots.data?.find((l) => l.id === Number(form.values.lot_id));
+  const currencyOf = (lotId: number) => {
+    const lot = lots.data?.find((l) => l.id === lotId);
+    return instruments.data?.find((i) => i.id === lot?.instrument_id)?.currency;
+  };
+  const currency = selectedLot ? currencyOf(selectedLot.id) : undefined;
+  const rates = useOperationRates(currency, {
+    fx: (rate) => form.setFieldValue('fx_rate', rate),
+    currency: (rate) => form.setFieldValue('currency_rate', rate),
+  });
+  const unit = t(`currencyUnit.${currency ?? 'UAH'}`);
   const schedule = useSchedule(selectedLot?.instrument_id ?? null);
   const isinOf = (instrumentId: number) =>
     instruments.data?.find((i) => i.id === instrumentId)?.isin ?? '';
@@ -101,21 +113,26 @@ export function SaleFormModal({ sale, lotId, onClose }: Props) {
     const qty = Number(next.quantity);
     if (instrument && schedule.data && next.trade_date && qty > 0) {
       const accrued = accruedPerUnit(instrument, schedule.data, next.trade_date) * qty;
-      form.setFieldValue('accrued_received_uah', Math.round(accrued * 100) / 100);
+      form.setFieldValue('accrued_received', Math.round(accrued * 100) / 100);
     }
   };
 
   const submit = form.onSubmit(async (v) => {
+    if (needsCurrencyRate(currency) && !(Number(v.currency_rate) > 0)) {
+      form.setFieldError('currency_rate', t('validation.positive'));
+      return;
+    }
     await save.mutateAsync({
       id: sale?.id,
       body: {
         lot_id: Number(v.lot_id),
         trade_date: v.trade_date ?? '',
         quantity: toDecimal(v.quantity),
-        total_proceeds_uah: toDecimal(v.total_proceeds_uah),
-        accrued_received_uah: toDecimal(v.accrued_received_uah),
-        fee_uah: toDecimal(v.fee_uah),
+        total_proceeds: toDecimal(v.total_proceeds),
+        accrued_received: toDecimal(v.accrued_received),
+        fee: toDecimal(v.fee),
         fx_rate: toDecimal(v.fx_rate),
+        currency_rate: needsCurrencyRate(currency) ? toDecimal(v.currency_rate) : null,
         note: v.note.trim() || null,
       },
     });
@@ -139,6 +156,7 @@ export function SaleFormModal({ sale, lotId, onClose }: Props) {
           onChange={(value) => {
             form.setFieldValue('lot_id', value);
             prefillAccrued({ lot_id: value });
+            void rates.loadCurrency(form.values.trade_date, currencyOf(Number(value)));
           }}
         />
         <SimpleGrid cols={{ base: 1, sm: 2 }}>
@@ -148,7 +166,7 @@ export function SaleFormModal({ sale, lotId, onClose }: Props) {
             onChange={(value) => {
               form.setFieldValue('trade_date', value);
               prefillAccrued({ trade_date: value });
-              void nbu.load(value);
+              void rates.load(value);
             }}
           />
           <MoneyInput
@@ -168,21 +186,32 @@ export function SaleFormModal({ sale, lotId, onClose }: Props) {
             }}
           />
           <MoneyInput
-            label={t('saleForm.proceeds')}
+            label={t('saleForm.proceeds', { currency: unit })}
             description={t('saleForm.proceedsDescription')}
-            {...form.getInputProps('total_proceeds_uah')}
+            {...form.getInputProps('total_proceeds')}
           />
           <MoneyInput
-            label={t('saleForm.accruedReceived')}
+            label={t('saleForm.accruedReceived', { currency: unit })}
             description={t('common.fromSchedule')}
-            {...form.getInputProps('accrued_received_uah')}
+            {...form.getInputProps('accrued_received')}
           />
-          <MoneyInput label={t('common.feeUah')} {...form.getInputProps('fee_uah')} />
+          <MoneyInput
+            label={t('common.feeIn', { currency: unit })}
+            {...form.getInputProps('fee')}
+          />
           <FxRateInput
-            loading={nbu.loading}
-            onRefresh={() => void nbu.load(form.values.trade_date)}
+            loading={rates.usd.loading}
+            onRefresh={() => void rates.usd.load(form.values.trade_date)}
             {...form.getInputProps('fx_rate')}
           />
+          {needsCurrencyRate(currency) && (
+            <FxRateInput
+              currency="EUR"
+              loading={rates.eur.loading}
+              onRefresh={() => void rates.eur.load(form.values.trade_date)}
+              {...form.getInputProps('currency_rate')}
+            />
+          )}
         </SimpleGrid>
         <Textarea
           label={t('common.note')}

@@ -20,6 +20,7 @@ const COLUMNS = {
   bond: (i) => i.isin,
   perBond: (i) => Number(i.amount_per_unit),
   held: (i) => Number(i.quantity),
+  expected: (i) => Number(i.expected_uah),
   uah: (i) => Number(i.expected_uah),
   usd: (i) => Number(i.expected_usd_estimate),
 } satisfies SortColumns<UpcomingPayment, string>;
@@ -115,6 +116,9 @@ export function UpcomingPage() {
                     <SortTh ta="right" {...sort.th('held')}>
                       {t('common.bondsHeld')}
                     </SortTh>
+                    <SortTh ta="right" {...sort.th('expected')}>
+                      {t('upcoming.expected')}
+                    </SortTh>
                     <SortTh ta="right" {...sort.th('uah')}>
                       {t('upcoming.expectedUah')}
                     </SortTh>
@@ -140,11 +144,14 @@ export function UpcomingPage() {
                           {item.name}
                         </Text>
                       </Table.Td>
-                      <Table.Td ta="right">{formatMoney(item.amount_per_unit, 'UAH')}</Table.Td>
+                      <Table.Td ta="right">
+                        {formatMoney(item.amount_per_unit, item.currency)}
+                      </Table.Td>
                       <Table.Td ta="right">{formatNumber(item.quantity, 0)}</Table.Td>
                       <Table.Td ta="right" fw={600}>
-                        {formatMoney(item.expected_uah, 'UAH')}
+                        {formatMoney(item.expected, item.currency)}
                       </Table.Td>
+                      <Table.Td ta="right">{formatMoney(item.expected_uah, 'UAH')}</Table.Td>
                       <Table.Td ta="right">
                         {formatMoney(item.expected_usd_estimate, 'USD')}
                       </Table.Td>

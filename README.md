@@ -1,8 +1,9 @@
 # investor
 
-A local web app for tracking investments in Ukrainian domestic government bonds (OVDP). Every
-operation is recorded in UAH, and profit and loss is reported in both UAH and USD. USD amounts use
-the USD/UAH rate of each operation's own date, so currency moves show up in the USD result.
+A local web app for tracking investments in Ukrainian domestic government bonds (OVDP), in
+hryvnias, dollars or euros. Every operation is recorded in its bond's currency, and profit and loss
+is reported in both UAH and USD. Each operation converts at the rates of its own date, so currency
+moves show up in the result.
 
 - Buy bonds, sell part of a package, and record coupons and redemptions. Every record can be
   edited or deleted, and all figures are recalculated on the fly.

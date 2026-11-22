@@ -83,7 +83,7 @@ export function BondsPage() {
                   <Table.Tr key={bond.id}>
                     <Table.Td ff="monospace">{bond.isin}</Table.Td>
                     <Table.Td>{bond.name}</Table.Td>
-                    <Table.Td ta="right">{formatMoney(bond.face_value, 'UAH')}</Table.Td>
+                    <Table.Td ta="right">{formatMoney(bond.face_value, bond.currency)}</Table.Td>
                     <Table.Td ta="right">{formatPercent(bond.coupon_rate)}</Table.Td>
                     <Table.Td>{t(`bonds.frequencies.${bond.coupon_frequency}`)}</Table.Td>
                     <Table.Td>{formatDate(bond.issue_date)}</Table.Td>

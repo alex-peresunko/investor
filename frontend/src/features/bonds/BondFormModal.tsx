@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { useSaveInstrument } from '@/api/hooks';
-import type { Instrument } from '@/api/types';
+import type { Currency, Instrument } from '@/api/types';
 import { DateField } from '@/components/DateField';
 import { MoneyInput } from '@/components/MoneyInput';
 import { positive, required, toDecimal, translateErrors } from '@/lib/validation';
 
 const FREQUENCIES = ['2', '4', '12', '1', '0'] as const;
+const CURRENCIES: Currency[] = ['UAH', 'USD', 'EUR'];
 
 const schema = z
   .object({
@@ -31,6 +32,7 @@ const schema = z
 type Values = {
   isin: string;
   name: string;
+  currency: Currency;
   face_value: number | string;
   coupon_rate_percent: number | string;
   coupon_frequency: string | null;
@@ -52,6 +54,7 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
       ? {
           isin: instrument.isin,
           name: instrument.name,
+          currency: instrument.currency,
           face_value: Number(instrument.face_value),
           coupon_rate_percent: Number(instrument.coupon_rate) * 100,
           coupon_frequency: String(instrument.coupon_frequency),
@@ -61,6 +64,7 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
       : {
           isin: '',
           name: '',
+          currency: 'UAH',
           face_value: 1000,
           coupon_rate_percent: '',
           coupon_frequency: '2',
@@ -75,7 +79,7 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
       id: instrument?.id,
       body: {
         isin: values.isin.trim().toUpperCase(),
-        currency: 'UAH',
+        currency: values.currency,
         name: values.name.trim(),
         face_value: toDecimal(values.face_value),
         // Percent in the form, fraction in the API: 16.5 -> 0.165.
@@ -107,7 +111,12 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
             placeholder={t('bonds.namePlaceholder')}
             {...form.getInputProps('name')}
           />
-          <MoneyInput label={t('bonds.faceValueUah')} {...form.getInputProps('face_value')} />
+          <MoneyInput
+            label={t('bonds.faceValueIn', {
+              currency: t(`currencyUnit.${form.values.currency}`),
+            })}
+            {...form.getInputProps('face_value')}
+          />
           <MoneyInput
             label={t('bonds.couponRate')}
             decimalScale={4}
@@ -122,7 +131,14 @@ export function BondFormModal({ opened, onClose, instrument }: Props) {
             allowDeselect={false}
             {...form.getInputProps('coupon_frequency')}
           />
-          <div />
+          <Select
+            label={t('common.currency')}
+            description={t('bonds.currencyDescription')}
+            data={CURRENCIES}
+            allowDeselect={false}
+            {...form.getInputProps('currency')}
+            onChange={(value) => form.setFieldValue('currency', (value ?? 'UAH') as Currency)}
+          />
           <DateField label={t('bonds.issueDate')} {...form.getInputProps('issue_date')} />
           <DateField label={t('bonds.maturityDate')} {...form.getInputProps('maturity_date')} />
         </SimpleGrid>

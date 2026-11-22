@@ -29,6 +29,7 @@ class DemoBond:
     coupon_rate: str
     issue_months: int
     maturity_months: int
+    currency: str = "UAH"
 
 
 @dataclass(frozen=True)
@@ -56,6 +57,7 @@ BONDS = [
     DemoBond("3793", "0.1595", 9, 46),
     DemoBond("4015", "0", 13, 25),
     DemoBond("4236", "0.1540", 19, 54),
+    DemoBond("4410", "0.0450", 4, 30, currency="USD"),
 ]
 LOTS = [
     DemoLot(0, 5, 300, "0.168"),
@@ -70,6 +72,7 @@ LOTS = [
     DemoLot(5, 650, 350, "0.154"),
     DemoLot(3, 700, 100, "0.152", via_broker=True),
     DemoLot(5, 715, 100, "0.151"),
+    DemoLot(6, 240, 40, "0.046"),
 ]
 SALES = [
     DemoSale(3, 560, 150, "0.150"),
@@ -126,16 +129,18 @@ def seed(session: Session, today: date) -> None:
         maturity = _weekday(add_months(start, bond.maturity_months))
         rate = Decimal(bond.coupon_rate)
         frequency = 2 if rate else 0
+        prefix = "OVDP" if bond.currency == "UAH" else f"OVDP {bond.currency}"
         name = (
-            f"OVDP {rate * 100:.2f}% {maturity:%m/%Y}"
+            f"{prefix} {rate * 100:.2f}% {maturity:%m/%Y}"
             if rate
-            else f"OVDP discount {maturity:%m/%Y}"
+            else f"{prefix} discount {maturity:%m/%Y}"
         )
         instrument = instruments.create_instrument(
             session,
             InstrumentIn(
                 isin=isin(bond.serial),
                 name=name,
+                currency=bond.currency,
                 face_value=FACE,
                 coupon_rate=rate,
                 coupon_frequency=frequency,
@@ -144,7 +149,7 @@ def seed(session: Session, today: date) -> None:
             ),
         )
         schedule = tuple(generate_schedule(FACE, rate, frequency, issue, maturity))
-        terms = BondTerms(instrument.id, FACE, issue, maturity, schedule)
+        terms = BondTerms(instrument.id, FACE, issue, maturity, schedule, bond.currency)
         created.append((instrument, terms))
 
     lots: list[Lot] = []
@@ -162,9 +167,9 @@ def seed(session: Session, today: date) -> None:
                     trade_date=day,
                     quantity=qty,
                     price_per_unit=price,
-                    total_cost_uah=cost,
-                    accrued_paid_uah=_cents(qty * accrued_coupon(terms, day)),
-                    fee_uah=_cents(cost * BROKER_FEE) if spec.via_broker else Decimal(0),
+                    total_cost=cost,
+                    accrued_paid=_cents(qty * accrued_coupon(terms, day)),
+                    fee=_cents(cost * BROKER_FEE) if spec.via_broker else Decimal(0),
                     fx_rate=fx.usd_rate(session, day),
                     note="Secondary market via broker" if spec.via_broker else "Primary auction",
                 ),
@@ -183,9 +188,9 @@ def seed(session: Session, today: date) -> None:
                 lot_id=lot.id,
                 trade_date=day,
                 quantity=qty,
-                total_proceeds_uah=qty * price,
-                accrued_received_uah=_cents(qty * accrued_coupon(terms, day)),
-                fee_uah=_cents(qty * price * BROKER_FEE),
+                total_proceeds=qty * price,
+                accrued_received=_cents(qty * accrued_coupon(terms, day)),
+                fee=_cents(qty * price * BROKER_FEE),
                 fx_rate=fx.usd_rate(session, day),
                 note=None,
             ),
@@ -204,7 +209,7 @@ def seed(session: Session, today: date) -> None:
                     instrument_id=instrument.id,
                     kind=item.kind,
                     pay_date=item.pay_date,
-                    total_amount_uah=_cents(held * item.amount_per_unit),
+                    total_amount=_cents(held * item.amount_per_unit),
                     fx_rate=fx.usd_rate(session, item.pay_date),
                     note=None,
                 ),

@@ -33,7 +33,7 @@ import {
   useSales,
 } from '@/api/hooks';
 import { PageTitle } from '@/components/PageTitle';
-import type { Lot, Payment, Sale } from '@/api/types';
+import type { Currency, Lot, Payment, Sale } from '@/api/types';
 import { ConfirmDeleteButton } from '@/components/ConfirmDeleteButton';
 import { type SortColumns, SortTh, useSortedRows } from '@/components/SortableTable';
 import { formatDate, formatMoney, formatNumber } from '@/lib/format';
@@ -59,9 +59,12 @@ interface Row {
   isin: string;
   lotId: number | null;
   quantity: string | null;
-  /** Signed from the investor's view: money paid out is negative. */
-  amountUah: number;
-  feeUah: number;
+  currency: Currency;
+  /** In `currency`, signed from the investor's view: money paid out is negative. */
+  amount: number;
+  fee: number;
+  /** UAH per 1 unit of `currency`. */
+  uahRate: number;
   fxRate: number;
   record:
     | { kind: 'lot'; value: Lot }
@@ -76,11 +79,20 @@ const sortColumns = (t: TFunction) =>
     bond: (r) => r.isin,
     package: (r) => r.lotId,
     quantity: (r) => (r.quantity === null ? null : Number(r.quantity)),
-    amount: (r) => r.amountUah,
-    fee: (r) => r.feeUah || null,
+    amount: (r) => r.amount * r.uahRate,
+    fee: (r) => r.fee * r.uahRate || null,
     fx: (r) => r.fxRate,
-    amountUsd: (r) => r.amountUah / r.fxRate,
+    amountUsd: (r) => usdOf(r),
   }) satisfies SortColumns<Row, string>;
+
+const usdOf = (r: Row) => (r.amount * r.uahRate) / r.fxRate;
+
+/** UAH per 1 unit of the bond's currency for one stored operation. */
+function uahRateOf(currency: Currency, op: { fx_rate: string; currency_rate?: string | null }) {
+  if (currency === 'UAH') return 1;
+  if (currency === 'USD') return Number(op.fx_rate);
+  return Number(op.currency_rate);
+}
 
 type Editing =
   | { kind: 'lot'; value: Lot | null }
@@ -103,8 +115,9 @@ export function OperationsPage() {
 
   const rows = useMemo<Row[]>(() => {
     const lotById = new Map((lots.data ?? []).map((l) => [l.id, l]));
-    const isinById = new Map((instruments.data ?? []).map((i) => [i.id, i.isin]));
-    const isin = (id: number) => isinById.get(id) ?? '—';
+    const byId = new Map((instruments.data ?? []).map((i) => [i.id, i]));
+    const isin = (id: number) => byId.get(id)?.isin ?? '—';
+    const currencyOf = (id: number): Currency => byId.get(id)?.currency ?? 'UAH';
     const all: Row[] = [
       ...(lots.data ?? []).map((l): Row => ({
         key: `lot-${l.id}`,
@@ -114,8 +127,10 @@ export function OperationsPage() {
         isin: isin(l.instrument_id),
         lotId: l.id,
         quantity: l.quantity,
-        amountUah: -Number(l.total_cost_uah),
-        feeUah: Number(l.fee_uah),
+        currency: currencyOf(l.instrument_id),
+        amount: -Number(l.total_cost),
+        fee: Number(l.fee),
+        uahRate: uahRateOf(currencyOf(l.instrument_id), l),
         fxRate: Number(l.fx_rate),
         record: { kind: 'lot', value: l },
       })),
@@ -127,8 +142,10 @@ export function OperationsPage() {
         isin: isin(lotById.get(s.lot_id)?.instrument_id ?? 0),
         lotId: s.lot_id,
         quantity: s.quantity,
-        amountUah: Number(s.total_proceeds_uah),
-        feeUah: Number(s.fee_uah),
+        currency: currencyOf(lotById.get(s.lot_id)?.instrument_id ?? 0),
+        amount: Number(s.total_proceeds),
+        fee: Number(s.fee),
+        uahRate: uahRateOf(currencyOf(lotById.get(s.lot_id)?.instrument_id ?? 0), s),
         fxRate: Number(s.fx_rate),
         record: { kind: 'sale', value: s },
       })),
@@ -140,8 +157,10 @@ export function OperationsPage() {
         isin: isin(p.instrument_id),
         lotId: null,
         quantity: null,
-        amountUah: Number(p.total_amount_uah),
-        feeUah: Number(p.fee_uah),
+        currency: currencyOf(p.instrument_id),
+        amount: Number(p.total_amount),
+        fee: Number(p.fee),
+        uahRate: uahRateOf(currencyOf(p.instrument_id), p),
         fxRate: Number(p.fx_rate),
         record: { kind: 'payment', value: p },
       })),
@@ -248,7 +267,7 @@ export function OperationsPage() {
                     {t('common.quantity')}
                   </SortTh>
                   <SortTh ta="right" {...sort.th('amount')}>
-                    {t('common.amountUah')}
+                    {t('common.amount')}
                   </SortTh>
                   <SortTh ta="right" {...sort.th('fee')}>
                     {t('common.fee')}
@@ -278,15 +297,15 @@ export function OperationsPage() {
                     <Table.Td ta="right">
                       {row.quantity === null ? '' : formatNumber(row.quantity, 0)}
                     </Table.Td>
-                    <Table.Td ta="right" c={row.amountUah < 0 ? 'red' : 'teal'}>
-                      {formatMoney(row.amountUah, 'UAH')}
+                    <Table.Td ta="right" c={row.amount < 0 ? 'red' : 'teal'}>
+                      {formatMoney(row.amount, row.currency)}
                     </Table.Td>
                     <Table.Td ta="right">
-                      {row.feeUah ? formatMoney(row.feeUah, 'UAH') : ''}
+                      {row.fee ? formatMoney(row.fee, row.currency) : ''}
                     </Table.Td>
                     <Table.Td ta="right">{formatNumber(row.fxRate, 4)}</Table.Td>
-                    <Table.Td ta="right" c={row.amountUah < 0 ? 'red' : 'teal'}>
-                      {formatMoney(row.amountUah / row.fxRate, 'USD')}
+                    <Table.Td ta="right" c={row.amount < 0 ? 'red' : 'teal'}>
+                      {formatMoney(usdOf(row), 'USD')}
                     </Table.Td>
                     <Table.Td>
                       <Group gap={4} justify="flex-end" wrap="nowrap">

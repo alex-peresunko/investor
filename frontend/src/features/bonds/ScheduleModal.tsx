@@ -98,7 +98,11 @@ function ScheduleEditor({
           <Table.Tr>
             <Table.Th>{t('common.type')}</Table.Th>
             <Table.Th>{t('common.date')}</Table.Th>
-            <Table.Th>{t('schedule.amountPerBond')}</Table.Th>
+            <Table.Th>
+              {t('schedule.amountPerBond', {
+                currency: t(`currencyUnit.${instrument.currency}`),
+              })}
+            </Table.Th>
             <Table.Th />
           </Table.Tr>
         </Table.Thead>

@@ -23,7 +23,7 @@ BOND = {
 @pytest.fixture(autouse=True)
 def constant_rate(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
-        portfolio_loader, "usd_rate_for_valuation", lambda _session, _day: Decimal("43")
+        portfolio_loader, "rate_for_valuation", lambda _session, _currency, _day: Decimal("43")
     )
 
 
@@ -45,7 +45,7 @@ def _interview_example(client: TestClient) -> int:
             "trade_date": "2025-01-02",
             "quantity": "100",
             "price_per_unit": "1000",
-            "total_cost_uah": "100000",
+            "total_cost": "100000",
             "fx_rate": "41",
         },
     )
@@ -56,7 +56,7 @@ def _interview_example(client: TestClient) -> int:
             "instrument_id": bond["id"],
             "kind": "coupon",
             "pay_date": "2025-07-01",
-            "total_amount_uah": "5000",
+            "total_amount": "5000",
             "fx_rate": "41.5",
         },
     )
@@ -67,7 +67,7 @@ def _interview_example(client: TestClient) -> int:
             "instrument_id": bond["id"],
             "kind": "redemption",
             "pay_date": "2026-01-01",
-            "total_amount_uah": "100000",
+            "total_amount": "100000",
             "fx_rate": "42",
         },
     )
@@ -181,7 +181,7 @@ def test_received_payments_in_period(client: TestClient) -> None:
     assert body[0]["amount_usd"] == "120.48"
     assert Decimal(body[0]["quantity"]) == 100
     assert body[0]["allocations"][0]["lot_id"] == lot_id
-    assert body[0]["allocations"][0]["amount_uah"] == "5000.00"
+    assert body[0]["allocations"][0]["amount"] == "5000.00"
     later = client.get("/api/v1/reports/received?start=2025-08-01&end=2026-01-31").json()
     assert [p["kind"] for p in later] == ["redemption"]
 
@@ -197,9 +197,9 @@ def test_net_income_deducts_purchase_cost(client: TestClient) -> None:
             "trade_date": "2025-02-01",
             "quantity": "100",
             "price_per_unit": "1020",
-            "total_cost_uah": "102000",
-            "accrued_paid_uah": "2000",
-            "fee_uah": "10",
+            "total_cost": "102000",
+            "accrued_paid": "2000",
+            "fee": "10",
             "fx_rate": "40",
         },
     )
@@ -215,7 +215,7 @@ def test_net_income_deducts_purchase_cost(client: TestClient) -> None:
                 "instrument_id": bond["id"],
                 "kind": kind,
                 "pay_date": day,
-                "total_amount_uah": amount,
+                "total_amount": amount,
                 "fx_rate": "50",
             },
         )
@@ -251,7 +251,7 @@ def test_missed_lists_due_coupons_without_a_record(client: TestClient) -> None:
             "instrument_id": instrument["id"],
             "kind": "coupon",
             "pay_date": "2025-09-02",
-            "total_amount_uah": "825",
+            "total_amount": "825",
             "fx_rate": "41.3",
         },
     )
@@ -266,4 +266,44 @@ def test_missed_lists_due_coupons_without_a_record(client: TestClient) -> None:
         "coupon",
         "10.000000",
     )
-    assert first["expected_uah"] == "825.00"
+    assert (first["expected"], first["currency"]) == ("825.00", "UAH")
+
+
+def test_usd_bond_report_values_at_nbu_usd_rate(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        portfolio_loader, "rate_for_valuation", lambda _session, _currency, _day: Decimal("43")
+    )
+    instrument = make_instrument(
+        client,
+        isin="UA4000236541",
+        currency="USD",
+        face_value="1000",
+        coupon_rate="0.0417",
+        issue_date="2025-07-29",
+        maturity_date="2027-02-04",
+    )
+    make_lot(
+        client,
+        instrument["id"],
+        trade_date="2026-01-10",
+        quantity="10",
+        price_per_unit="1000",
+        total_cost="10000",
+        accrued_paid="0",
+        fx_rate="42",
+    )
+
+    report = client.get("/api/v1/reports/portfolio?start=2026-01-10&end=2026-01-10").json()
+
+    assert report["lots"][0]["currency"] == "USD"
+    assert report["totals"]["invested"] == {"uah": "420000.00", "usd": "10000.00"}
+    closing = report["totals"]["closing_value"]
+    assert Decimal(closing["usd"]) > 10000
+    assert abs(Decimal(closing["uah"]) - Decimal(closing["usd"]) * 43) < 1
+
+    upcoming = client.get("/api/v1/reports/upcoming?months=12").json()
+    assert upcoming[0]["currency"] == "USD"
+    assert upcoming[0]["expected"] == "208.50"
+    assert upcoming[0]["expected_uah"] == "8965.50"

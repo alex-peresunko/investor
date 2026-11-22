@@ -3,7 +3,8 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 Local web app for tracking investments, starting with Ukrainian domestic government bonds (OVDP).
-Cash flows are in UAH; profit and loss is reported in both UAH and USD. The repo is public: secrets
+Cash flows are in each bond's currency (UAH, USD or EUR); profit and loss is reported in both UAH
+and USD. The repo is public: secrets
 and user data never live in it.
 
 ## Commands
@@ -86,8 +87,12 @@ Dependency versions are pinned exactly (`==` in `backend/pyproject.toml`, exact 
 - Money and quantities: `Decimal` in Python, `NUMERIC` in Postgres, decimal strings in JSON.
   Never float.
 - "Package" in the UI = `lot` in code: one purchase of one bond.
-- Every operation stores its own USD/UAH `fx_rate` (UAH per 1 USD). USD amounts are always the
-  operation's UAH amount divided by that operation's rate. Derived values (P&L, allocations,
+- A bond's face value, schedule and every operation amount are in `instrument.currency`; it is
+  locked once the bond has operations. Every operation stores its own USD/UAH `fx_rate` (UAH per
+  1 USD); operations of EUR bonds also store `currency_rate` (UAH per 1 EUR), others leave it
+  null. An operation's UAH amount is its amount × its rate to UAH (1, `fx_rate` or
+  `currency_rate`, `portfolio_loader.uah_rate`); its USD amount is that UAH amount divided by
+  its `fx_rate`. Derived values (P&L, allocations,
   valuations) are computed on request and never stored.
 - Coupons and redemptions are recorded once per bond (`payment`) and split across lots by
   quantity held at the end of the day before the payment date. A redemption closes every lot of
@@ -97,8 +102,9 @@ Dependency versions are pinned exactly (`==` in `backend/pyproject.toml`, exact 
   coupon is linear between schedule dates. `frontend/src/lib/accrued.ts` must use the same
   accrual formula as `engine.portfolio.accrued_coupon`.
 - Period P&L = closing value − opening value + received − invested. Opening is valued at the
-  end of the day before `start`. Valuations convert to USD at the NBU rate for the valuation date
-  (`services/fx.py`, cached in `fx_rate`); flows convert at their own operation's rate.
+  end of the day before `start`. Valuations convert to UAH at the NBU rate of the bond's currency and to USD at the NBU USD rate
+  for the valuation date (`services/fx.py`, cached in `fx_rate`); flows convert at their own
+  operation's rates.
 - Valuation assumes every scheduled coupon was recorded. If a coupon date has passed without a
   `payment` record, the accrued coupon drops to zero on that date and P&L understates.
   `engine.portfolio.missed_payments` (`/reports/missed`) lists such dates; a recorded payment of

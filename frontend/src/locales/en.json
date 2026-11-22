@@ -33,7 +33,6 @@
     "quantity": "Quantity",
     "note": "Note",
     "fee": "Fee",
-    "feeUah": "Fee, UAH",
     "usdUah": "USD/UAH",
     "amountUah": "Amount, UAH",
     "amountUsd": "Amount, USD",
@@ -41,7 +40,10 @@
     "selectBond": "Select a bond",
     "fromSchedule": "Calculated from the schedule",
     "noData": "Not enough data for a chart yet.",
-    "byMonth": "By month"
+    "byMonth": "By month",
+    "amount": "Amount",
+    "currency": "Currency",
+    "feeIn": "Fee, {{currency}}"
   },
   "kind": {
     "buy": "Buy",
@@ -91,7 +93,7 @@
     "body": "This cannot be undone. All reports are recalculated without it."
   },
   "fx": {
-    "label": "USD/UAH rate",
+    "label": "{{currency}}/UAH rate",
     "description": "Official NBU rate is filled in; replace it with your bank's rate if different",
     "fetch": "Fetch NBU rate for this date",
     "fetchAria": "Fetch NBU rate"
@@ -142,7 +144,10 @@
     "fx_unavailable": "NBU rate service is unavailable; enter the rate manually",
     "fx_no_rate": "NBU has no rate for this date; enter the rate manually",
     "period_end_before_start": "The end date must not be before the start date",
-    "months_out_of_range": "months must be between 1 and 120"
+    "months_out_of_range": "months must be between 1 and 120",
+    "bond_currency_locked": "Cannot change the currency of a bond that has operations",
+    "currency_rate_required": "Enter the UAH rate for {{currency}}",
+    "currency_rate_not_applicable": "A {{currency}} bond takes no separate currency rate"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -172,7 +177,8 @@
     "title": "Package #{{id}} · {{isin}}",
     "subtitle": "{{name}} · bought {{bought}} · matures {{maturity}} · {{held}} of {{quantity}} held",
     "sell": "Sell",
-    "flows": "Cash flows in the period"
+    "flows": "Cash flows in the period",
+    "amountNative": "Amount, {{currency}}"
   },
   "operations": {
     "title": "Operations",
@@ -200,11 +206,11 @@
     "edit": "Edit purchase #{{id}}",
     "new": "Buy bonds",
     "purchaseDate": "Purchase date",
-    "price": "Price per bond, UAH",
+    "price": "Price per bond, {{currency}}",
     "priceDescription": "Including accrued coupon",
-    "totalCost": "Total cost, UAH",
+    "totalCost": "Total cost, {{currency}}",
     "totalCostDescription": "Quantity × price; adjust to what you actually paid",
-    "accruedPaid": "Accrued coupon paid, UAH"
+    "accruedPaid": "Accrued coupon paid, {{currency}}"
   },
   "saleForm": {
     "edit": "Edit sale #{{id}}",
@@ -213,15 +219,15 @@
     "option": "#{{id}} · {{isin}} · bought {{bought}} · {{available}} available",
     "available": "{{available}} available",
     "saleDate": "Sale date",
-    "proceeds": "Proceeds, UAH",
+    "proceeds": "Proceeds, {{currency}}",
     "proceedsDescription": "Total received, including accrued coupon",
-    "accruedReceived": "Accrued coupon received, UAH"
+    "accruedReceived": "Accrued coupon received, {{currency}}"
   },
   "paymentForm": {
     "edit": "Edit payment #{{id}}",
     "new": "Record coupon or redemption",
     "paymentDate": "Payment date",
-    "total": "Total received, UAH",
+    "total": "Total received, {{currency}}",
     "totalDescription": "For all your packages of this bond together",
     "heldBefore_one": "Held the day before: {{held}} bond. The amount is split across packages in proportion to their holdings.",
     "heldBefore_other": "Held the day before: {{held}} bonds. The amount is split across packages in proportion to their holdings."
@@ -235,7 +241,6 @@
     "name": "Name",
     "namePlaceholder": "OVDP 16.5% 09/2027",
     "faceValue": "Face value",
-    "faceValueUah": "Face value, UAH",
     "coupon": "Coupon",
     "couponRate": "Coupon rate, % per year",
     "frequency": "Frequency",
@@ -253,12 +258,14 @@
       "2": "Semi-annual",
       "4": "Quarterly",
       "12": "Monthly"
-    }
+    },
+    "faceValueIn": "Face value, {{currency}}",
+    "currencyDescription": "Hryvnia OVDP, or dollar and euro OVDP: their face value, coupons and every amount you enter are in that currency"
   },
   "schedule": {
     "title": "Payment schedule · {{isin}}",
     "hint": "Amounts are per one bond. Generate the schedule from the bond terms, then adjust dates if the actual payment calendar differs.",
-    "amountPerBond": "Amount per bond, UAH",
+    "amountPerBond": "Amount per bond, {{currency}}",
     "removeRow": "Remove row",
     "addRow": "Add row",
     "generate": "Generate from bond terms",
@@ -266,7 +273,7 @@
   },
   "upcoming": {
     "title": "Upcoming payments",
-    "subtitle": "Expected from the bonds you hold today, per the payment schedules. USD at today's NBU rate.",
+    "subtitle": "Expected from the bonds you hold today, per the payment schedules. UAH and USD for dollar and euro bonds, and USD for all, at today's NBU rates.",
     "next3": "Next 3 months",
     "next6": "Next 6 months",
     "next12": "Next 12 months",
@@ -277,7 +284,8 @@
     "total": "Total {{uah}} ≈ {{usd}}",
     "perBond": "Per bond",
     "expectedUah": "Expected, UAH",
-    "approxUsd": "≈ USD"
+    "approxUsd": "≈ USD",
+    "expected": "Expected"
   },
   "missed": {
     "title": "Due but not recorded",
@@ -310,15 +318,15 @@
       },
       "terms": {
         "title": "Terms",
-        "body": "- **OVDP**: domestic government bonds of Ukraine, in hryvnias.\n- **ISIN**: the 12-character code of a bond, e.g. UA4000227045.\n- **Face value**: what the state pays back per bond at maturity, usually 1 000 UAH.\n- **Coupon**: periodic interest. A 16.5 % semi-annual coupon on 1 000 UAH pays 82.50 UAH per bond twice a year. Zero-coupon (discount) bonds pay no coupons; they are bought below face value instead.\n- **Redemption**: repayment of face value at maturity. It closes all your packages of that bond.\n- **Accrued coupon**: the part of the next coupon earned since the previous coupon date. Buying between coupon dates, you pay it to the seller on top of the price and get it back with the next coupon; selling, you receive it from the buyer.\n- **Clean and dirty price**: the price without and with accrued coupon. The app asks for the dirty price, i.e. what you actually pay.\n- **Package**: one purchase of one bond. Sales, coupons and P&L are tracked per package.\n- **USD/UAH rate**: hryvnias per one US dollar.\n- **P&L**: profit and loss."
+        "body": "- **OVDP**: domestic government bonds of Ukraine, mostly in hryvnias; some are in US dollars or euros.\n- **ISIN**: the 12-character code of a bond, e.g. UA4000227045.\n- **Face value**: what the state pays back per bond at maturity, usually 1 000 UAH.\n- **Coupon**: periodic interest. A 16.5 % semi-annual coupon on 1 000 UAH pays 82.50 UAH per bond twice a year. Zero-coupon (discount) bonds pay no coupons; they are bought below face value instead.\n- **Redemption**: repayment of face value at maturity. It closes all your packages of that bond.\n- **Accrued coupon**: the part of the next coupon earned since the previous coupon date. Buying between coupon dates, you pay it to the seller on top of the price and get it back with the next coupon; selling, you receive it from the buyer.\n- **Clean and dirty price**: the price without and with accrued coupon. The app asks for the dirty price, i.e. what you actually pay.\n- **Package**: one purchase of one bond. Sales, coupons and P&L are tracked per package.\n- **USD/UAH rate**: hryvnias per one US dollar.\n- **P&L**: profit and loss."
       },
       "bonds": {
         "title": "Bonds",
-        "body": "A bond must be added here before you can buy it. Enter its ISIN, face value, coupon rate (% per year), coupon frequency, issue date and maturity date; they are in the Ministry of Finance auction results and in your broker's statement.\n\n**Payment schedule.** Generate it from the bond terms: coupons every 12 ÷ frequency months, counted back from maturity to the issue date, plus redemption of face value at maturity. Each coupon per bond is:\n= coupon = face value × annual rate ÷ frequency, rounded to kopiyky\nIf the real payment calendar differs (holidays, an irregular first coupon), edit dates or amounts and save. The schedule drives the accrued coupon, valuation and upcoming payments.\n\nA bond that has operations cannot be deleted; delete its operations first."
+        "body": "A bond must be added here before you can buy it. Enter its ISIN, face value, coupon rate (% per year), coupon frequency, issue date and maturity date; they are in the Ministry of Finance auction results and in your broker's statement.\n\n**Payment schedule.** Generate it from the bond terms: coupons every 12 ÷ frequency months, counted back from maturity to the issue date, plus redemption of face value at maturity. Each coupon per bond is:\n= coupon = face value × annual rate ÷ frequency, rounded to kopiyky\nIf the real payment calendar differs (holidays, an irregular first coupon), edit dates or amounts and save. The schedule drives the accrued coupon, valuation and upcoming payments.\n\nA bond that has operations cannot be deleted; delete its operations first.\n\n**Currency.** Dollar and euro OVDP are added with their currency. Their face value, schedule and every amount you enter for them (price, cost, fees, coupons) are in that currency. The currency cannot be changed once the bond has operations."
       },
       "operations": {
         "title": "Operations",
-        "body": "All your records in one list. Filter by type or bond, edit with the pencil, delete with the bin, and download everything to Excel.\n\n**Buy.** Choose the bond, date, quantity and price per bond including accrued coupon. Total cost is filled in as quantity × price; correct it to the amount actually debited. Accrued coupon paid is calculated from the schedule. Fee is anything extra you paid (broker, bank).\n\n**Sell.** Choose the package to sell from; you can sell any part of what it holds on that date. Proceeds are the total received, including accrued coupon; the accrued part is calculated from the schedule.\n\n**Coupon / redemption.** Record each payment once per bond, with the total received for all your packages of that bond. The app splits it across packages in proportion to the bonds each held at the end of the day before the payment date. Kopiyky left over from rounding go to the largest holding, so the parts always add up to the total.\n\n**USD/UAH rate.** Every operation stores its own rate. The official NBU rate for the date is filled in (for weekends and holidays, the latest earlier rate). Replace it with your bank's rate if you exchanged at a different one. If NBU is unreachable, type the rate in.\n\n> The app checks your records: a purchase must fall between the bond's issue and maturity dates, a sale cannot exceed what the package holds that day, and a payment needs bonds held the day before."
+        "body": "All your records in one list. Filter by type or bond, edit with the pencil, delete with the bin, and download everything to Excel.\n\n**Buy.** Choose the bond, date, quantity and price per bond including accrued coupon. Total cost is filled in as quantity × price; correct it to the amount actually debited. Accrued coupon paid is calculated from the schedule. Fee is anything extra you paid (broker, bank).\n\n**Sell.** Choose the package to sell from; you can sell any part of what it holds on that date. Proceeds are the total received, including accrued coupon; the accrued part is calculated from the schedule.\n\n**Coupon / redemption.** Record each payment once per bond, with the total received for all your packages of that bond. The app splits it across packages in proportion to the bonds each held at the end of the day before the payment date. Kopiyky left over from rounding go to the largest holding, so the parts always add up to the total.\n\n**USD/UAH rate.** Every operation stores its own rate. The official NBU rate for the date is filled in (for weekends and holidays, the latest earlier rate). Replace it with your bank's rate if you exchanged at a different one. If NBU is unreachable, type the rate in.\n\n> The app checks your records: a purchase must fall between the bond's issue and maturity dates, a sale cannot exceed what the package holds that day, and a payment needs bonds held the day before.\n\n**Dollar and euro bonds.** Enter amounts in the bond's currency. The USD/UAH rate is still stored on every operation. Euro bonds also store a EUR/UAH rate, filled in from NBU the same way."
       },
       "packages": {
         "title": "Packages",
@@ -360,7 +368,7 @@
       },
       "usd": {
         "title": "US dollars",
-        "body": "Each cash flow converts at the rate stored on its own operation. Values at the start and end of the period convert at the NBU rate of that day. If NBU is unreachable and that rate is not saved yet, the closest-dated rate the app already has is used until NBU responds. So the USD result includes the hryvnia's moves against the dollar.\nExample: buy for 100 000 UAH at 41.00, receive a 5 000 UAH coupon at 41.50 and a 100 000 UAH redemption at 42.00. In UAH you earned +5 000. In USD: −2 439.02 + 120.48 + 2 380.95 = +62.41."
+        "body": "Each cash flow converts at the rate stored on its own operation. Values at the start and end of the period convert at the NBU rate of that day. If NBU is unreachable and that rate is not saved yet, the closest-dated rate the app already has is used until NBU responds. So the USD result includes the hryvnia's moves against the dollar.\nExample: buy for 100 000 UAH at 41.00, receive a 5 000 UAH coupon at 41.50 and a 100 000 UAH redemption at 42.00. In UAH you earned +5 000. In USD: −2 439.02 + 120.48 + 2 380.95 = +62.41.\n\nFor a dollar or euro bond, an operation's UAH amount is its amount × that operation's rate (USD/UAH or EUR/UAH), and its USD amount is that UAH amount ÷ the operation's USD/UAH rate. Values convert at the NBU rate of the bond's currency for that day. So a dollar bond held from 40 to 42 UAH per dollar gains 5 % in UAH and nothing in USD."
       },
       "xirr": {
         "title": "Annual return (XIRR)",
@@ -368,5 +376,10 @@
       }
     },
     "explain": "How is this calculated?"
+  },
+  "currencyUnit": {
+    "UAH": "UAH",
+    "USD": "USD",
+    "EUR": "EUR"
   }
 }

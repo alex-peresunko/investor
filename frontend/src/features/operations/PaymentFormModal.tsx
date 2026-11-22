@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { useInstruments, useLots, useSales, useSavePayment, useSchedule } from '@/api/hooks';
-import type { Payment } from '@/api/types';
+import type { Currency, Payment } from '@/api/types';
 import { DateField } from '@/components/DateField';
 import { FxRateInput } from '@/components/FxRateInput';
 import { MoneyInput } from '@/components/MoneyInput';
@@ -22,13 +22,13 @@ import { formatNumber } from '@/lib/format';
 import { heldBefore } from '@/lib/holdings';
 import { nonNegative, positive, required, toDecimal, translateErrors } from '@/lib/validation';
 
-import { useNbuRate } from './useNbuRate';
+import { needsCurrencyRate, useOperationRates } from './useOperationRates';
 
 const schema = z.object({
   instrument_id: required,
   pay_date: required,
-  total_amount_uah: positive,
-  fee_uah: nonNegative,
+  total_amount: positive,
+  fee: nonNegative,
   fx_rate: positive,
 });
 
@@ -38,18 +38,20 @@ type Values = {
   instrument_id: string | null;
   kind: Kind;
   pay_date: string | null;
-  total_amount_uah: number | string;
-  fee_uah: number | string;
+  total_amount: number | string;
+  fee: number | string;
   fx_rate: number | string;
+  currency_rate: number | string;
   note: string;
 };
 
 /** Prefill for a new payment, e.g. a scheduled payment that was never recorded. */
 export interface PaymentDraft {
   instrument_id: number;
+  currency: Currency;
   kind: Kind;
   pay_date: string;
-  total_amount_uah: string;
+  total_amount: string;
 }
 
 interface Props {
@@ -70,31 +72,39 @@ export function PaymentFormModal({ payment, draft, onClose }: Props) {
           instrument_id: String(payment.instrument_id),
           kind: payment.kind,
           pay_date: payment.pay_date,
-          total_amount_uah: Number(payment.total_amount_uah),
-          fee_uah: Number(payment.fee_uah),
+          total_amount: Number(payment.total_amount),
+          fee: Number(payment.fee),
           fx_rate: Number(payment.fx_rate),
+          currency_rate: payment.currency_rate ? Number(payment.currency_rate) : '',
           note: payment.note ?? '',
         }
       : {
           instrument_id: draft ? String(draft.instrument_id) : null,
           kind: draft?.kind ?? 'coupon',
           pay_date: draft?.pay_date ?? null,
-          total_amount_uah: draft ? Number(draft.total_amount_uah) : '',
-          fee_uah: 0,
+          total_amount: draft ? Number(draft.total_amount) : '',
+          fee: 0,
           fx_rate: '',
+          currency_rate: '',
           note: '',
         },
     validate: translateErrors(schemaResolver(schema, { sync: true })),
   });
   const instrumentId = form.values.instrument_id ? Number(form.values.instrument_id) : null;
   const schedule = useSchedule(instrumentId);
-  const nbu = useNbuRate((rate) => form.setFieldValue('fx_rate', rate));
+  const currency = instruments.data?.find((i) => i.id === instrumentId)?.currency;
+  const rates = useOperationRates(currency, {
+    fx: (rate) => form.setFieldValue('fx_rate', rate),
+    currency: (rate) => form.setFieldValue('currency_rate', rate),
+  });
+  const unit = t(`currencyUnit.${currency ?? 'UAH'}`);
   const draftDate = draft?.pay_date;
+  const draftCurrency = draft?.currency;
   useEffect(() => {
-    if (draftDate) void nbu.load(draftDate);
+    if (draftDate) void rates.load(draftDate, draftCurrency);
     // Once on open: later date changes load the rate from the date field's onChange.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draftDate]);
+  }, [draftDate, draftCurrency]);
   const held =
     instrumentId !== null && form.values.pay_date
       ? heldBefore(instrumentId, form.values.pay_date, lots.data ?? [], sales.data ?? [])
@@ -113,22 +123,27 @@ export function PaymentFormModal({ payment, draft, onClose }: Props) {
     );
     if (item && qty > 0) {
       form.setFieldValue(
-        'total_amount_uah',
+        'total_amount',
         Math.round(Number(item.amount_per_unit) * qty * 100) / 100,
       );
     }
   };
 
   const submit = form.onSubmit(async (v) => {
+    if (needsCurrencyRate(currency) && !(Number(v.currency_rate) > 0)) {
+      form.setFieldError('currency_rate', t('validation.positive'));
+      return;
+    }
     await save.mutateAsync({
       id: payment?.id,
       body: {
         instrument_id: Number(v.instrument_id),
         kind: v.kind,
         pay_date: v.pay_date ?? '',
-        total_amount_uah: toDecimal(v.total_amount_uah),
-        fee_uah: toDecimal(v.fee_uah),
+        total_amount: toDecimal(v.total_amount),
+        fee: toDecimal(v.fee),
         fx_rate: toDecimal(v.fx_rate),
+        currency_rate: needsCurrencyRate(currency) ? toDecimal(v.currency_rate) : null,
         note: v.note.trim() || null,
       },
     });
@@ -170,6 +185,8 @@ export function PaymentFormModal({ payment, draft, onClose }: Props) {
             onChange={(value) => {
               form.setFieldValue('instrument_id', value);
               prefillAmount({ instrument_id: value });
+              const bond = instruments.data?.find((i) => i.id === Number(value));
+              void rates.loadCurrency(form.values.pay_date, bond?.currency);
             }}
           />
           <DateField
@@ -178,20 +195,31 @@ export function PaymentFormModal({ payment, draft, onClose }: Props) {
             onChange={(value) => {
               form.setFieldValue('pay_date', value);
               prefillAmount({ pay_date: value });
-              void nbu.load(value);
+              void rates.load(value);
             }}
           />
           <MoneyInput
-            label={t('paymentForm.total')}
+            label={t('paymentForm.total', { currency: unit })}
             description={t('paymentForm.totalDescription')}
-            {...form.getInputProps('total_amount_uah')}
+            {...form.getInputProps('total_amount')}
           />
-          <MoneyInput label={t('common.feeUah')} {...form.getInputProps('fee_uah')} />
+          <MoneyInput
+            label={t('common.feeIn', { currency: unit })}
+            {...form.getInputProps('fee')}
+          />
           <FxRateInput
-            loading={nbu.loading}
-            onRefresh={() => void nbu.load(form.values.pay_date)}
+            loading={rates.usd.loading}
+            onRefresh={() => void rates.usd.load(form.values.pay_date)}
             {...form.getInputProps('fx_rate')}
           />
+          {needsCurrencyRate(currency) && (
+            <FxRateInput
+              currency="EUR"
+              loading={rates.eur.loading}
+              onRefresh={() => void rates.eur.load(form.values.pay_date)}
+              {...form.getInputProps('currency_rate')}
+            />
+          )}
         </SimpleGrid>
         {held !== null && (
           <Text size="sm" c="dimmed" mt="xs">

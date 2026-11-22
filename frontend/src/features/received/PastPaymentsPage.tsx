@@ -29,7 +29,7 @@ const COLUMNS = {
   type: (i) => i.kind,
   bond: (i) => i.isin,
   held: (i) => Number(i.quantity),
-  uah: (i) => Number(i.total_amount_uah),
+  uah: (i) => Number(i.amount_uah),
   fx: (i) => Number(i.fx_rate),
   usd: (i) => Number(i.amount_usd),
   net: (i) => Number(i.net_income_usd),
@@ -51,7 +51,7 @@ export function PastPaymentsPage() {
   const sum = (kind: 'coupon' | 'redemption') => {
     const ofKind = items.filter((i) => i.kind === kind);
     return {
-      uah: String(ofKind.reduce((s, i) => s + Number(i.total_amount_uah), 0)),
+      uah: String(ofKind.reduce((s, i) => s + Number(i.amount_uah), 0)),
       usd: String(ofKind.reduce((s, i) => s + Number(i.amount_usd), 0)),
       netUah: ofKind.reduce((s, i) => s + Number(i.net_income_uah), 0),
       netUsd: ofKind.reduce((s, i) => s + Number(i.net_income_usd), 0),
@@ -64,7 +64,7 @@ export function PastPaymentsPage() {
   for (const item of received.data ?? []) {
     const month = dayjs(item.pay_date).format('MM.YYYY');
     const bucket = byMonth.get(month) ?? { coupon: 0, redemption: 0 };
-    bucket[item.kind] += Number(currency === 'usd' ? item.amount_usd : item.total_amount_uah);
+    bucket[item.kind] += Number(currency === 'usd' ? item.amount_usd : item.amount_uah);
     byMonth.set(month, bucket);
   }
   const chartData = [...byMonth.entries()].map(([month, v]) => ({ month, ...v }));
@@ -166,7 +166,7 @@ export function PastPaymentsPage() {
                       {t('common.bondsHeld')}
                     </SortTh>
                     <SortTh ta="right" {...sort.th('uah')}>
-                      {t('common.amountUah')}
+                      {t('common.amount')}
                     </SortTh>
                     <SortTh ta="right" {...sort.th('fx')}>
                       {t('common.usdUah')}
@@ -198,8 +198,15 @@ export function PastPaymentsPage() {
                         </Text>
                       </Table.Td>
                       <Table.Td ta="right">{formatNumber(item.quantity, 0)}</Table.Td>
-                      <Table.Td ta="right" fw={600}>
-                        {formatMoney(item.total_amount_uah, 'UAH')}
+                      <Table.Td ta="right" style={{ whiteSpace: 'nowrap' }}>
+                        <Text size="sm" fw={600}>
+                          {formatMoney(item.total_amount, item.currency)}
+                        </Text>
+                        {item.currency !== 'UAH' && (
+                          <Text size="xs" c="dimmed">
+                            {formatMoney(item.amount_uah, 'UAH')}
+                          </Text>
+                        )}
                       </Table.Td>
                       <Table.Td ta="right">{formatNumber(item.fx_rate, 4)}</Table.Td>
                       <Table.Td ta="right" fw={600}>
@@ -216,7 +223,7 @@ export function PastPaymentsPage() {
                       <Table.Td>
                         <Text size="xs" c="dimmed">
                           {item.allocations
-                            .map((a) => `#${a.lot_id}: ${formatMoney(a.amount_uah, 'UAH')}`)
+                            .map((a) => `#${a.lot_id}: ${formatMoney(a.amount, item.currency)}`)
                             .join(' · ')}
                         </Text>
                       </Table.Td>
