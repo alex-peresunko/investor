@@ -9,6 +9,7 @@ import { OperationsPage } from '@/features/operations/OperationsPage';
 import { PackageDetailPage } from '@/features/packages/PackageDetailPage';
 import { PackagesPage } from '@/features/packages/PackagesPage';
 import { PastPaymentsPage } from '@/features/received/PastPaymentsPage';
+import { PlannerPage } from '@/features/planner/PlannerPage';
 import { UpcomingPage } from '@/features/upcoming/UpcomingPage';
 
 import { Layout } from './Layout';
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
       { path: 'packages/:lotId', element: <PackageDetailPage /> },
       { path: 'operations', element: <OperationsPage /> },
       { path: 'upcoming', element: <UpcomingPage /> },
+      { path: 'planner', element: <PlannerPage /> },
       { path: 'past-payments', element: <PastPaymentsPage /> },
       { path: 'market', element: <MarketPage /> },
       { path: 'market/:isin', element: <MarketBondPage /> },

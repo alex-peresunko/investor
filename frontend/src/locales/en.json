@@ -14,6 +14,7 @@
     "packages": "Packages",
     "operations": "Operations",
     "upcoming": "Upcoming payments",
+    "planner": "Plan purchases",
     "pastPayments": "Past payments",
     "bonds": "Bonds",
     "help": "Help",
@@ -154,7 +155,9 @@
     "security_unsupported": "Bond {{isin}} is in {{currency}}, which the app does not support",
     "securities_unavailable": "The NBU bond list is unavailable; enter the terms manually",
     "market_unavailable": "NBU market data is unavailable; try again later",
-    "deposit_rate_out_of_range": "The deposit rate must be between 0 % and 100 %"
+    "deposit_rate_out_of_range": "The deposit rate must be between 0 % and 100 %",
+    "plan_years_out_of_range": "The plan horizon must be between 1 and {{max}} years",
+    "plan_amount_negative": "Amounts must not be negative"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -314,6 +317,47 @@
     "approxUsd": "≈ USD",
     "expected": "Expected"
   },
+  "planner": {
+    "title": "Plan purchases",
+    "subtitle": "Which bonds to buy, and when, so coupons arrive evenly every month and redemptions are spread evenly over the years. Built from the bonds you hold and every bond outstanding at NBU.",
+    "currency": "Currency",
+    "horizon": "Horizon",
+    "years_one": "{{count}} year",
+    "years_other": "{{count}} years",
+    "ladder": "Spread redemptions",
+    "byYear": "By year",
+    "byQuarter": "By quarter",
+    "extraNow": "Add now",
+    "extraMonthly": "Add every month",
+    "minYield": "Min. yield",
+    "minPurchase": "Buy from",
+    "range": "Plan for {{start}} – {{end}}",
+    "noCandidates": "No {{currency}} bonds mature within the horizon and meet the minimum yield. Lengthen the horizon or lower the minimum yield.",
+    "noCash": "There is no {{currency}} cash to invest: add money now or every month, or hold bonds that pay in {{currency}}.",
+    "invested": "To invest",
+    "purchases": "Purchases",
+    "candidates_one": "chosen from {{count}} bond",
+    "candidates_other": "chosen from {{count}} bonds",
+    "cashLeft": "Cash left at the end",
+    "current": "Bonds held now",
+    "withPlan": "With the plan",
+    "couponsByMonth": "Coupons by month, {{currency}}",
+    "redemptionsByYear": "Redemptions by year, {{currency}}",
+    "redemptionsByQuarter": "Redemptions by quarter, {{currency}}",
+    "toBuy": "What to buy",
+    "buyOn": "Buy on",
+    "matures": "Matures",
+    "yield": "Yield",
+    "quantity": "Bonds",
+    "price": "Price per bond",
+    "cost": "Cost",
+    "held": "you hold it",
+    "variable": "variable coupon",
+    "priceEstimated": "no recent trade, at face value",
+    "assumptions": "Assumes today's prices hold and that only bonds outstanding today are available; new issues will appear and prices will move, so check again before each purchase.",
+    "next3Months": "Next 3 months",
+    "all": "All {{count}}"
+  },
   "missed": {
     "title": "Due but not recorded",
     "subtitle": "Scheduled payments on bonds you held at the time, with no coupon or redemption recorded within 10 days of the date. Until you record them, the accrued coupon drops to zero on that date and P&L is understated.",
@@ -366,6 +410,10 @@
       "upcoming": {
         "title": "Upcoming payments",
         "body": "Coupons and redemptions expected from the bonds you hold today, taken from the payment schedules:\n= expected = amount per bond in the schedule × bonds held today\nThe USD amount is only an estimate at today's NBU rate; the real rate is known on the payment day. Buying or selling changes the list.\n\n**Due but not recorded** appears at the top when a scheduled coupon or redemption has passed on bonds you held the day before, and no payment of that kind is recorded within 10 days of its date. **Record** opens the payment form filled with the expected amount and that day's NBU rate; check it against what you actually received. The dashboard shows a warning while any are left."
+      },
+      "planner": {
+        "title": "Plan purchases",
+        "body": "Suggests which bonds to buy and when, so that coupons arrive in roughly equal amounts every month and redemptions are spread evenly across the chosen years or quarters (a ladder). Each currency is planned on its own.\n\n**Where the money comes from**: coupons and redemptions of the bonds you hold, **Add now** (available today) and **Add every month** (on the first of each month). Coupons and redemptions of the bonds the plan buys are reinvested too.\n\n**How a bond is chosen**: on each day money arrives, the planner tries every bond in the currency that matures within the horizon from that day and meets **Min. yield**, and buys the one that leaves the monthly coupons and the redemptions per period most even over that horizon. Money that comes back late in the plan therefore goes to bonds maturing after it, as in a rolling ladder; the redemption chart shows those later periods too. The money of one day is split over up to four purchases. Cash below a bond's price waits for the next payment; **Buy from** makes it wait until at least that amount has gathered.\n\n**Prices**: the clean price of the latest trade in the last 30 days, held constant, plus the coupon accrued on the purchase day; without a recent trade, face value. The yield is the latest trade's or auction's, whichever is newer.\n\n**Limits**: only bonds outstanding today are considered, so new issues and price changes are not foreseen. Variable-coupon bonds may pay different coupons than their schedule shows. Treat the plan as a guide and check the market before each purchase."
       },
       "pastPayments": {
         "title": "Past payments",

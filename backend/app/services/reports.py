@@ -189,6 +189,18 @@ def timeseries(
     return points
 
 
+def held_quantity(portfolio: Portfolio, instrument_id: int, day: date) -> Decimal:
+    """Bonds of one instrument held across all packages at the end of `day`."""
+    return sum(
+        (
+            portfolio.open_quantity(lot.id, day)
+            for lot in portfolio.lots.values()
+            if lot.instrument_id == instrument_id
+        ),
+        Decimal(0),
+    )
+
+
 def upcoming(session: Session, months: int) -> list[UpcomingPayment]:
     if not 1 <= months <= 120:
         raise ValidationError("months_out_of_range")
@@ -198,14 +210,7 @@ def upcoming(session: Session, months: int) -> list[UpcomingPayment]:
     fx_at = fx_lookup(session)
     result = []
     for instrument in instruments.values():
-        held = sum(
-            (
-                portfolio.open_quantity(lot.id, today)
-                for lot in portfolio.lots.values()
-                if lot.instrument_id == instrument.id
-            ),
-            Decimal(0),
-        )
+        held = held_quantity(portfolio, instrument.id, today)
         if held <= 0:
             continue
         for item in instrument.schedule:

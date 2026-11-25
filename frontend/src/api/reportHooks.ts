@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { api, unwrap } from './client';
-import type { components } from './schema';
+import type { components, operations } from './schema';
 
 export type PortfolioReport = components['schemas']['PortfolioReport'];
 export type LotReport = components['schemas']['LotReport'];
@@ -89,5 +89,19 @@ export function useReceived(period: Period) {
     queryKey: ['report', 'received', period],
     queryFn: async () =>
       unwrap(await api.GET('/api/v1/reports/received', { params: { query: period } })),
+  });
+}
+
+export type PurchasePlan = components['schemas']['PurchasePlan'];
+export type PlannedPurchase = components['schemas']['PlannedPurchase'];
+export type PlanQuery = NonNullable<
+  operations['plan_api_v1_reports_plan_get']['parameters']['query']
+>;
+
+export function usePurchasePlan(query: PlanQuery) {
+  return useQuery({
+    queryKey: ['report', 'plan', query],
+    queryFn: async () => unwrap(await api.GET('/api/v1/reports/plan', { params: { query } })),
+    placeholderData: keepPreviousData,
   });
 }

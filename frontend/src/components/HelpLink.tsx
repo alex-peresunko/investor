@@ -11,6 +11,7 @@ export const HELP_SECTIONS = [
   'packages',
   'dashboard',
   'upcoming',
+  'planner',
   'pastPayments',
   'market',
   'calculations',

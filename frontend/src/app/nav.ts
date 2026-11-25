@@ -1,5 +1,6 @@
 import {
   IconCalendarDue,
+  IconCalendarPlus,
   IconCertificate,
   IconChartCandle,
   IconHelp,
@@ -36,6 +37,13 @@ export const NAV = {
     label: 'nav.upcoming',
     icon: IconCalendarDue,
     color: 'orange',
+    end: false,
+  },
+  planner: {
+    to: '/planner',
+    label: 'nav.planner',
+    icon: IconCalendarPlus,
+    color: 'lime',
     end: false,
   },
   pastPayments: {

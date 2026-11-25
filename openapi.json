@@ -1645,6 +1645,149 @@
         }
       }
     },
+    "/api/v1/reports/plan": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Plan",
+        "description": "Bonds to buy, and when, so coupons come evenly each month and redemptions evenly each\nperiod. Amounts are in `currency`; min_yield is a fraction a year, e.g. 0.15.",
+        "operationId": "plan_api_v1_reports_plan_get",
+        "parameters": [
+          {
+            "name": "currency",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "UAH",
+                "USD",
+                "EUR"
+              ],
+              "type": "string",
+              "default": "UAH",
+              "title": "Currency"
+            }
+          },
+          {
+            "name": "years",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 3,
+              "title": "Years"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "quarter",
+                "year"
+              ],
+              "type": "string",
+              "default": "year",
+              "title": "Period"
+            }
+          },
+          {
+            "name": "extra_now",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": "0",
+              "title": "Extra Now"
+            }
+          },
+          {
+            "name": "extra_monthly",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": "0",
+              "title": "Extra Monthly"
+            }
+          },
+          {
+            "name": "min_yield",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Yield"
+            }
+          },
+          {
+            "name": "min_purchase",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": "0",
+              "title": "Min Purchase"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchasePlan"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/reports/missed": {
       "get": {
         "tags": [
@@ -3640,6 +3783,109 @@
         ],
         "title": "PaymentOut"
       },
+      "PlanAmount": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "current": {
+            "type": "string",
+            "title": "Current"
+          },
+          "with_plan": {
+            "type": "string",
+            "title": "With Plan"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "current",
+          "with_plan"
+        ],
+        "title": "PlanAmount"
+      },
+      "PlannedPurchase": {
+        "properties": {
+          "buy_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Buy Date"
+          },
+          "isin": {
+            "type": "string",
+            "title": "Isin"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "maturity_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Maturity Date"
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "cost": {
+            "type": "string",
+            "title": "Cost"
+          },
+          "yield_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yield Rate"
+          },
+          "price_estimated": {
+            "type": "boolean",
+            "title": "Price Estimated"
+          },
+          "variable_rate": {
+            "type": "boolean",
+            "title": "Variable Rate"
+          },
+          "instrument_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instrument Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "buy_date",
+          "isin",
+          "name",
+          "maturity_date",
+          "quantity",
+          "price",
+          "cost",
+          "yield_rate",
+          "price_estimated",
+          "variable_rate",
+          "instrument_id"
+        ],
+        "title": "PlannedPurchase"
+      },
       "PnlOut": {
         "properties": {
           "opening_value": {
@@ -3818,6 +4064,84 @@
         "type": "object",
         "title": "PreferencesUpdate",
         "description": "Only the fields sent are changed."
+      },
+      "PurchasePlan": {
+        "properties": {
+          "currency": {
+            "type": "string",
+            "enum": [
+              "UAH",
+              "USD",
+              "EUR"
+            ],
+            "title": "Currency"
+          },
+          "period": {
+            "type": "string",
+            "enum": [
+              "quarter",
+              "year"
+            ],
+            "title": "Period"
+          },
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "title": "End"
+          },
+          "coupons": {
+            "items": {
+              "$ref": "#/components/schemas/PlanAmount"
+            },
+            "type": "array",
+            "title": "Coupons"
+          },
+          "redemptions": {
+            "items": {
+              "$ref": "#/components/schemas/PlanAmount"
+            },
+            "type": "array",
+            "title": "Redemptions"
+          },
+          "purchases": {
+            "items": {
+              "$ref": "#/components/schemas/PlannedPurchase"
+            },
+            "type": "array",
+            "title": "Purchases"
+          },
+          "invested": {
+            "type": "string",
+            "title": "Invested"
+          },
+          "cash_left": {
+            "type": "string",
+            "title": "Cash Left"
+          },
+          "candidates": {
+            "type": "integer",
+            "title": "Candidates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "currency",
+          "period",
+          "start",
+          "end",
+          "coupons",
+          "redemptions",
+          "purchases",
+          "invested",
+          "cash_left",
+          "candidates"
+        ],
+        "title": "PurchasePlan"
       },
       "ReceivedPayment": {
         "properties": {

@@ -327,3 +327,47 @@ def test_nbu_down_is_502(client: TestClient) -> None:
 
     assert response.status_code == 502
     assert response.json()["code"] == "market_unavailable"
+
+
+@respx.mock
+def test_plan_buys_outstanding_bonds_of_the_currency(client: TestClient) -> None:
+    _serve_all()
+
+    response = client.get(
+        "/api/v1/reports/plan", params={"currency": "UAH", "years": 2, "extra_now": "10000"}
+    )
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["candidates"] == 1
+    first = body["purchases"][0]
+    assert first["buy_date"] == _iso(TODAY)
+    assert first["isin"] == "UA4000000001"
+    # 1 050 UAH per bond on the last trade; 10 000 spread over four purchases of two bonds.
+    assert first["quantity"] == 8
+    assert abs(Decimal(first["price"]) - Decimal("1050")) < 1
+    assert first["price_estimated"] is False
+    assert first["yield_rate"] is not None
+    assert len(body["coupons"]) == 24
+    assert len(body["redemptions"]) == 2
+    assert Decimal(body["invested"]) + Decimal(body["cash_left"]) >= Decimal("10000")
+
+
+@respx.mock
+def test_plan_min_yield_filters_candidates(client: TestClient) -> None:
+    _serve_all()
+
+    response = client.get(
+        "/api/v1/reports/plan", params={"currency": "UAH", "extra_now": "10000", "min_yield": "0.2"}
+    )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["candidates"] == 0
+    assert response.json()["purchases"] == []
+
+
+def test_plan_rejects_long_horizon(client: TestClient) -> None:
+    response = client.get("/api/v1/reports/plan", params={"years": 11})
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "plan_years_out_of_range"

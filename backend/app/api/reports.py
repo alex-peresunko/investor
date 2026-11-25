@@ -6,6 +6,10 @@ from fastapi.responses import Response
 
 from app.api.deps import SessionDep
 from app.core.i18n import DEFAULT_LANGUAGE, Language
+from app.engine.planner import LadderPeriod
+from app.repositories import instruments as instrument_repo
+from app.schemas.common import Currency
+from app.schemas.planner import PurchasePlan
 from app.schemas.reports import (
     BenchmarkReport,
     LotReport,
@@ -15,7 +19,7 @@ from app.schemas.reports import (
     TimeseriesPoint,
     UpcomingPayment,
 )
-from app.services import export
+from app.services import export, planner
 from app.services import reports as service
 
 router = APIRouter(tags=["reports"])
@@ -61,6 +65,33 @@ def timeseries(
 @router.get("/reports/upcoming")
 def upcoming(session: SessionDep, months: int = 12) -> list[UpcomingPayment]:
     return service.upcoming(session, months)
+
+
+@router.get("/reports/plan")
+def plan(
+    session: SessionDep,
+    currency: Currency = "UAH",
+    years: int = 3,
+    period: LadderPeriod = "year",
+    extra_now: Decimal = Decimal(0),
+    extra_monthly: Decimal = Decimal(0),
+    min_yield: Decimal | None = None,
+    min_purchase: Decimal = Decimal(0),
+) -> PurchasePlan:
+    """Bonds to buy, and when, so coupons come evenly each month and redemptions evenly each
+    period. Amounts are in `currency`; min_yield is a fraction a year, e.g. 0.15."""
+    tracked = {i.isin: i.id for i in instrument_repo.list_all(session)}
+    return planner.plan(
+        session,
+        currency=currency,
+        years=years,
+        period=period,
+        extra_now=extra_now,
+        extra_monthly=extra_monthly,
+        min_yield=min_yield,
+        min_purchase=min_purchase,
+        tracked=tracked,
+    )
 
 
 @router.get("/reports/missed")

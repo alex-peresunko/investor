@@ -449,6 +449,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports/plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Plan
+         * @description Bonds to buy, and when, so coupons come evenly each month and redemptions evenly each
+         *     period. Amounts are in `currency`; min_yield is a fraction a year, e.g. 0.15.
+         */
+        get: operations["plan_api_v1_reports_plan_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/missed": {
         parameters: {
             query?: never;
@@ -1161,6 +1182,49 @@ export interface components {
             /** Id */
             id: number;
         };
+        /** PlanAmount */
+        PlanAmount: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /** Current */
+            current: string;
+            /** With Plan */
+            with_plan: string;
+        };
+        /** PlannedPurchase */
+        PlannedPurchase: {
+            /**
+             * Buy Date
+             * Format: date
+             */
+            buy_date: string;
+            /** Isin */
+            isin: string;
+            /** Name */
+            name: string;
+            /**
+             * Maturity Date
+             * Format: date
+             */
+            maturity_date: string;
+            /** Quantity */
+            quantity: number;
+            /** Price */
+            price: string;
+            /** Cost */
+            cost: string;
+            /** Yield Rate */
+            yield_rate: string | null;
+            /** Price Estimated */
+            price_estimated: boolean;
+            /** Variable Rate */
+            variable_rate: boolean;
+            /** Instrument Id */
+            instrument_id: number | null;
+        };
         /** PnlOut */
         PnlOut: {
             opening_value: components["schemas"]["AmountOut"];
@@ -1223,6 +1287,41 @@ export interface components {
             language?: ("en" | "uk") | null;
             /** Deposit Rate */
             deposit_rate?: number | string | null;
+        };
+        /** PurchasePlan */
+        PurchasePlan: {
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "UAH" | "USD" | "EUR";
+            /**
+             * Period
+             * @enum {string}
+             */
+            period: "quarter" | "year";
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Coupons */
+            coupons: components["schemas"]["PlanAmount"][];
+            /** Redemptions */
+            redemptions: components["schemas"]["PlanAmount"][];
+            /** Purchases */
+            purchases: components["schemas"]["PlannedPurchase"][];
+            /** Invested */
+            invested: string;
+            /** Cash Left */
+            cash_left: string;
+            /** Candidates */
+            candidates: number;
         };
         /** ReceivedPayment */
         ReceivedPayment: {
@@ -2618,6 +2717,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UpcomingPayment"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    plan_api_v1_reports_plan_get: {
+        parameters: {
+            query?: {
+                currency?: "UAH" | "USD" | "EUR";
+                years?: number;
+                period?: "quarter" | "year";
+                extra_now?: number | string;
+                extra_monthly?: number | string;
+                min_yield?: number | string | null;
+                min_purchase?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchasePlan"];
                 };
             };
             /** @description Validation Error */

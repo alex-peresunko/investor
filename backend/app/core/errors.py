@@ -43,6 +43,8 @@ MESSAGES: dict[str, str] = {
     "period_end_before_start": "The end date must not be before the start date",
     "months_out_of_range": "months must be between 1 and 120",
     "deposit_rate_out_of_range": "The deposit rate must be between 0 % and 100 %",
+    "plan_years_out_of_range": "The plan horizon must be between 1 and {max} years",
+    "plan_amount_negative": "Amounts must not be negative",
 }
 
 
