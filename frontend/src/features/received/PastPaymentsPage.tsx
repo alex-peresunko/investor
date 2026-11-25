@@ -244,6 +244,7 @@ function NetIncome({ usd, uah }: { usd: number; uah: number }) {
   return (
     <Group
       justify="space-between"
+      align="flex-start"
       mt="xs"
       pt="xs"
       gap="xs"
@@ -253,12 +254,14 @@ function NetIncome({ usd, uah }: { usd: number; uah: number }) {
       <Text size="xs" c="dimmed">
         {t('stat.netIncome')}
       </Text>
-      <Text size="sm" fw={500}>
-        <MoneyText value={usd} currency="USD" signed />{' '}
-        <Text span size="xs" c="dimmed">
+      <Stack gap={0} align="flex-end">
+        <Text size="sm" fw={500}>
+          <MoneyText value={usd} currency="USD" signed />
+        </Text>
+        <Text size="xs" c="dimmed">
           <MoneyText value={uah} currency="UAH" signed />
         </Text>
-      </Text>
+      </Stack>
     </Group>
   );
 }

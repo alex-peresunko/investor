@@ -83,12 +83,12 @@ export function UpcomingPage() {
                 <HelpLink to="upcoming" size="xs" />
               </Group>
               <SeriesLegend series={series} isVisible={toggle.isVisible} onToggle={toggle.toggle} />
-              <Text fw={600}>
-                {t('upcoming.total', {
-                  uah: formatMoney(total, 'UAH'),
-                  usd: formatMoney(totalUsd, 'USD'),
-                })}
-              </Text>
+              <Stack gap={0} align="flex-end">
+                <Text fw={600}>{t('upcoming.total', { uah: formatMoney(total, 'UAH') })}</Text>
+                <Text size="xs" c="dimmed">
+                  {t('upcoming.totalUsd', { usd: formatMoney(totalUsd, 'USD') })}
+                </Text>
+              </Stack>
             </Group>
             <BarChart
               maxBarWidth={56}

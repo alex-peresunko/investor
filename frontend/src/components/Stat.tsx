@@ -1,4 +1,4 @@
-import { Group, Paper, SimpleGrid, Text, ThemeIcon } from '@mantine/core';
+import { Group, Paper, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
 import type { Icon } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -115,12 +115,14 @@ export function PnlSplit({
     <SimpleGrid cols={2} spacing="xs" mt="md">
       <SplitTile label={t('stat.realized')} hint={t('stat.realizedHint')} amount={realized}>
         {realizedXirr.usd !== null && (
-          <Text size="xs" c="dimmed" mt={4} title={t('stat.realizedXirrHint')}>
-            {t('stat.xirrLine', {
-              usd: formatPercent(realizedXirr.usd),
-              uah: formatPercent(realizedXirr.uah),
-            })}
-          </Text>
+          <Stack gap={0} mt={4} title={t('stat.realizedXirrHint')}>
+            <Text size="xs" c="dimmed">
+              {t('stat.xirrUsd', { value: formatPercent(realizedXirr.usd) })}
+            </Text>
+            <Text size="xs" c="dimmed">
+              {t('stat.xirrUah', { value: formatPercent(realizedXirr.uah) })}
+            </Text>
+          </Stack>
         )}
       </SplitTile>
       <SplitTile label={t('stat.unrealized')} hint={t('stat.unrealizedHint')} amount={unrealized} />
